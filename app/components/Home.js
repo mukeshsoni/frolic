@@ -147,7 +147,6 @@ export default class Home extends Component {
     }
 
     handleCodeChange(newCode) {
-        console.log('newCode', newCode)
         this.setState({
             code: newCode,
             fileSaved: false

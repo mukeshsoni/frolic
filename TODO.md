@@ -7,14 +7,16 @@
 - [x] column hide and show (like in haskell for mac)
 - [x] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
 - [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
+- [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimizations
-    - [ ] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
+    - [x] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
     - [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
 - [ ] line mapping from playground expressions to output goes for a toss in three scenarios -
     - [ ] there are statements with expressions
     - [ ] the output content wraps in more than one line
     - [ ] when there is a mixture of expressions and ui components
 - [ ] FIX Bug - keep getting this error `cannot read property appendChild of null`
+    - looks like it happens in the elm VM
 - [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
 - [ ] remove postcss. confusing af.
 - [x] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)

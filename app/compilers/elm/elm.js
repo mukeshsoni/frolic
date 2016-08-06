@@ -207,7 +207,6 @@ export function compile(code, playgroundCode, openFilePath) {
                     const allPromises = expressions.map((expression, index) => {
                         const fileName = `main${index}`
                         return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
-                                .catch((err) => console.log('error compiling elm file', `${fileName}.elm`, err.toString()))
                     })
                     return Promise.all(allPromises)
                                     .then(() => {
@@ -222,12 +221,14 @@ export function compile(code, playgroundCode, openFilePath) {
                                         const elmComponents = sources.map((source, index) => {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
-                                                return <Elm
-                                                key={expressions[index].value + '_' + index}
-                                                src={source}
-                                                />
+                                                return (
+                                                    <Elm
+                                                        key={code + expressions[index].value + '_' + index}
+                                                        src={source}
+                                                        />
+                                                )
                                             } else {
-                                                return <span></span>
+                                                return <span>a</span>
                                             }
                                         })
 
