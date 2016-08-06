@@ -4,8 +4,9 @@
     - [x] detect render function and do eval stuff
 - [x] execute normal expressions using elm App.beginnerProgram instead of Debug.log
 
-- [ ] column hide and show (like in haskell for mac)
+- [x] column hide and show (like in haskell for mac)
 - [x] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
+- [ ] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
 - [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
 - [ ] line mapping from playground expressions to output goes for a toss in three scenarios -
     - [ ] there are statements with expressions
@@ -13,7 +14,8 @@
     - [ ] when there is a mixture of expressions and ui components
 - [ ] FIX Bug - keep getting this error `cannot read property appendChild of null`
 - [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
-- [ ] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)
+- [ ] remove postcss. confusing af.
+- [x] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)
 - [ ] figure out a way to install the elm modules and purescript bower modules when packaging the elctron app
 - [ ] when user does `import module x` determine if it’s in local folder. if not, do a `elm package install x` automatically
     - [ ] Maintain a mapping of some common modules to their package names (e.g. Mouse -> elm-lang/mouse etc.) and then auto install them if someone requires them.
