@@ -6,7 +6,7 @@ import styles from './button.css'
 const Button = ({active, onClick, className, children}) => {
     const classes = classnames({
         [styles.btn]: true,
-        [styles['btn-info']]: active,
+        [styles['btn-info']]: true,
         [styles.active]: active
     })
 

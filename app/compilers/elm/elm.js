@@ -8,6 +8,8 @@ var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
 
+var mkdirp = Promise.promisify(require('mkdirp'));
+
 const basePath = 'app/compilers/elm'
 const tempFolderPath = basePath + '/temp'
 const promisifiedExec = Promise.promisify(exec)
@@ -45,7 +47,22 @@ function getFormattedError(error) {
     return <pre>{correctedErrorString}</pre>
 }
 
-function writeCodeToFile(code, moduleName = 'UserCode') {
+const tempFolderName = '.frolic'
+
+function getCodePath(openFilePath) {
+    if(openFilePath) {
+        const tempFolderPath = `${openFilePath}/${tempFolderName}`
+        return mkdirp(tempFolderPath)
+                .then(() => {
+                    return tempFolderPath
+                })
+    } else {
+        return Promise.resolve(tempFolderPath)
+    }
+}
+
+function writeCodeToFile(code, codePath) {
+    let moduleName = 'UserCode'
     let codeToWrite = code
 
     // if module declaration is there in the panel, don't add it again
@@ -57,7 +74,7 @@ function writeCodeToFile(code, moduleName = 'UserCode') {
         codeToWrite = `module ${moduleName} exposing (..)\n\n${code}`
     }
 
-    return writeFile(`${tempFolderPath}/${moduleName}.elm`, codeToWrite)
+    return writeFile(`${codePath}/${moduleName}.elm`, codeToWrite)
             .then(() => moduleName) // return the moduleName for playgroundFileWriter
 }
 
@@ -146,7 +163,7 @@ main = text ${getSimpleExpressionChunk(expression.value)}`
     return fileContent
 }
 
-function writeFilesForExpressions(playgroundCode, userModuleName) {
+function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
     const tokenizedCode = tokenize(playgroundCode)
     const importStatements = tokenizedCode.filter((code) => code.type === 'importStatement').map((code) => code.value).join('\n')
     const statements = tokenizedCode.filter((code) => code.type === 'assignment').map((code) => code.value).join('\n')
@@ -155,19 +172,26 @@ function writeFilesForExpressions(playgroundCode, userModuleName) {
     let counter = 1
 
     const fileWritePromises = expressions.map((expression, index) => {
-                                    return writeFile(`${tempFolderPath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, index))
+                                    return writeFile(`${codePath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, index))
                                 })
     return Promise.all(fileWritePromises).then(() => expressions)
 }
 
-export function compile(code, playgroundCode) {
-    return writeCodeToFile(code)
-            .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName))
+export function compile(code, playgroundCode, openFilePath) {
+    // get folder path from file path
+    openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
+    let codePath
+    return getCodePath(openFilePath)
+            .then((tempFolderPath) => {
+                codePath = tempFolderPath
+                return writeCodeToFile(code, codePath)
+            })
+            .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName, codePath))
             .then((expressions) => {
                 return new Promise((resolve, reject) => {
                     const allPromises = expressions.map((expression, index) => {
                         const fileName = `main${index}`
-                        return promisifiedExec(`cd ${tempFolderPath} && elm-make ${fileName}.elm --output=${fileName}.js`)
+                        return promisifiedExec(`cd ${codePath} && elm-make ${fileName}.elm --output=${fileName}.js`)
                     })
                     return Promise.all(allPromises)
                                     .then(() => {
@@ -175,7 +199,8 @@ export function compile(code, playgroundCode) {
 
                                         expressions.forEach((expression, index) => {
                                             const fileName = `main${index}`
-                                            eval(fs.readFileSync(`${tempFolderPath}/${fileName}.js`).toString())
+                                            console.log('evaluating file', `${codePath}/${fileName}.js`)
+                                            eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString())
                                             sources.push(module.exports[_.capitalize(fileName)])
                                         })
 
@@ -206,7 +231,7 @@ export function compile(code, playgroundCode) {
 
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
-    const files = fs.readdirSync(tempFolderPath)
+    const files = fs.readdirSync(tempFolderPaths)
     files.filter((file) => file !== 'Main.elm' && (file.split('.')[1] === 'elm' || file.split('.')[1] === 'js'))
             .map((file) => fs.unlink(tempFolderPath + '/' + file))
 }

@@ -141,7 +141,7 @@ export default class Home extends Component {
     }
 
     compile() {
-        this.props.compile(this.state.code, this.state.playgroundCode)
+        this.props.compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
                     .then((output) => this.setState({output}))
                     .catch((output) => this.setState({output}))
     }

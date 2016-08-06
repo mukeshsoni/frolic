@@ -24,6 +24,12 @@
 
 }
 
+.btn-info {
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+}
+
 .btn:active {
     background-image: none;
     outline: 0;
@@ -35,7 +41,7 @@
     background-image: none;
 }
 
-.btn-info.active, .btn-info.focus, .btn-info:hover, .open>.dropdown-toggle.btn-info {
+.btn-info.active {
     color: #fff;
     background-color: #31b0d5;
     border-color: #269abc;

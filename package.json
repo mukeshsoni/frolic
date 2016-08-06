@@ -105,6 +105,7 @@
     "electron-json-storage": "^2.0.0",
     "font-awesome": "^4.6.3",
     "lodash": "^4.14.0",
+    "mkdirp": "0.5.1",
     "mousetrap": "^1.6.0",
     "postcss": "^5.1.0",
     "react": "^15.2.1",
