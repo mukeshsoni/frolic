@@ -4,7 +4,6 @@ import styles from './Toolbar.css'
 // from uikit
 import ButtonGroup from './uikit/buttongroup/index.js'
 import Button from './uikit/button/index.js'
-import buttonGroupStyles from './uikit/buttongroup/buttongroup.css'
 
 const editorThemes = [
     {id: 'ambiance', name: 'ambiance'},
