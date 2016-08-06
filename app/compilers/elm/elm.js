@@ -12,6 +12,7 @@ var mkdirp = Promise.promisify(require('mkdirp'));
 
 const basePath = 'app/compilers/elm'
 const tempFolderPath = basePath + '/temp'
+const codePath = tempFolderPath
 const promisifiedExec = Promise.promisify(exec)
 
 function isAssignment(command) {
@@ -49,16 +50,26 @@ function getFormattedError(error) {
 
 const tempFolderName = '.frolic'
 
-function getCodePath(openFilePath) {
+/*
+ * Update elm-package.json src property to include path from where the file is loaded
+ */
+function updateFileSources(openFilePath) {
+    let pathToAdd = "."
+
     if(openFilePath) {
-        const tempFolderPath = `${openFilePath}/${tempFolderName}`
-        return mkdirp(tempFolderPath)
-                .then(() => {
-                    return tempFolderPath
-                })
-    } else {
-        return Promise.resolve(tempFolderPath)
+        pathToAdd = openFilePath
     }
+
+    const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
+    return readFile(packageJsonFilePath)
+            .then((packageJsonFile) => {
+                let packageJsonFileContents = JSON.parse(packageJsonFile.toString())
+                packageJsonFileContents["source-directories"] = _.uniq(packageJsonFileContents["source-directories"].concat(pathToAdd))
+                return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileContents))
+            })
+            .catch((err) => {
+                console.log('error parsing file: ', err.toString())
+            })
 }
 
 function writeCodeToFile(code, codePath) {
@@ -76,6 +87,7 @@ function writeCodeToFile(code, codePath) {
 
     return writeFile(`${codePath}/${moduleName}.elm`, codeToWrite)
             .then(() => moduleName) // return the moduleName for playgroundFileWriter
+            .catch((err) => console.log('error writing file', `${codePath}/${moduleName}.elm`, err.toString()))
 }
 
 function isRenderExpression(code) {
@@ -180,18 +192,15 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
 export function compile(code, playgroundCode, openFilePath) {
     // get folder path from file path
     openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
-    let codePath
-    return getCodePath(openFilePath)
-            .then((tempFolderPath) => {
-                codePath = tempFolderPath
-                return writeCodeToFile(code, codePath)
-            })
+    return updateFileSources(openFilePath)
+            .then(writeCodeToFile(code, codePath))
             .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName, codePath))
             .then((expressions) => {
                 return new Promise((resolve, reject) => {
                     const allPromises = expressions.map((expression, index) => {
                         const fileName = `main${index}`
-                        return promisifiedExec(`cd ${codePath} && elm-make ${fileName}.elm --output=${fileName}.js`)
+                        return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
+                                .catch((err) => console.log('error compiling elm file', `${fileName}.elm`, err.toString()))
                     })
                     return Promise.all(allPromises)
                                     .then(() => {
@@ -199,7 +208,6 @@ export function compile(code, playgroundCode, openFilePath) {
 
                                         expressions.forEach((expression, index) => {
                                             const fileName = `main${index}`
-                                            console.log('evaluating file', `${codePath}/${fileName}.js`)
                                             eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString())
                                             sources.push(module.exports[_.capitalize(fileName)])
                                         })
