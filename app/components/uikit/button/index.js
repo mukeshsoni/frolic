@@ -3,8 +3,8 @@ import classnames from 'classnames'
 
 import styles from './button.css'
 
-const Button = ({active, onClick, className, children}) => {
-    const classes = classnames({
+const Button = ({active, onClick, className='', children}) => {
+    const classes = classnames(className, {
         [styles.btn]: true,
         [styles['btn-info']]: true,
         [styles.active]: active
