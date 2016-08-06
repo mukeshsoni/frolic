@@ -96,7 +96,7 @@ class Toolbar extends Component {
                         type='checkbox'
                         value='Auto Compile'
                         checked={this.props.autoCompile}
-                        onClick={this.props.onAutoCompileFlagChange}
+                        onChange={this.props.onAutoCompileFlagChange}
                         />
                         Auto Compile
                     </label>

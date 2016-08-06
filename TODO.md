@@ -6,8 +6,10 @@
 
 - [x] column hide and show (like in haskell for mac)
 - [x] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
-- [ ] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
-- [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
+- [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
+- [ ] optimizations
+    - [ ] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
+    - [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
 - [ ] line mapping from playground expressions to output goes for a toss in three scenarios -
     - [ ] there are statements with expressions
     - [ ] the output content wraps in more than one line
