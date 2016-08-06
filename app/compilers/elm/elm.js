@@ -49,11 +49,18 @@ function getFormattedError(error) {
 }
 
 const tempFolderName = '.frolic'
+let lastOpenFilePath = ''
 
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath) {
+    if(lastOpenFilePath === openFilePath) {
+        return Promise.resolve({})
+    }
+
+    lastOpenFilePath = openFilePath
+
     let pathToAdd = "."
 
     if(openFilePath) {
@@ -193,7 +200,7 @@ export function compile(code, playgroundCode, openFilePath) {
     // get folder path from file path
     openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
     return updateFileSources(openFilePath)
-            .then(writeCodeToFile(code, codePath))
+            .then(() => writeCodeToFile(code, codePath))
             .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName, codePath))
             .then((expressions) => {
                 return new Promise((resolve, reject) => {
