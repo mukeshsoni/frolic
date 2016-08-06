@@ -19,6 +19,8 @@
     - looks like it happens in the elm VM
 - [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
 - [ ] remove postcss. confusing af.
+    - looks like postcss is not part of webpack workflow at all. the weirdness is due to css-loader which produces some strange looking classnames and has to be used in a specific way
+    - css loader in our webpack has a `modules` query parameter which is turning on css-modules. so now need to dig into css-modules
 - [x] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)
 - [ ] figure out a way to install the elm modules and purescript bower modules when packaging the elctron app
 - [ ] when user does `import module x` determine if it’s in local folder. if not, do a `elm package install x` automatically
