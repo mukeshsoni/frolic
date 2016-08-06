@@ -99,6 +99,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.1",
+    "classnames": "2.2.5",
     "css-modules-require-hook": "^4.0.1",
     "electron-debug": "^1.0.1",
     "electron-json-storage": "^2.0.0",
