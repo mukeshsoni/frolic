@@ -51,6 +51,8 @@ function writeCodeToFile(code, moduleName = 'UserCode') {
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
         moduleName = code.split(' ')[1]
+    } if(code.trim() === '') { // if code panel is empty, insert a random function
+        codeToWrite = `module ${moduleName} exposing (..)\n\nrandomIdentityFunction x = x`
     } else {
         codeToWrite = `module ${moduleName} exposing (..)\n\n${code}`
     }
