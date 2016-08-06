@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import styles from './Toolbar.css'
 
+// from uikit
+import ButtonGroup from './uikit/buttongroup/index.js'
+import Button from './uikit/button/index.js'
+
 const editorThemes = [
     {id: 'ambiance', name: 'ambiance'},
     {id: 'chrome', name: 'chrome'},
@@ -24,6 +28,28 @@ import saveFileIcon from 'url!../images/document-save-16x16.ico'
 class Toolbar extends Component {
     constructor(props) {
         super(props)
+
+        this.toggleCodePanel = this.toggleCodePanel.bind(this)
+        this.togglePlaygroundPanel = this.togglePlaygroundPanel.bind(this)
+        this.toggleOutputPanel = this.toggleOutputPanel.bind(this)
+    }
+
+    toggleCodePanel() {
+        if(this.props.onCodePanelVisibilityChange) {
+            this.props.onCodePanelVisibilityChange(!this.props.showCodePanel)
+        }
+    }
+
+    togglePlaygroundPanel() {
+        if(this.props.onPlaygroundPanelVisibilityChange) {
+            this.props.onPlaygroundPanelVisibilityChange(!this.props.showPlaygroundPanel)
+        }
+    }
+
+    toggleOutputPanel() {
+        if(this.props.onOutputPanelVisibilityChange) {
+            this.props.onOutputPanelVisibilityChange(!this.props.showOutputPanel)
+        }
     }
 
     render() {
@@ -41,39 +67,59 @@ class Toolbar extends Component {
                     >
                     {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
                 </select>
-                <button
-                    style={{
-                        float: 'right',
-                        marginRight: 10
-                    }}
-                    onClick={this.props.onCompileClick}>
-                    Compile
-                </button>
-                <label
-                    style={{
-                        float: 'right',
-                        paddingRight: 10
-                    }}>
-                    <input
-                    type='checkbox'
-                    value='Auto Compile'
-                    checked={this.props.autoCompile}
-                    onClick={this.props.onAutoCompileFlagChange}
-                    />
-                    Auto Compile
-                </label>
-                <img
-                    alt='Save File'
-                    style={{float: 'right', paddingRight: 10}}
-                    src={saveFileIcon}
-                    onClick={this.props.onSaveClick}
-                    />
-                <img
-                    alt='Open File'
-                    style={{float: 'right', paddingRight: 10}}
-                    src={openFileIcon}
-                    onClick={this.props.onOpenClick}
-                    />
+                <div style={{float: 'right'}}>
+                    <ButtonGroup>
+                        <Button
+                            active={this.props.showCodePanel}
+                            onClick={this.toggleCodePanel}
+                            >
+                            1
+                        </Button>
+                        <Button
+                            active={this.props.showPlaygroundPanel}
+                            onClick={this.togglePlaygroundPanel}
+                            >
+                            2
+                        </Button>
+                        <Button
+                            active={this.props.showOutputPanel}
+                            onClick={this.toggleOutputPanel}
+                            >
+                            3
+                        </Button>
+                    </ButtonGroup>
+                    <label
+                        style={{
+                            paddingRight: 10
+                        }}>
+                        <input
+                        type='checkbox'
+                        value='Auto Compile'
+                        checked={this.props.autoCompile}
+                        onClick={this.props.onAutoCompileFlagChange}
+                        />
+                        Auto Compile
+                    </label>
+                    <img
+                        alt='Save File'
+                        style={{paddingRight: 10}}
+                        src={saveFileIcon}
+                        onClick={this.props.onSaveClick}
+                        />
+                    <img
+                        alt='Open File'
+                        style={{paddingRight: 10}}
+                        src={openFileIcon}
+                        onClick={this.props.onOpenClick}
+                        />
+                    <button
+                        style={{
+                            marginRight: 10
+                        }}
+                        onClick={this.props.onCompileClick}>
+                        Compile
+                    </button>
+                </div>
             </div>
         )
     }

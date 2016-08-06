@@ -149,7 +149,6 @@ main = text ${getSimpleExpressionChunk(expression.value)}`
 function writeFilesForExpressions(playgroundCode, userModuleName) {
     const tokenizedCode = tokenize(playgroundCode)
     const importStatements = tokenizedCode.filter((code) => code.type === 'importStatement').map((code) => code.value).join('\n')
-    console.log('importStatements', importStatements)
     const statements = tokenizedCode.filter((code) => code.type === 'assignment').map((code) => code.value).join('\n')
     const expressions = tokenizedCode.filter((code) => code.type === 'expression' || code.type === 'renderExpression')
 
@@ -165,7 +164,6 @@ export function compile(code, playgroundCode) {
     return writeCodeToFile(code)
             .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName))
             .then((expressions) => {
-                console.log('expressions', expressions)
                 return new Promise((resolve, reject) => {
                     const allPromises = expressions.map((expression, index) => {
                         const fileName = `main${index}`

@@ -60,6 +60,9 @@ export default class Home extends Component {
         this.compile = _.debounce(this.compile.bind(this), 500)
         this.storeFilePathInDb = this.storeFilePathInDb.bind(this)
         this.loadFileFromHistory = this.loadFileFromHistory.bind(this)
+        this.toggleCodePanelVisibility = this.toggleCodePanelVisibility.bind(this)
+        this.togglePlaygroundPanelVisibility = this.togglePlaygroundPanelVisibility.bind(this)
+        this.toggleOutputPanelVisibility = this.toggleOutputPanelVisibility.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -68,7 +71,10 @@ export default class Home extends Component {
             editorTheme: 'terminal',
             autoCompile: true,
             openFilePath: null,
-            editorHeight: 1000
+            editorHeight: 1000,
+            showCodePanel: true,
+            showPlaygroundPanel: true,
+            showOutputPanel: true
         }
     }
 
@@ -222,6 +228,18 @@ export default class Home extends Component {
         ]
     }
 
+    toggleCodePanelVisibility(showCodePanel) {
+        this.setState({showCodePanel})
+    }
+
+    togglePlaygroundPanelVisibility(showPlaygroundPanel) {
+        this.setState({showPlaygroundPanel})
+    }
+
+    toggleOutputPanelVisibility(showOutputPanel) {
+        this.setState({showOutputPanel})
+    }
+
     render() {
         return (
             <div className={styles['root-container']}>
@@ -236,6 +254,12 @@ export default class Home extends Component {
                     fileSaved={this.state.fileSaved}
                     autoCompile={this.state.autoCompile}
                     onAutoCompileFlagChange={this.handleAutoCompileFlagChange}
+                    onCodePanelVisibilityChange={this.toggleCodePanelVisibility}
+                    onPlaygroundPanelVisibilityChange={this.togglePlaygroundPanelVisibility}
+                    onOutputPanelVisibilityChange={this.toggleOutputPanelVisibility}
+                    showCodePanel={this.state.showCodePanel}
+                    showPlaygroundPanel={this.state.showPlaygroundPanel}
+                    showOutputPanel={this.state.showOutputPanel}
                     ref={(node) => {
                         if(node && !this.toolbarDiv) {
                             this.toolbarDiv = ReactDOM.findDOMNode(node)
@@ -243,53 +267,65 @@ export default class Home extends Component {
                     }}
                 />
                 <hr/>
-                <SplitPane split='vertical' defaultSize='33%'>
-                    <div className={styles.column}>
-                        <h3>Code goes here</h3>
-                        <AceEditor
-                            ref={(node) => {
-                                if(node) {
-                                    this._codeEditor = node.editor
-                                }
-                            }}
-                            enableBasicAutocompletion={true}
-                            enableLiveAutocompletion={true}
-                            height={this.state.editorHeight + 'px'}
-                            mode={this.props.editorMode}
-                            theme={this.state.editorTheme}
-                            showGutter={true}
-                            value={this.state.code}
-                            className="container-code"
-                            onChange={this.handleCodeChange}
-                            name="definitions"
-                            commands={this.editorCommands()}
-                            width='100%'
-                            />
-                    </div>
-                    <SplitPane split='vertical' defaultSize='50%'>
+                <SplitPane split='vertical' defaultSize={this.state.showCodePanel ? '33%' : 0}>
+                    {this.state.showCodePanel ?
                         <div className={styles.column}>
-                            <h3>Playground</h3>
+                            <h3>Code goes here</h3>
                             <AceEditor
+                                ref={(node) => {
+                                    if(node) {
+                                        this._codeEditor = node.editor
+                                    }
+                                }}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
                                 height={this.state.editorHeight + 'px'}
-                                value={this.state.playgroundCode}
+                                mode={this.props.editorMode}
                                 theme={this.state.editorTheme}
                                 showGutter={true}
-                                className="container-playground-code"
-                                mode={this.props.editorMode}
-                                onChange={this.handlePlaygroundCodeChange}
-                                name="playground_function_calls"
+                                value={this.state.code}
+                                className="container-code"
+                                onChange={this.handleCodeChange}
+                                name="definitions"
                                 commands={this.editorCommands()}
                                 width='100%'
-                            />
+                                />
                         </div>
-                        <div className={styles.column}>
-                            <h3>Magic</h3>
-                            <div style={{fontSize: 12, height: this.state.editorHeight, backgroundColor: 'black'}}>
-                                {this.state.output}
+                        : <span></span>
+                    }
+                    <SplitPane
+                        split='vertical'
+                        defaultSize={this.state.showPlaygroundPanel && this.state.showOutputPanel ? '50%' : (this.state.showPlaygroundPanel ? '100%' : '0%')}
+                        >
+                        {this.state.showPlaygroundPanel ?
+                            <div className={styles.column}>
+                                <h3>Playground</h3>
+                                <AceEditor
+                                    enableBasicAutocompletion={true}
+                                    enableLiveAutocompletion={true}
+                                    height={this.state.editorHeight + 'px'}
+                                    value={this.state.playgroundCode}
+                                    theme={this.state.editorTheme}
+                                    showGutter={true}
+                                    className="container-playground-code"
+                                    mode={this.props.editorMode}
+                                    onChange={this.handlePlaygroundCodeChange}
+                                    name="playground_function_calls"
+                                    commands={this.editorCommands()}
+                                    width='100%'
+                                />
                             </div>
-                        </div>
+                            : null
+                        }
+                        {this.state.showOutputPanel ?
+                            <div className={styles.column}>
+                                <h3>Magic</h3>
+                                <div style={{fontSize: 12, height: this.state.editorHeight, backgroundColor: 'black'}}>
+                                    {this.state.output}
+                                </div>
+                            </div>
+                            : null
+                        }
                     </SplitPane>
                 </SplitPane>
                 <div
