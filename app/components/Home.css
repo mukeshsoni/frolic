@@ -1,0 +1,79 @@
+body {
+    position: relative;
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.root-container {
+    height: 100vh;
+    width: 100vw;
+}
+
+.container {
+  left: 10px;
+}
+
+.container h2 {
+  font-size: 5rem;
+}
+
+.container a {
+  font-size: 1.4rem;
+}
+
+.column {
+    margin: 0;
+    padding: 0;
+}
+
+.column div {
+    padding: 0;
+    margin: 0;
+    font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    color: white;
+    /*height: 1000px;*/
+    /*background-color: black;*/
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;
+}
+
+.column pre {
+    padding: 0;
+    margin: 0;
+    font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    color: white;
+    /*height: 1000px;*/
+    background-color: black;
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;
+}
+
+.column h3 {
+    text-align: center;
+}
+
+.footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding-top: 2px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-left: 5px;
+    padding-right: 15px;
+    background-color: gray;
+    height: 30px;
+    width: 100%;
+}

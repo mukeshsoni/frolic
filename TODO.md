@@ -1,0 +1,22 @@
+- elm component
+    - [x] allow render function
+    - [x] depending on what is passed to render, use App.beginnerProgram or App.program
+    - [x] detect render function and do eval stuff
+- [x] execute normal expressions using elm App.beginnerProgram instead of Debug.log
+
+- [ ] column hide and show (like in haskell for mac)
+- [x] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
+- [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
+- [ ] FIX Bug - keep getting this error `cannot read property appendChild of null`
+- [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
+- [ ] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)
+- [ ] figure out a way to install the elm modules and purescript bower modules when packaging the elctron app
+- [ ] when user does `import module x` determine if it’s in local folder. if not, do a `elm package install x` automatically
+    - [ ] Maintain a mapping of some common modules to their package names (e.g. Mouse -> elm-lang/mouse etc.) and then auto install them if someone requires them.
+    - [ ] install all the most commonly used packages already in elm/temp
+   - [ ] have a screencast where we implement some medium complexity ui component (like autocomplete - https://www.youtube.com/watch?v=KSuCYUqY058 or react-telephone-input), where you get instant feedback all the time
+- [ ] time travelling slider
+- [ ] make screencasts with the app like done in learn.hfm.io (haskell for mac)
+the online version as well as the desktop can give an option to select the language to learn (elm, purescript, javascript, haskell etc.). It then becomes any-language-learning-playground. The ability to add any other language should just be about providing a compile engine implementation which returns a promise which returns formatted (\ns) output
+- [ ] might be able to use node streams to not read/write/read/write files to disk
+- [ ] plugin concept like that in hyper term. just add the plugin name, it will be downloaded and installed for you
