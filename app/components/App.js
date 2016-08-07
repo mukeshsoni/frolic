@@ -282,8 +282,8 @@ export default class App extends Component {
                 <Toolbar
                     editorTheme={this.state.editorTheme}
                     onEditorThemeChange={this.handleEditorThemeChange}
-                    language={this.props.language}
-                    onLanguageChange={this.props.onLanguageChange}
+                    language={this.state.language}
+                    onLanguageChange={this.handleLanguageChange}
                     onCompileClick={this.compile}
                     onOpenClick={this.handleFileOpenClick}
                     onSaveClick={this.handleFileSaveClick}

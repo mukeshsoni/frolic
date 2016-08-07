@@ -86,7 +86,7 @@ function writeCodeToFile(code, codePath) {
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
         moduleName = code.split(' ')[1]
-    } if(code.trim() === '') { // if code panel is empty, insert a random function
+    } else if(code.trim() === '') { // if code panel is empty, insert a random function
         codeToWrite = `module ${moduleName} exposing (..)\n\nrandomIdentityFunction x = x`
     } else {
         codeToWrite = `module ${moduleName} exposing (..)\n\n${code}`
@@ -150,10 +150,10 @@ function hasSubscribed(code) {
     return code.indexOf('subscriptions') >= 0
 }
 
-function getGeneratedMainFileContent(expression, importStatements, statements, counter) {
+function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, counter) {
     const mainFileTemplate = `import Html.App as Html
 import Html exposing (..)
-import UserCode exposing (..)
+import ${userModuleName} exposing (..)
 ${importStatements}
 `
 
@@ -161,7 +161,7 @@ ${importStatements}
 import Html.App exposing (beginnerProgram, program)
 import Html exposing (..)
 ${importStatements}
-import UserCode exposing (..)`
+import ${userModuleName} exposing (..)`
 
     let fileContent
     if(expression.type === 'renderExpression') {
@@ -191,7 +191,7 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
     let counter = 1
 
     const fileWritePromises = expressions.map((expression, index) => {
-                                    return writeFile(`${codePath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, index))
+                                    return writeFile(`${codePath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, index))
                                 })
     return Promise.all(fileWritePromises).then(() => expressions)
 }
@@ -245,7 +245,7 @@ export function compile(code, playgroundCode, openFilePath) {
 
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
-    const files = fs.readdirSync(tempFolderPaths)
+    const files = fs.readdirSync(tempFolderPath)
     files.filter((file) => file !== 'Main.elm' && (file.split('.')[1] === 'elm' || file.split('.')[1] === 'js'))
             .map((file) => fs.unlink(tempFolderPath + '/' + file))
 }
