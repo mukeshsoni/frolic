@@ -6,11 +6,11 @@ import Mousetrap from 'mousetrap'
 
 import SplitPane from 'react-split-pane'
 
-import styles from './Home.css'
+import styles from './MainWindow.css'
 
 // our components
-import Toolbar from './Toolbar.js'
-import Footer from './Footer/index.js'
+import Toolbar from '../Toolbar/index.js'
+import Footer from '../Footer/index.js'
 
 import brace from 'brace'
 import AceEditor from 'react-ace'
@@ -40,9 +40,16 @@ var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
 
-const keyboardShortcuts = ['command+s', 'ctrl+s', 'ctrl+o', 'command+o']
+const keyboardShortcuts = [
+    'command+s',
+    'ctrl+s',
+    'command+o',
+    'ctrl+o',
+    'command+n',
+    'ctrl+n',
+]
 // utils
-import { saveFile, openFile } from '../utils/fileops.js'
+import { saveFile, openFile } from '../../utils/fileops.js'
 
 export default class Home extends Component {
     constructor(props) {
@@ -126,16 +133,21 @@ export default class Home extends Component {
 
     handleKeyboardEvents(e, combo) {
         switch(combo) {
+            // save file
             case 'ctrl+s':
             case 'command+s':
-                console.log('save the file')
                 this.handleFileSaveClick()
                 break
+
+            // open a file
             case 'ctrl+o':
             case 'command+o':
-                console.log('open a file')
                 this.handleFileOpenClick()
                 break
+            // create new file
+            case 'command+n':
+            case 'ctrl+n':
+                this.handleNewFileClick()
             default:
                 console.log('keyboard event ', combo)
         }
@@ -235,7 +247,11 @@ export default class Home extends Component {
                 exec: this.handleFileSaveClick,
                 bindKey: {mac: "cmd-s", win: "ctrl-s"}
             },
-
+            {
+                name: "key_handler_new_file",
+                exec: this.handleNewFileClick,
+                bindKey: {mac: "cmd-n", win: "ctrl-n"}
+            },
         ]
     }
 
@@ -331,7 +347,7 @@ export default class Home extends Component {
                             }
                             {this.state.showOutputPanel ?
                                 <div className={styles.column}>
-                                    <h3>Magic</h3>
+                                    <h3>Output</h3>
                                     <div style={{fontSize: 12, height: this.state.editorHeight, backgroundColor: 'black'}}>
                                         {this.state.output}
                                     </div>
@@ -346,7 +362,6 @@ export default class Home extends Component {
                     openFilePath={this.state.openFilePath}
                     ref={(node) => {
                         if(node && !this.footerDiv) {
-                            console.log('footer node:', node)
                             this.footerDiv = ReactDOM.findDOMNode(node)
                         }
                     }}
