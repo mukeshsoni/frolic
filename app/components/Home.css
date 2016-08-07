@@ -22,19 +22,6 @@ body {
     overflow-y: auto;
 }
 
-.container {
-  left: 10px;
-}
-
-.container h2 {
-  font-size: 5rem;
-}
-
-.container a {
-  font-size: 1.4rem;
-}
-
-
 .column {
     margin: 0;
     padding: 0;
