@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import styles from './Toolbar.css'
 
 // from uikit
-import ButtonGroup from './uikit/buttongroup/index.js'
-import Button from './uikit/button/index.js'
+import ButtonGroup from '../uikit/buttongroup/index.js'
+import Button from '../uikit/button/index.js'
+import buttonGroupStyles from '../uikit/buttongroup/buttongroup.css'
 
 const editorThemes = [
     {id: 'ambiance', name: 'ambiance'},
@@ -20,10 +21,6 @@ const languages = [
     {id: 'elm', name: 'elm'},
     {id: 'purescript', name: 'purescript'},
 ]
-
-import openFileIcon from 'url!../images/open-file-16x16.ico'
-// import saveFileIcon from 'url!../images/save-icon.png'
-import saveFileIcon from 'url!../images/document-save-16x16.ico'
 
 class Toolbar extends Component {
     constructor(props) {
@@ -55,19 +52,21 @@ class Toolbar extends Component {
     render() {
         return (
             <div className={styles.toolbar}>
-                <select
-                    value={this.props.editorTheme}
-                    onChange={this.props.onEditorThemeChange}
-                    >
-                    {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
-                </select>
-                <select
-                    value={this.props.language}
-                    onChange={this.props.onLanguageChange}
-                    >
-                    {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
-                </select>
-                <div style={{float: 'right'}}>
+                <div className={styles['toolbar-left']}>
+                    <select
+                        value={this.props.editorTheme}
+                        onChange={this.props.onEditorThemeChange}
+                        >
+                        {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                    </select>
+                    <select
+                        value={this.props.language}
+                        onChange={this.props.onLanguageChange}
+                        >
+                        {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
+                    </select>
+                </div>
+                <div className={styles['toolbar-right']}>
                     <ButtonGroup>
                         <Button
                             active={this.props.showCodePanel}
@@ -90,7 +89,7 @@ class Toolbar extends Component {
                     </ButtonGroup>
                     <label
                         style={{
-                            paddingRight: 10
+                            marginRight: 10
                         }}>
                         <input
                         type='checkbox'
@@ -100,18 +99,6 @@ class Toolbar extends Component {
                         />
                         Auto Compile
                     </label>
-                    <img
-                        alt='Save File'
-                        style={{paddingRight: 10}}
-                        src={saveFileIcon}
-                        onClick={this.props.onSaveClick}
-                        />
-                    <img
-                        alt='Open File'
-                        style={{paddingRight: 10}}
-                        src={openFileIcon}
-                        onClick={this.props.onOpenClick}
-                        />
                     <button
                         style={{
                             marginRight: 10

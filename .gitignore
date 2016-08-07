@@ -34,5 +34,5 @@ dist
 release
 main.js
 main.js.map
-app/compilers/elm/temp/**/main*.elm
+app/compilers/elm/temp/**/*.elm
 app/compilers/elm/temp/UserCode.elm

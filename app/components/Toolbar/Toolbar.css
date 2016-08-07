@@ -1,0 +1,6 @@
+.toolbar {
+    display: flex;
+    flex: 0 0 auto;
+    padding: 2px;
+    justify-content: space-between;
+}
