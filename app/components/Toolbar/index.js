@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import styles from './Toolbar.css'
 
 // from uikit
-import ButtonGroup from './uikit/buttongroup/index.js'
-import Button from './uikit/button/index.js'
-import buttonGroupStyles from './uikit/buttongroup/buttongroup.css'
+import ButtonGroup from '../uikit/buttongroup/index.js'
+import Button from '../uikit/button/index.js'
+import buttonGroupStyles from '../uikit/buttongroup/buttongroup.css'
 
 const editorThemes = [
     {id: 'ambiance', name: 'ambiance'},
@@ -22,10 +22,10 @@ const languages = [
     {id: 'purescript', name: 'purescript'},
 ]
 
-import openFileIcon from 'url!../images/open-file-16x16.ico'
-// import saveFileIcon from 'url!../images/save-icon.png'
-import saveFileIcon from 'url!../images/document-save-16x16.ico'
-import newFileIcon from 'url!../images/new-file-icon-16x16.ico'
+import openFileIcon from 'url!../../images/open-file-16x16.ico'
+// import saveFileIcon from 'url!../../images/save-icon.png'
+import saveFileIcon from 'url!../../images/document-save-16x16.ico'
+import newFileIcon from 'url!../../images/new-file-icon-16x16.ico'
 
 class Toolbar extends Component {
     constructor(props) {
@@ -92,18 +92,6 @@ class Toolbar extends Component {
                             3
                         </Button>
                     </ButtonGroup>
-                    <label
-                        style={{
-                            paddingRight: 10
-                        }}>
-                        <input
-                        type='checkbox'
-                        value='Auto Compile'
-                        checked={this.props.autoCompile}
-                        onChange={this.props.onAutoCompileFlagChange}
-                        />
-                        Auto Compile
-                    </label>
                     <img
                         alt='New File'
                         title='New File'
@@ -125,6 +113,18 @@ class Toolbar extends Component {
                         src={openFileIcon}
                         onClick={this.props.onOpenClick}
                         />
+                    <label
+                        style={{
+                            marginRight: 10
+                        }}>
+                        <input
+                        type='checkbox'
+                        value='Auto Compile'
+                        checked={this.props.autoCompile}
+                        onChange={this.props.onAutoCompileFlagChange}
+                        />
+                        Auto Compile
+                    </label>
                     <button
                         style={{
                             marginRight: 10
