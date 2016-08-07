@@ -25,6 +25,7 @@ const languages = [
 import openFileIcon from 'url!../images/open-file-16x16.ico'
 // import saveFileIcon from 'url!../images/save-icon.png'
 import saveFileIcon from 'url!../images/document-save-16x16.ico'
+import newFileIcon from 'url!../images/new-file-icon-16x16.ico'
 
 class Toolbar extends Component {
     constructor(props) {
@@ -104,14 +105,23 @@ class Toolbar extends Component {
                         Auto Compile
                     </label>
                     <img
+                        alt='New File'
+                        title='New File'
+                        style={{marginRight: 10}}
+                        src={newFileIcon}
+                        onClick={this.props.onNewFileClick}
+                        />
+                    <img
                         alt='Save File'
-                        style={{paddingRight: 10}}
+                        title='Save File'
+                        style={{marginRight: 10}}
                         src={saveFileIcon}
                         onClick={this.props.onSaveClick}
                         />
                     <img
                         alt='Open File'
-                        style={{paddingRight: 10}}
+                        title='Open File'
+                        style={{marginRight: 10}}
                         src={openFileIcon}
                         onClick={this.props.onOpenClick}
                         />

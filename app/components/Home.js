@@ -55,6 +55,7 @@ export default class Home extends Component {
         this.handleKeyboardEvents = this.handleKeyboardEvents.bind(this)
         this.handleFileOpenClick = _.debounce(this.handleFileOpenClick.bind(this), 500)
         this.handleFileSaveClick = _.debounce(this.handleFileSaveClick.bind(this), 500)
+        this.handleNewFileClick = _.debounce(this.handleNewFileClick.bind(this), 500)
         this.handleWindowResize = _.debounce(this.handleWindowResize.bind(this), 300)
         this.editorCommands = this.editorCommands.bind(this)
         this.compile = _.debounce(this.compile.bind(this), 500)
@@ -177,6 +178,14 @@ export default class Home extends Component {
         this.setState({autoCompile: e.target.checked})
     }
 
+    handleNewFileClick() {
+        this.setState({
+            openFilePath: null,
+            fileSaved: false,
+            code: '',
+        })
+    }
+
     handleFileSaveClick() {
         // the file has not yet been saved nor been loaded from some path
         if(!this.state.openFilePath) {
@@ -253,6 +262,7 @@ export default class Home extends Component {
                     onCompileClick={this.compile}
                     onOpenClick={this.handleFileOpenClick}
                     onSaveClick={this.handleFileSaveClick}
+                    onNewFileClick={this.handleNewFileClick}
                     fileSaved={this.state.fileSaved}
                     autoCompile={this.state.autoCompile}
                     onAutoCompileFlagChange={this.handleAutoCompileFlagChange}
