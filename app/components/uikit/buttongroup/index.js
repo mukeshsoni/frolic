@@ -24,7 +24,7 @@ function renderChildren(props) {
 
 function ButtonGroup(props) {
     return (
-        <div className={styles['btn-group']}>
+        <div className={styles['btn-group']} style={props.style}>
             {renderChildren(props)}
         </div>
     )

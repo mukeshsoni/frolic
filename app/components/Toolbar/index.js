@@ -4,7 +4,6 @@ import styles from './Toolbar.css'
 // from uikit
 import ButtonGroup from '../uikit/buttongroup/index.js'
 import Button from '../uikit/button/index.js'
-import buttonGroupStyles from '../uikit/buttongroup/buttongroup.css'
 
 const editorThemes = [
     {id: 'ambiance', name: 'ambiance'},
@@ -56,18 +55,20 @@ class Toolbar extends Component {
                     <select
                         value={this.props.editorTheme}
                         onChange={this.props.onEditorThemeChange}
+                        style={{marginRight: '0.5em', fontSize: 20}}
                         >
                         {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
                     </select>
                     <select
                         value={this.props.language}
                         onChange={this.props.onLanguageChange}
+                        style={{fontSize: 20}}
                         >
                         {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
                     </select>
                 </div>
                 <div className={styles['toolbar-right']}>
-                    <ButtonGroup>
+                    <ButtonGroup style={{marginRight: 10}}>
                         <Button
                             active={this.props.showCodePanel}
                             onClick={this.toggleCodePanel}
@@ -99,13 +100,10 @@ class Toolbar extends Component {
                         />
                         Auto Compile
                     </label>
-                    <button
-                        style={{
-                            marginRight: 10
-                        }}
+                    <Button
                         onClick={this.props.onCompileClick}>
                         Compile
-                    </button>
+                    </Button>
                 </div>
             </div>
         )

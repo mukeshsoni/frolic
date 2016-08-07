@@ -64,9 +64,8 @@ app.on('ready', async () => {
       }]).popup(mainWindow);
     });
   }
-console.log('wow')
+
   if (process.platform === 'darwin') {
-      console.log('it\'s darwin')
     template = [{
       label: 'Electron',
       submenu: [{
