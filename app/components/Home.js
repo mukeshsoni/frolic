@@ -10,6 +10,7 @@ import styles from './Home.css'
 
 // our components
 import Toolbar from './Toolbar.js'
+import Footer from './Footer/index.js'
 
 import brace from 'brace'
 import AceEditor from 'react-ace'
@@ -40,7 +41,6 @@ var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
 
 const keyboardShortcuts = ['command+s', 'ctrl+s', 'ctrl+o', 'command+o']
-const SPACE = ' '
 // utils
 import { saveFile, openFile } from '../utils/fileops.js'
 
@@ -119,7 +119,7 @@ export default class Home extends Component {
 
     handleWindowResize() {
         this.setState({
-            editorHeight: window.innerHeight - this.toolbarDiv.clientHeight - this.footerDiv.clientHeight - 80
+            editorHeight: window.innerHeight - this.toolbarDiv.clientHeight - 100
         })
     }
 
@@ -268,82 +268,79 @@ export default class Home extends Component {
                         }
                     }}
                 />
-                <hr/>
-                <SplitPane split='vertical' defaultSize={this.state.showCodePanel ? '33%' : 0}>
-                    {this.state.showCodePanel ?
-                        <div className={styles.column}>
-                            <h3>Code goes here</h3>
-                            <AceEditor
-                                ref={(node) => {
-                                    if(node) {
-                                        this._codeEditor = node.editor
-                                    }
-                                }}
-                                enableBasicAutocompletion={true}
-                                enableLiveAutocompletion={true}
-                                height={this.state.editorHeight + 'px'}
-                                mode={this.props.editorMode}
-                                theme={this.state.editorTheme}
-                                showGutter={true}
-                                value={this.state.code}
-                                className="container-code"
-                                onChange={this.handleCodeChange}
-                                name="definitions"
-                                commands={this.editorCommands()}
-                                width='100%'
-                                />
-                        </div>
-                        : <span></span>
-                    }
-                    <SplitPane
-                        split='vertical'
-                        defaultSize={this.state.showPlaygroundPanel && this.state.showOutputPanel ? '50%' : (this.state.showPlaygroundPanel ? '100%' : '0%')}
-                        >
-                        {this.state.showPlaygroundPanel ?
+                <div className={styles['main-window']}>
+                    <SplitPane split='vertical' defaultSize={this.state.showCodePanel ? '33%' : 0}>
+                        {this.state.showCodePanel ?
                             <div className={styles.column}>
-                                <h3>Playground</h3>
+                                <h3>Code goes here</h3>
                                 <AceEditor
+                                    ref={(node) => {
+                                        if(node) {
+                                            this._codeEditor = node.editor
+                                        }
+                                    }}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
                                     height={this.state.editorHeight + 'px'}
-                                    value={this.state.playgroundCode}
+                                    mode={this.props.editorMode}
                                     theme={this.state.editorTheme}
                                     showGutter={true}
-                                    className="container-playground-code"
-                                    mode={this.props.editorMode}
-                                    onChange={this.handlePlaygroundCodeChange}
-                                    name="playground_function_calls"
+                                    value={this.state.code}
+                                    className="container-code"
+                                    onChange={this.handleCodeChange}
+                                    name="definitions"
                                     commands={this.editorCommands()}
                                     width='100%'
-                                />
+                                    />
                             </div>
-                            : null
+                            : <span></span>
                         }
-                        {this.state.showOutputPanel ?
-                            <div className={styles.column}>
-                                <h3>Magic</h3>
-                                <div style={{fontSize: 12, height: this.state.editorHeight, backgroundColor: 'black'}}>
-                                    {this.state.output}
+                        <SplitPane
+                            split='vertical'
+                            defaultSize={this.state.showPlaygroundPanel && this.state.showOutputPanel ? '50%' : (this.state.showPlaygroundPanel ? '100%' : '0%')}
+                            >
+                            {this.state.showPlaygroundPanel ?
+                                <div className={styles.column}>
+                                    <h3>Playground</h3>
+                                    <AceEditor
+                                        enableBasicAutocompletion={true}
+                                        enableLiveAutocompletion={true}
+                                        height={this.state.editorHeight + 'px'}
+                                        value={this.state.playgroundCode}
+                                        theme={this.state.editorTheme}
+                                        showGutter={true}
+                                        className="container-playground-code"
+                                        mode={this.props.editorMode}
+                                        onChange={this.handlePlaygroundCodeChange}
+                                        name="playground_function_calls"
+                                        commands={this.editorCommands()}
+                                        width='100%'
+                                    />
                                 </div>
-                            </div>
-                            : null
-                        }
+                                : null
+                            }
+                            {this.state.showOutputPanel ?
+                                <div className={styles.column}>
+                                    <h3>Magic</h3>
+                                    <div style={{fontSize: 12, height: this.state.editorHeight, backgroundColor: 'black'}}>
+                                        {this.state.output}
+                                    </div>
+                                </div>
+                                : null
+                            }
+                        </SplitPane>
                     </SplitPane>
-                </SplitPane>
-                <div
-                    className={styles.footer}
+                </div>
+                <Footer
+                    fileSaved={this.state.fileSaved}
+                    openFilePath={this.state.openFilePath}
                     ref={(node) => {
                         if(node && !this.footerDiv) {
+                            console.log('footer node:', node)
                             this.footerDiv = ReactDOM.findDOMNode(node)
                         }
                     }}
-                    >
-                    {this.state.openFilePath}
-                    <div style={{float: 'right'}}>
-                        {SPACE}{SPACE}{SPACE}
-                        {this.state.fileSaved ? 'File saved' : 'File not saved'}
-                    </div>
-                </div>
+                    />
             </div>
         )
     }

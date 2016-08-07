@@ -55,19 +55,21 @@ class Toolbar extends Component {
     render() {
         return (
             <div className={styles.toolbar}>
-                <select
-                    value={this.props.editorTheme}
-                    onChange={this.props.onEditorThemeChange}
-                    >
-                    {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
-                </select>
-                <select
-                    value={this.props.language}
-                    onChange={this.props.onLanguageChange}
-                    >
-                    {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
-                </select>
-                <div style={{float: 'right'}}>
+                <div className={styles['toolbar-left']}>
+                    <select
+                        value={this.props.editorTheme}
+                        onChange={this.props.onEditorThemeChange}
+                        >
+                        {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                    </select>
+                    <select
+                        value={this.props.language}
+                        onChange={this.props.onLanguageChange}
+                        >
+                        {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
+                    </select>
+                </div>
+                <div className={styles['toolbar-right']}>
                     <ButtonGroup>
                         <Button
                             active={this.props.showCodePanel}
