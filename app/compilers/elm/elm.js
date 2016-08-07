@@ -221,7 +221,6 @@ export function compile(code, playgroundCode, openFilePath) {
                                         const elmComponents = sources.map((source, index) => {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
-                                                console.log('key: ', index, Math.floor(Math.random()*100) + expressions[index].value + '_' + index)
                                                 return (
                                                     <Elm
                                                         key={Math.floor(Math.random()*100) + expressions[index].value + '_' + index}
@@ -233,10 +232,7 @@ export function compile(code, playgroundCode, openFilePath) {
                                             }
                                         })
 
-                                        resolve(<div>
-                                                {elmComponents}
-                                            </div>
-                                        )
+                                        resolve(elmComponents)
                                     })
                                     .catch((err) => {
                                         console.log('elm compilation error', err.toString())

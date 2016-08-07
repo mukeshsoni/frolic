@@ -1,11 +1,32 @@
 import React, { Component } from 'react'
-import Home from './Home.js'
+import MainWindow from './MainWindow/index.js'
 
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 const { compile: compileElm, cleanUp: cleanUpElm } = elmCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
+
+
+import {ipcRenderer} from 'electron'
+
+ipcRenderer.on('menuActions', (event, message) => {
+    alert('got message: ' + message.action)
+    if(!message || !message.action) {
+        return
+    }
+
+    switch(message.action) {
+        case 'newFile':
+            break;
+        case 'openFile':
+            break;
+        case 'saveFile':
+            break;
+        default:
+            console.log('don\'t understand the menu action', message.action)
+    }
+})
 
 const compilers = {
     elm: {

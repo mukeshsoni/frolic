@@ -64,8 +64,9 @@ app.on('ready', async () => {
       }]).popup(mainWindow);
     });
   }
-
+console.log('wow')
   if (process.platform === 'darwin') {
+      console.log('it\'s darwin')
     template = [{
       label: 'Electron',
       submenu: [{
@@ -98,6 +99,31 @@ app.on('ready', async () => {
           app.quit();
         }
       }]
+    }, {
+        label: 'File',
+        submenu: [{
+          label: 'New File',
+          accelerator: 'Command+N',
+          click() {
+            mainWindow.webContents.send('menuActions', {action: 'newFile'})
+          }
+        }, {
+          type: 'separator'
+        }, {
+          label: 'Open...',
+          accelerator: 'Command+O',
+          click() {
+            mainWindow.webContents.send('menuActions', {action: 'openFile'})
+          }
+        }, {
+          type: 'separator'
+        }, {
+          label: 'Save',
+          accelerator: 'Command+S',
+          click() {
+            mainWindow.webContents.send('menuActions', {action: 'saveFile'})
+          }
+        }]
     }, {
       label: 'Edit',
       submenu: [{
