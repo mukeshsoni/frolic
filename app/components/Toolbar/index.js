@@ -22,11 +22,6 @@ const languages = [
     {id: 'purescript', name: 'purescript'},
 ]
 
-import openFileIcon from 'url!../../images/open-file-16x16.ico'
-// import saveFileIcon from 'url!../../images/save-icon.png'
-import saveFileIcon from 'url!../../images/document-save-16x16.ico'
-import newFileIcon from 'url!../../images/new-file-icon-16x16.ico'
-
 class Toolbar extends Component {
     constructor(props) {
         super(props)
@@ -92,27 +87,6 @@ class Toolbar extends Component {
                             3
                         </Button>
                     </ButtonGroup>
-                    <img
-                        alt='New File'
-                        title='New File'
-                        style={{marginRight: 10}}
-                        src={newFileIcon}
-                        onClick={this.props.onNewFileClick}
-                        />
-                    <img
-                        alt='Save File'
-                        title='Save File'
-                        style={{marginRight: 10}}
-                        src={saveFileIcon}
-                        onClick={this.props.onSaveClick}
-                        />
-                    <img
-                        alt='Open File'
-                        title='Open File'
-                        style={{marginRight: 10}}
-                        src={openFileIcon}
-                        onClick={this.props.onOpenClick}
-                        />
                     <label
                         style={{
                             marginRight: 10
