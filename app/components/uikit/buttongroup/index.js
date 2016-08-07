@@ -1,16 +1,13 @@
-import React, { Component } from 'react'
-
+import React from 'react'
 
 import styles from './buttongroup.css'
 
-class ButtonGroup extends Component {
-    render() {
-        return (
-            <div className={styles['btn-group']}>
-                {this.props.children}
-            </div>
-        )
-    }
+function ButtonGroup({children}) {
+    return (
+        <div className={styles['btn-group']}>
+            {children}
+        </div>
+    )
 }
 
 export default ButtonGroup
