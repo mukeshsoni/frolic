@@ -221,9 +221,10 @@ export function compile(code, playgroundCode, openFilePath) {
                                         const elmComponents = sources.map((source, index) => {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
+                                                const key = Math.floor(Math.random()*10000) + expressions[index].value + '_' + index
                                                 return (
                                                     <Elm
-                                                        key={Math.floor(Math.random()*100) + expressions[index].value + '_' + index}
+                                                        key={key}
                                                         src={source}
                                                         />
                                                 )

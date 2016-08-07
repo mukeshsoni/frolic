@@ -10,12 +10,6 @@ body {
     position: relative;
 }
 
-.root-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
 .main-window {
     flex: 1 1 auto;
     position: relative;/* need this to position inner content */
