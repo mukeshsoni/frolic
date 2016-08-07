@@ -6,21 +6,21 @@
     vertical-align: middle;
 }
 
-.not-first-last-button:not(:first-child):not(:last-child) {
+.not-first-last-button {
     border-radius: 0;
 }
 
-.first-not-last-button:first-child:not(:last-child) {
+.first-not-last-button {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.last-not-first-button:last-child:not(:first-child) {
+.last-not-first-button {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.first-button:first-child {
+.first-button {
     margin-left: 0;
 }
 
