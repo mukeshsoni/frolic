@@ -6,15 +6,15 @@
 
 - [x] column hide and show (like in haskell for mac)
 - [ ] ability to change font size, font type
+- [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
 - [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
 - [ ] elm-reactor does compilation and auto dependency installation. checkout it's code to see how it does auto dependency installation
-- [ ] for files loaded from disk, we add a path to the folder the file is in to file-sources in elm-package.json. but that will not suffice. We need to checkout where elm-package.json for that file might be and add that path along with all other paths mentioned in that elm-package.json's file-sources
-- [ ] open to start a open blank file
-- [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
+- [x] for files loaded from disk, we add a path to the folder the file is in to file-sources in elm-package.json. but that will not suffice. We need to checkout where elm-package.json for that file might be and add that path along with all other paths mentioned in that elm-package.json's source-directories
+- [x] open to start a open blank file
 - [ ] optimizations
     - [x] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
-    - [ ] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
+    - [x] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
 - [ ] line mapping from playground expressions to output goes for a toss in three scenarios -
     - [ ] there are statements with expressions
     - [ ] the output content wraps in more than one line
@@ -23,11 +23,11 @@
     - looks like it happens in the elm VM
 - [ ] use async await for async operations
 - [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
-- [ ] remove postcss. confusing af.
+- [x] remove postcss. confusing af.
     - looks like postcss is not part of webpack workflow at all. the weirdness is due to css-loader which produces some strange looking classnames and has to be used in a specific way
     - css loader in our webpack has a `modules` query parameter which is turning on css-modules. so now need to dig into css-modules
 - [x] do not create the `<Elm />` component if the component it wraps is faulty (source (`module.exports[_.capitalize(fileName)]`) no embed method in it, is undefined etc)
-- [ ] figure out a way to install the elm modules and purescript bower modules when packaging the elctron app
+- [ ] figure out a way to install the elm modules and purescript bower modules when packaging the electron app
 - [ ] when user does `import module x` determine if it’s in local folder. if not, do a `elm package install x` automatically
     - [ ] Maintain a mapping of some common modules to their package names (e.g. Mouse -> elm-lang/mouse etc.) and then auto install them if someone requires them.
     - [ ] install all the most commonly used packages already in elm/temp

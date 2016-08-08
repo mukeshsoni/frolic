@@ -11,6 +11,7 @@
 npm install
 -- go to folder app/compilers/elm/temp/ and do
 elm-package install -y
+-- from the root folder run
 npm run hot-server
 npm run start-hot
 ```
