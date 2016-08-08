@@ -50,6 +50,7 @@ function getFormattedError(error) {
 
 const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
+let packageJsonTemplateFileContents = null
 
 /*
  * Update elm-package.json src property to include path from where the file is loaded
@@ -67,16 +68,32 @@ function updateFileSources(openFilePath) {
         pathToAdd = openFilePath
     }
 
+    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
     const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
-    return readFile(packageJsonFilePath)
-            .then((packageJsonFile) => {
-                let packageJsonFileContents = JSON.parse(packageJsonFile.toString())
-                packageJsonFileContents["source-directories"] = _.uniq(packageJsonFileContents["source-directories"].concat(pathToAdd))
-                return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileContents))
-            })
-            .catch((err) => {
-                console.log('error parsing file: ', err.toString())
-            })
+
+    // if already read, read from cached file
+    if(packageJsonTemplateFileContents) {
+        let packageJsonFileConents = {
+            ...packageJsonTemplateFileContents,
+            ['source-directories']: _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
+        }
+        return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+    } else {
+        return readFile(packageJsonTemplateFilePath)
+        .then((packageJsonFile) => {
+            // cache the contents in a private variable
+            packageJsonTemplateFileContents = JSON.parse(packageJsonFile.toString())
+            let packageJsonFileConents = {
+                ...packageJsonTemplateFileContents,
+                'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
+            }
+
+            return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+        })
+        .catch((err) => {
+            console.log('error parsing file: ', err.toString())
+        })
+    }
 }
 
 function writeCodeToFile(code, codePath) {
@@ -85,7 +102,8 @@ function writeCodeToFile(code, codePath) {
 
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
-        moduleName = code.split(' ')[1]
+        const inlineModuleName = code.split(' ')[1]
+        codeToWrite = code.replace(`module ${inlineModuleName}`, 'module UserCode')
     } else if(code.trim() === '') { // if code panel is empty, insert a random function
         codeToWrite = `module ${moduleName} exposing (..)\n\nrandomIdentityFunction x = x`
     } else {
@@ -243,6 +261,11 @@ export function compile(code, playgroundCode, openFilePath) {
             })
 }
 
+function onNewFileLoad(openFilePath) {
+    openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
+    updateFileSources(openFilePath)
+}
+
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
     const files = fs.readdirSync(tempFolderPath)
@@ -252,5 +275,5 @@ function cleanUp() {
 
 // do some initialization work here
 export function compiler() {
-    return {compile, cleanUp}
+    return {compile, cleanUp, onNewFileLoad}
 }

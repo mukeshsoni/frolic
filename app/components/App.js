@@ -2,7 +2,7 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import Mousetrap from 'mousetrap'
+// import Mousetrap from 'mousetrap'
 var fs = require('fs')
 var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
@@ -22,7 +22,7 @@ import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 
-const { compile: compileElm, cleanUp: cleanUpElm } = elmCompiler()
+const { compile: compileElm, cleanUp: cleanUpElm, onNewFileLoad: onNewFileLoadElm } = elmCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
@@ -42,6 +42,7 @@ const compilers = {
     elm: {
         compile: compileElm,
         cleanUp: cleanUpElm,
+        onNewFileLoad: onNewFileLoadElm,
         editorMode: 'elm',
     },
     purescript: {
@@ -64,7 +65,6 @@ export default class App extends Component {
         this.handleLanguageChange = this.handleLanguageChange.bind(this)
         this.handleEditorThemeChange = this.handleEditorThemeChange.bind(this)
         this.handleAutoCompileFlagChange = this.handleAutoCompileFlagChange.bind(this)
-        this.handleKeyboardEvents = this.handleKeyboardEvents.bind(this)
         this.handleFileOpenClick = _.debounce(this.handleFileOpenClick.bind(this), 500)
         this.handleFileSaveClick = _.debounce(this.handleFileSaveClick.bind(this), 500)
         this.handleNewFileClick = _.debounce(this.handleNewFileClick.bind(this), 500)
@@ -113,7 +113,6 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        Mousetrap.bind(keyboardShortcuts, this.handleKeyboardEvents)
         window.onresize = this.handleWindowResize
         this.handleWindowResize()
 
@@ -123,7 +122,6 @@ export default class App extends Component {
     }
 
     componentWillUnmount() {
-        Mousetrap.unbind(keyboardShortcuts)
         this.storeFilePathInDb()
 
         Object.keys(compilers).map((compilerKey) => {
@@ -149,7 +147,7 @@ export default class App extends Component {
     }
 
     storeFilePathInDb() {
-        setToStorage('fileData', {filePath: this.state.openFilePath})
+        return setToStorage('fileData', {filePath: this.state.openFilePath})
                 .then(() => console.log('file path stored ', this.state.openFilePath))
                 .catch((err) => {
                     console.log('error setting filePath', err)
@@ -181,28 +179,6 @@ export default class App extends Component {
                 this.compile()
             }
         })
-    }
-
-    handleKeyboardEvents(e, combo) {
-        switch(combo) {
-            // save file
-            case 'ctrl+s':
-            case 'command+s':
-                this.handleFileSaveClick()
-                break
-
-            // open a file
-            case 'ctrl+o':
-            case 'command+o':
-                this.handleFileOpenClick()
-                break
-            // create new file
-            case 'command+n':
-            case 'ctrl+n':
-                this.handleNewFileClick()
-            default:
-                console.log('keyboard event ', combo)
-        }
     }
 
     handleLanguageChange(e) {
@@ -248,7 +224,10 @@ export default class App extends Component {
                     openFilePath: file.filePath,
                     code: file.content,
                     fileSaved: true
-                }, this.storeFilePathInDb)
+                }, () => {
+                    this.storeFilePathInDb()
+                    compilers[this.state.language].onNewFileLoad(this.state.openFilePath)
+                })
             })
             .catch((err) => {
                 console.log('error opening file ', err.toString())
