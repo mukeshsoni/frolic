@@ -52,15 +52,49 @@ const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
 let packageJsonTemplateFileContents = null
 
+function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath) {
+    const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
+    let packageJsonFileConents = {
+        ...packageJsonTemplateFileContents,
+        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
+    }
+
+    // TODO - find out the elm-package.json file in the directory or levels below it and add source-directories from there (or atleast that directory itself)
+    let folderToCheck = openFilePath
+    let filesInFolderToCheck
+    while(true) {
+        filesInFolderToCheck = fs.readdirSync(folderToCheck)
+        if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
+            console.log('has elm-package.json')
+            const tempPackageJsonContent = JSON.parse(fs.readFileSync(`${folderToCheck}/elm-package.json`).toString())
+            let sourceDirectories = tempPackageJsonContent['source-directories']
+            packageJsonFileConents = {
+                ...packageJsonFileConents,
+                'source-directories': packageJsonFileConents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`)
+            }
+            break;
+        } else {
+            if(folderToCheck === '/') {
+                break;
+            }
+
+            folderToCheck = _.initial(folderToCheck.split('/')).join('/')
+        }
+    }
+
+    return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+}
+
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
+// TODO - caching the sources for paths?
 function updateFileSources(openFilePath) {
     if(lastOpenFilePath === openFilePath) {
         return Promise.resolve({})
+    } else {
+        lastOpenFilePath = openFilePath
     }
-
-    lastOpenFilePath = openFilePath
 
     let pathToAdd = "."
 
@@ -69,26 +103,16 @@ function updateFileSources(openFilePath) {
     }
 
     const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
-    const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
 
     // if already read, read from cached file
     if(packageJsonTemplateFileContents) {
-        let packageJsonFileConents = {
-            ...packageJsonTemplateFileContents,
-            ['source-directories']: _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
-        }
-        return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+        return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath)
     } else {
         return readFile(packageJsonTemplateFilePath)
         .then((packageJsonFile) => {
-            // cache the contents in a private variable
+            // cache it
             packageJsonTemplateFileContents = JSON.parse(packageJsonFile.toString())
-            let packageJsonFileConents = {
-                ...packageJsonTemplateFileContents,
-                'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
-            }
-
-            return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+            return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath)
         })
         .catch((err) => {
             console.log('error parsing file: ', err.toString())

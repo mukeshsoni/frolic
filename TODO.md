@@ -20,6 +20,7 @@
     - [ ] when there is a mixture of expressions and ui components
 - [ ] FIX Bug - keep getting this error `cannot read property appendChild of null`
     - looks like it happens in the elm VM
+- [ ] use async await for async operations
 - [ ] need more robust implementations for isAssignment, isStatement, isExpression, isModuleStatement etc. functions
 - [ ] remove postcss. confusing af.
     - looks like postcss is not part of webpack workflow at all. the weirdness is due to css-loader which produces some strange looking classnames and has to be used in a specific way
