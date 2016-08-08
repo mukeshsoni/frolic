@@ -65,12 +65,11 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd
     while(true) {
         filesInFolderToCheck = fs.readdirSync(folderToCheck)
         if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
-            console.log('has elm-package.json')
             const tempPackageJsonContent = JSON.parse(fs.readFileSync(`${folderToCheck}/elm-package.json`).toString())
             let sourceDirectories = tempPackageJsonContent['source-directories']
             packageJsonFileConents = {
                 ...packageJsonFileConents,
-                'source-directories': packageJsonFileConents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`)
+                'source-directories': _.uniq(packageJsonFileConents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`))
             }
             break;
         } else {
