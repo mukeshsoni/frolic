@@ -62,7 +62,7 @@ class Toolbar extends Component {
                     <select
                         value={this.props.language}
                         onChange={this.props.onLanguageChange}
-                        style={{fontSize: 20}}
+                        style={{fontSize: 20, display: 'none'}}
                         >
                         {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
                     </select>
