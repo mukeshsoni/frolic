@@ -104,20 +104,19 @@ function getPackageTemplate() {
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath) {
+    openFilePath = openFilePath || '.'
     if(lastOpenFilePath === openFilePath) {
-        return Promise.resolve({})
+        return Promise.resolve(true)
     } else {
         lastOpenFilePath = openFilePath
     }
 
-    getPackageTemplate()
-    .then((templateContents) => {
-        console.log(8)
-        return writeSourcesToElmPackageJson(templateContents, openFilePath || '.')
-    })
-    .catch((err) => {
-        console.log('error parsing file: ', err.toString())
-    })
+    return getPackageTemplate().then((templateContents) => {
+                return writeSourcesToElmPackageJson(templateContents, openFilePath)
+            })
+            .catch((err) => {
+                console.log('error parsing file: ', err.toString())
+            })
 }
 
 function writeCodeToFile(code, codePath) {
