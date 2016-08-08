@@ -70,9 +70,10 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
             if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
                 const tempPackageJsonContent = jsonfile.readFileSync(`${folderToCheck}/elm-package.json`)
                 let sourceDirectories = tempPackageJsonContent['source-directories']
+
                 packageJsonFileContents = {
                     ...packageJsonFileContents,
-                    'source-directories': _.uniq(packageJsonFileContents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`))
+                    'source-directories': _.uniq(packageJsonFileContents['source-directories'].concat(_.trimEnd(`${folderToCheck}/${sourceDirectories}`, '/.')))
                 }
                 break;
             } else {
@@ -158,12 +159,12 @@ function getType(code) {
 
 function tokenize(code) {
     return code.split('\n')
-                .reduce((acc, line, index, original) => {
+                .reduce((acc, line, index) => {
                     if((line[0] === ' ' && index !== 0)) {
                         return acc.slice(0, acc.length - 1).concat({
                             ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + '\n' + line,
+                            value: acc[acc.length - 1].value + _.trimStart(line),
                         })
                     }
 
@@ -179,17 +180,44 @@ function tokenize(code) {
                         type: getType(command.value)
                     }
                 })
+                .reduce((acc, command, index) => { // bunch up expressions
+                    if(index !== 0 && command.type === 'expression' && _.last(acc).type === 'expression') {
+                        return [
+                            ..._.initial(acc),
+                            {
+                                ..._.last(acc),
+                                commands: _.last(acc).commands.concat(command),
+                            }
+                        ]
+                    }
+
+                    return acc.concat({
+                        ...command,
+                        commands: [command],
+                    })
+                }, [])
 }
 
 function hasSubscribed(code) {
     return code.indexOf('subscriptions') >= 0
 }
 
+function getToStrings(expression) {
+    console.log(expression.commands)
+    return expression.commands.map((command) => {
+        if(command.value === '') {
+            return '"\n"'
+        } else {
+            return `Basics.toString (${command.value}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
+        }
+    }).join(',')
+}
+
 function getSimpleExpressionChunk(expression) {
     if(expression.value === '') {
         return '" "'
     } else {
-        return `(toString (${expression.value}))`
+        return `(String.concat [${getToStrings(expression)}])`
     }
 }
 
@@ -218,11 +246,12 @@ main =
     ${appProgram} ${expression.value.slice(7)}`
     } else {
         fileContent = `module Main${counter} exposing (..)
+import String
 ${mainFileTemplate}
 ${statements}
 main =
-    div []
-        [ ${_.times(expression.newlines, _.constant('\n')).map(() => `br [] []\n${SPACE}${SPACE}${SPACE}${SPACE},`)} text ${getSimpleExpressionChunk(expression)}]`
+    pre []
+        [ text ${getSimpleExpressionChunk(expression)} ]`
     }
 
     return fileContent
