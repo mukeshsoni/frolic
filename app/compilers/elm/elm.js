@@ -4,6 +4,9 @@ import Elm from 'react-elm-components'
 
 var exec = require('child_process').exec;
 var fs = require('fs')
+var jsonfile = require('jsonfile')
+var writeJsonFile = Promise.promisify(jsonfile.writeFile)
+
 var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
@@ -50,29 +53,66 @@ function getFormattedError(error) {
 
 const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
+let packageJsonTemplateFileContents = null
+
+function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath) {
+    const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
+    let packageJsonFileContents = {
+        ...packageJsonTemplateFileContents,
+        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(basePath))
+    }
+
+    if(basePath !== '.') {
+        let folderToCheck = basePath
+        let filesInFolderToCheck
+        while(true) {
+            filesInFolderToCheck = fs.readdirSync(folderToCheck)
+            if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
+                const tempPackageJsonContent = jsonfile.readFileSync(`${folderToCheck}/elm-package.json`)
+                let sourceDirectories = tempPackageJsonContent['source-directories']
+                packageJsonFileContents = {
+                    ...packageJsonFileContents,
+                    'source-directories': _.uniq(packageJsonFileContents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`))
+                }
+                break;
+            } else {
+                if(folderToCheck === '/') {
+                    break;
+                }
+
+                folderToCheck = _.initial(folderToCheck.split('/')).join('/')
+            }
+        }
+    }
+
+    return writeJsonFile(packageJsonFilePath, packageJsonFileContents, {spaces: 4})
+}
+
+function getPackageTemplate() {
+    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
+
+    // if already read, read from cached file
+    if(packageJsonTemplateFileContents) {
+        return Promise.resolve(packageJsonTemplateFileContents)
+    } else {
+        packageJsonTemplateFileContents = jsonfile.readFileSync(packageJsonTemplateFilePath)
+        return Promise.resolve(packageJsonTemplateFileContents)
+    }
+}
 
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath) {
+    openFilePath = openFilePath || '.'
     if(lastOpenFilePath === openFilePath) {
-        return Promise.resolve({})
+        return Promise.resolve(true)
+    } else {
+        lastOpenFilePath = openFilePath
     }
 
-    lastOpenFilePath = openFilePath
-
-    let pathToAdd = "."
-
-    if(openFilePath) {
-        pathToAdd = openFilePath
-    }
-
-    const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
-    return readFile(packageJsonFilePath)
-            .then((packageJsonFile) => {
-                let packageJsonFileContents = JSON.parse(packageJsonFile.toString())
-                packageJsonFileContents["source-directories"] = _.uniq(packageJsonFileContents["source-directories"].concat(pathToAdd))
-                return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileContents))
+    return getPackageTemplate().then((templateContents) => {
+                return writeSourcesToElmPackageJson(templateContents, openFilePath)
             })
             .catch((err) => {
                 console.log('error parsing file: ', err.toString())
@@ -85,7 +125,8 @@ function writeCodeToFile(code, codePath) {
 
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
-        moduleName = code.split(' ')[1]
+        const inlineModuleName = code.split(' ')[1]
+        codeToWrite = code.replace(`module ${inlineModuleName}`, 'module UserCode')
     } else if(code.trim() === '') { // if code panel is empty, insert a random function
         codeToWrite = `module ${moduleName} exposing (..)\n\nrandomIdentityFunction x = x`
     } else {
@@ -118,15 +159,17 @@ function getType(code) {
 function tokenize(code) {
     return code.split('\n')
                 .reduce((acc, line, index, original) => {
-                    if(line[0] === ' ' && index !== 0) {
+                    if((line[0] === ' ' && index !== 0)) {
                         return acc.slice(0, acc.length - 1).concat({
+                            ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + ' ' + line,
+                            value: acc[acc.length - 1].value + '\n' + line,
                         })
                     }
 
                     return acc.concat({
                         newlines: 1,
+                        lineNumber: index,
                         value: line
                     })
                 }, [])
@@ -138,18 +181,19 @@ function tokenize(code) {
                 })
 }
 
-function getSimpleExpressionChunk(chunk) {
-    if(chunk === '') {
-        return '" "'
-    } else {
-        return '(toString (' + chunk + '))'
-    }
-}
-
 function hasSubscribed(code) {
     return code.indexOf('subscriptions') >= 0
 }
 
+function getSimpleExpressionChunk(expression) {
+    if(expression.value === '') {
+        return '" "'
+    } else {
+        return `(toString (${expression.value}))`
+    }
+}
+
+const SPACE = ' '
 function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, counter) {
     const mainFileTemplate = `import Html.App as Html
 import Html exposing (..)
@@ -176,7 +220,9 @@ main =
         fileContent = `module Main${counter} exposing (..)
 ${mainFileTemplate}
 ${statements}
-main = text ${getSimpleExpressionChunk(expression.value)}`
+main =
+    div []
+        [ ${_.times(expression.newlines, _.constant('\n')).map(() => `br [] []\n${SPACE}${SPACE}${SPACE}${SPACE},`)} text ${getSimpleExpressionChunk(expression)}]`
     }
 
     return fileContent
@@ -222,6 +268,7 @@ export function compile(code, playgroundCode, openFilePath) {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
                                                 const key = Math.floor(Math.random()*10000) + expressions[index].value + '_' + index
+                                                // const key = expressions[index].value + '_' + index
                                                 return (
                                                     <Elm
                                                         key={key}
@@ -243,6 +290,11 @@ export function compile(code, playgroundCode, openFilePath) {
             })
 }
 
+function onNewFileLoad(openFilePath) {
+    openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
+    updateFileSources(openFilePath)
+}
+
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
     const files = fs.readdirSync(tempFolderPath)
@@ -252,5 +304,5 @@ function cleanUp() {
 
 // do some initialization work here
 export function compiler() {
-    return {compile, cleanUp}
+    return {compile, cleanUp, onNewFileLoad}
 }
