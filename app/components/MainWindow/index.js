@@ -54,6 +54,7 @@ export default class Home extends Component {
                                         this._codeEditor = node.editor
                                     }
                                 }}
+                                scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
                                 height={this.props.editorHeight + 'px'}
@@ -77,6 +78,7 @@ export default class Home extends Component {
                             <div className={styles.column}>
                                 <h3>Playground</h3>
                                 <AceEditor
+                                    scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
                                     height={this.props.editorHeight + 'px'}
