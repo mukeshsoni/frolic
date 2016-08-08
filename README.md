@@ -3,6 +3,7 @@
 > Learn elm faster and in a fun way
 
 ![Elm rope implemented using frolic](images/elm-rope-in-elm-playground.png)
+![Elm counter pairs from elm-architechture examples](images/elm-playground-desktop-counter-pairs.gif)
 
 ### How to setup the dev environment
 
