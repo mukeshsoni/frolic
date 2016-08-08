@@ -5,6 +5,7 @@
 - [x] execute normal expressions using elm App.beginnerProgram instead of Debug.log
 
 - [x] column hide and show (like in haskell for mac)
+- [ ] ability to change font size, font type
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
 - [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
 - [ ] elm-reactor does compilation and auto dependency installation. checkout it's code to see how it does auto dependency installation

@@ -52,15 +52,14 @@ const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
 let packageJsonTemplateFileContents = null
 
-function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath) {
+function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, basePath) {
     const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
     let packageJsonFileConents = {
         ...packageJsonTemplateFileContents,
         'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
     }
 
-    // TODO - find out the elm-package.json file in the directory or levels below it and add source-directories from there (or atleast that directory itself)
-    let folderToCheck = openFilePath
+    let folderToCheck = basePath
     let filesInFolderToCheck
     while(true) {
         filesInFolderToCheck = fs.readdirSync(folderToCheck)
@@ -69,7 +68,9 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd
             let sourceDirectories = tempPackageJsonContent['source-directories']
             packageJsonFileConents = {
                 ...packageJsonFileConents,
-                'source-directories': _.uniq(packageJsonFileConents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`))
+                'source-directories': _.uniq(packageJsonFileConents['source-directories']
+                                                .concat(`${folderToCheck}/${sourceDirectories}`)
+                                                .concat(`${folderToCheck}`))
             }
             break;
         } else {
@@ -84,10 +85,24 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd
     return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
 }
 
+function getPackageTemplate() {
+    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
+
+    // if already read, read from cached file
+    if(packageJsonTemplateFileContents) {
+        return Promise.resolve(packageJsonTemplateFileContents)
+    } else {
+        return readFile(packageJsonTemplateFilePath)
+                .then((packageJsonFile) => {
+                    packageJsonTemplateFileContents = JSON.parse(packageJsonFile.toString())
+                    return packageJsonTemplateFileContents
+                })
+    }
+}
+
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
-// TODO - caching the sources for paths?
 function updateFileSources(openFilePath) {
     if(lastOpenFilePath === openFilePath) {
         return Promise.resolve({})
@@ -101,22 +116,13 @@ function updateFileSources(openFilePath) {
         pathToAdd = openFilePath
     }
 
-    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
-
-    // if already read, read from cached file
-    if(packageJsonTemplateFileContents) {
-        return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath)
-    } else {
-        return readFile(packageJsonTemplateFilePath)
-        .then((packageJsonFile) => {
-            // cache it
-            packageJsonTemplateFileContents = JSON.parse(packageJsonFile.toString())
-            return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, openFilePath)
-        })
-        .catch((err) => {
-            console.log('error parsing file: ', err.toString())
-        })
-    }
+    getPackageTemplate()
+    .then((templateContents) => {
+        return writeSourcesToElmPackageJson(templateContents, pathToAdd, openFilePath)
+    })
+    .catch((err) => {
+        console.log('error parsing file: ', err.toString())
+    })
 }
 
 function writeCodeToFile(code, codePath) {
@@ -159,15 +165,17 @@ function getType(code) {
 function tokenize(code) {
     return code.split('\n')
                 .reduce((acc, line, index, original) => {
-                    if(line[0] === ' ' && index !== 0) {
+                    if((line[0] === ' ' && index !== 0)) {
                         return acc.slice(0, acc.length - 1).concat({
+                            ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + ' ' + line,
+                            value: acc[acc.length - 1].value + '\n' + line,
                         })
                     }
 
                     return acc.concat({
                         newlines: 1,
+                        lineNumber: index,
                         value: line
                     })
                 }, [])
@@ -179,18 +187,19 @@ function tokenize(code) {
                 })
 }
 
-function getSimpleExpressionChunk(chunk) {
-    if(chunk === '') {
-        return '" "'
-    } else {
-        return '(toString (' + chunk + '))'
-    }
-}
-
 function hasSubscribed(code) {
     return code.indexOf('subscriptions') >= 0
 }
 
+function getSimpleExpressionChunk(expression) {
+    if(expression.value === '') {
+        return '" "'
+    } else {
+        return `(toString (${expression.value}))`
+    }
+}
+
+const SPACE = ' '
 function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, counter) {
     const mainFileTemplate = `import Html.App as Html
 import Html exposing (..)
@@ -217,7 +226,9 @@ main =
         fileContent = `module Main${counter} exposing (..)
 ${mainFileTemplate}
 ${statements}
-main = text ${getSimpleExpressionChunk(expression.value)}`
+main =
+    div []
+        [ ${_.times(expression.newlines, _.constant('\n')).map(() => `br [] []\n${SPACE}${SPACE}${SPACE}${SPACE},`)} text ${getSimpleExpressionChunk(expression)}]`
     }
 
     return fileContent
@@ -263,6 +274,7 @@ export function compile(code, playgroundCode, openFilePath) {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
                                                 const key = Math.floor(Math.random()*10000) + expressions[index].value + '_' + index
+                                                // const key = expressions[index].value + '_' + index
                                                 return (
                                                     <Elm
                                                         key={key}
