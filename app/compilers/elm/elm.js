@@ -4,6 +4,9 @@ import Elm from 'react-elm-components'
 
 var exec = require('child_process').exec;
 var fs = require('fs')
+var jsonfile = require('jsonfile')
+var writeJsonFile = Promise.promisify(jsonfile.writeFile)
+
 var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
@@ -52,37 +55,37 @@ const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
 let packageJsonTemplateFileContents = null
 
-function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, pathToAdd, basePath) {
+function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath) {
     const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
-    let packageJsonFileConents = {
+    let packageJsonFileContents = {
         ...packageJsonTemplateFileContents,
-        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(pathToAdd))
+        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(basePath))
     }
 
-    let folderToCheck = basePath
-    let filesInFolderToCheck
-    while(true) {
-        filesInFolderToCheck = fs.readdirSync(folderToCheck)
-        if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
-            const tempPackageJsonContent = JSON.parse(fs.readFileSync(`${folderToCheck}/elm-package.json`).toString())
-            let sourceDirectories = tempPackageJsonContent['source-directories']
-            packageJsonFileConents = {
-                ...packageJsonFileConents,
-                'source-directories': _.uniq(packageJsonFileConents['source-directories']
-                                                .concat(`${folderToCheck}/${sourceDirectories}`)
-                                                .concat(`${folderToCheck}`))
-            }
-            break;
-        } else {
-            if(folderToCheck === '/') {
+    if(basePath !== '.') {
+        let folderToCheck = basePath
+        let filesInFolderToCheck
+        while(true) {
+            filesInFolderToCheck = fs.readdirSync(folderToCheck)
+            if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
+                const tempPackageJsonContent = jsonfile.readFileSync(`${folderToCheck}/elm-package.json`)
+                let sourceDirectories = tempPackageJsonContent['source-directories']
+                packageJsonFileContents = {
+                    ...packageJsonFileContents,
+                    'source-directories': _.uniq(packageJsonFileContents['source-directories'].concat(`${folderToCheck}/${sourceDirectories}`))
+                }
                 break;
-            }
+            } else {
+                if(folderToCheck === '/') {
+                    break;
+                }
 
-            folderToCheck = _.initial(folderToCheck.split('/')).join('/')
+                folderToCheck = _.initial(folderToCheck.split('/')).join('/')
+            }
         }
     }
 
-    return writeFile(packageJsonFilePath, JSON.stringify(packageJsonFileConents))
+    return writeJsonFile(packageJsonFilePath, packageJsonFileContents, {spaces: 4})
 }
 
 function getPackageTemplate() {
@@ -92,11 +95,8 @@ function getPackageTemplate() {
     if(packageJsonTemplateFileContents) {
         return Promise.resolve(packageJsonTemplateFileContents)
     } else {
-        return readFile(packageJsonTemplateFilePath)
-                .then((packageJsonFile) => {
-                    packageJsonTemplateFileContents = JSON.parse(packageJsonFile.toString())
-                    return packageJsonTemplateFileContents
-                })
+        packageJsonTemplateFileContents = jsonfile.readFileSync(packageJsonTemplateFilePath)
+        return Promise.resolve(packageJsonTemplateFileContents)
     }
 }
 
@@ -110,15 +110,10 @@ function updateFileSources(openFilePath) {
         lastOpenFilePath = openFilePath
     }
 
-    let pathToAdd = "."
-
-    if(openFilePath) {
-        pathToAdd = openFilePath
-    }
-
     getPackageTemplate()
     .then((templateContents) => {
-        return writeSourcesToElmPackageJson(templateContents, pathToAdd, openFilePath)
+        console.log(8)
+        return writeSourcesToElmPackageJson(templateContents, openFilePath || '.')
     })
     .catch((err) => {
         console.log('error parsing file: ', err.toString())
