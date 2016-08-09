@@ -7,6 +7,8 @@
 
 ### How to try it out
 ```
+npm install
+npm install elm -g -- in case you don't have elm installed already
 npm run build
 npm run start
 ```
@@ -41,6 +43,7 @@ In frolic, you can start typing your expressions and see result in the output pa
 
 ```
 npm install
+npm install elm -g -- in case you don't have elm installed already
 -- go to folder app/compilers/elm/temp/ and do
 elm-package install -y
 -- from the root folder run
