@@ -17,7 +17,6 @@
         "elm-community/elm-linear-algebra": "2.0.3 <= v < 3.0.0",
         "elm-community/elm-list-extra": "2.0.0 <= v < 3.0.0",
         "elm-community/elm-material-icons": "2.0.0 <= v < 3.0.0",
-        "elm-community/elm-random-extra": "1.0.2 <= v < 2.0.0",
         "elm-community/elm-webgl": "3.0.3 <= v < 4.0.0",
         "elm-community/graph": "1.0.0 <= v < 2.0.0",
         "elm-community/html-extra": "2.0.0 <= v < 3.0.0",

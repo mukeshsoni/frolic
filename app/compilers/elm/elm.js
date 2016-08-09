@@ -204,7 +204,6 @@ function hasSubscribed(code) {
 }
 
 function getToStrings(expression) {
-    console.log(expression.commands)
     return expression.commands.map((command) => {
         if(command.value === '') {
             return '"\n"'
@@ -215,11 +214,7 @@ function getToStrings(expression) {
 }
 
 function getSimpleExpressionChunk(expression) {
-    if(expression.value === '') {
-        return '" "'
-    } else {
-        return `(String.concat [${getToStrings(expression)}])`
-    }
+    return `(String.concat [${getToStrings(expression)}])`
 }
 
 const SPACE = ' '
@@ -284,14 +279,15 @@ let cachedComponentKeys = {}
  * Any expression in a chain changing would lead to cache busting of all other expressions (they are all in a single component anyways)
  */
 function getComponentKey(expressions, index, code) {
-    if(cachedCode === code && cachedComponentKeys[expressions[index].value]) {
-        return
-        return expressions[index].value + '_' + index
-    } else {
-        cachedCode = code
-        cachedComponentKeys[expressions[index]] = Math.floor(Math.random() * 10000) + '_index'
-        return cachedComponentKeys[expressions[index]]
-    }
+    return Math.floor(Math.random() * 10000) + '_' + index
+    // if(cachedCode === code && cachedComponentKeys[expressions[index].value]) {
+    //     return
+    //     return expressions[index].value + '_' + index
+    // } else {
+    //     cachedCode = code
+    //     cachedComponentKeys[expressions[index]] = Math.floor(Math.random() * 10000) + '_' + index
+    //     return cachedComponentKeys[expressions[index]]
+    // }
 }
 
 export function compile(code, playgroundCode, openFilePath) {
