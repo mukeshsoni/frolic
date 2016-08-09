@@ -32,7 +32,7 @@
     - [ ] Maintain a mapping of some common modules to their package names (e.g. Mouse -> elm-lang/mouse etc.) and then auto install them if someone requires them.
     - [ ] install all the most commonly used packages already in elm/temp
    - [ ] have a screencast where we implement some medium complexity ui component (like autocomplete - https://www.youtube.com/watch?v=KSuCYUqY058 or react-telephone-input), where you get instant feedback all the time
-- [ ] time travelling slider
+- [ ] time traveling slider
 - [ ] make screencasts with the app like done in learn.hfm.io (haskell for mac)
 the online version as well as the desktop can give an option to select the language to learn (elm, purescript, javascript, haskell etc.). It then becomes any-language-learning-playground. The ability to add any other language should just be about providing a compile engine implementation which returns a promise which returns formatted (\ns) output
 - [ ] might be able to use node streams to not read/write/read/write files to disk

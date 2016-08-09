@@ -13,7 +13,8 @@ var readFile = Promise.promisify(fs.readFile)
 
 var mkdirp = Promise.promisify(require('mkdirp'));
 
-const basePath = 'app/compilers/elm'
+const basePath = process.env.NODE_ENV === 'development' ? 'app/compilers/elm' : 'dist/app/compilers/elm'
+
 const tempFolderPath = basePath + '/temp'
 const codePath = tempFolderPath
 const promisifiedExec = Promise.promisify(exec)
@@ -271,6 +272,28 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
     return Promise.all(fileWritePromises).then(() => expressions)
 }
 
+let cachedCode = null
+let cachedComponentKeys = {}
+
+/*
+ * if the key for the component is not cached and generated afresh every time, two bad things happen
+ * 1. All components lose all their state
+ * 2. All components are redrawn by react, which leads to flashing of all components on each compile
+ * But caching needs to take into consideration both the expression in the playground as well as the code in the code panel
+ * TODO - Caching based on expression.value is both wrong and useless because we now combine expressions together into a single expression
+ * Any expression in a chain changing would lead to cache busting of all other expressions (they are all in a single component anyways)
+ */
+function getComponentKey(expressions, index, code) {
+    if(cachedCode === code && cachedComponentKeys[expressions[index].value]) {
+        return
+        return expressions[index].value + '_' + index
+    } else {
+        cachedCode = code
+        cachedComponentKeys[expressions[index]] = Math.floor(Math.random() * 10000) + '_index'
+        return cachedComponentKeys[expressions[index]]
+    }
+}
+
 export function compile(code, playgroundCode, openFilePath) {
     // get folder path from file path
     openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
@@ -296,11 +319,9 @@ export function compile(code, playgroundCode, openFilePath) {
                                         const elmComponents = sources.map((source, index) => {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
-                                                const key = Math.floor(Math.random()*10000) + expressions[index].value + '_' + index
-                                                // const key = expressions[index].value + '_' + index
                                                 return (
                                                     <Elm
-                                                        key={key}
+                                                        key={getComponentKey(expressions, index, code)}
                                                         src={source}
                                                         />
                                                 )
