@@ -123,7 +123,7 @@ function updateFileSources(openFilePath) {
 
 function writeCodeToFile(code, codePath) {
     let moduleName = 'UserCode'
-    let codeToWrite = code
+    let codeToWrite = code.trim()
 
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
