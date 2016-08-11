@@ -51,6 +51,43 @@ npm run hot-server
 npm run start-hot
 ```
 
+### List of packages includes in the app by default -
+- elm-community/array-extra
+- elm-community/basics-extra
+- elm-community/dict-extra
+- elm-community/easing-functions
+- elm-community/elm-lazy-list
+- elm-community/elm-linear-algebra
+- elm-community/elm-material-icons
+- elm-community/elm-webgl
+- elm-community/graph
+- elm-community/html-extra
+- elm-community/intdict
+- elm-community/json-extra
+- elm-community/list-split
+- elm-community/maybe-extra
+- elm-community/random-extra
+- elm-community/result-extra
+- elm-community/string-extra
+- elm-community/svg-extra
+- elm-community/undo-redo
+- elm-lang/animation-frame
+- elm-lang/core
+- elm-lang/dom
+- elm-lang/geolocation
+- elm-lang/html
+- elm-lang/keyboard
+- elm-lang/lazy
+- elm-lang/mouse
+- elm-lang/navigation
+- elm-lang/page-visibility
+- elm-lang/svg
+- elm-lang/trampoline
+- elm-lang/websocket
+- elm-lang/window
+- evancz/elm-http
+- evancz/elm-markdown
+
 ## Maintainers
 
 - [Mukesh Soni](https://github.com/mukeshsoni)
