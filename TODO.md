@@ -38,3 +38,7 @@
 the online version as well as the desktop can give an option to select the language to learn (elm, purescript, javascript, haskell etc.). It then becomes any-language-learning-playground. The ability to add any other language should just be about providing a compile engine implementation which returns a promise which returns formatted (\ns) output
 - [ ] might be able to use node streams to not read/write/read/write files to disk
 - [ ] plugin concept like that in hyper term. just add the plugin name, it will be downloaded and installed for you
+- [ ] ability to save playground code
+- [ ] type hints on hover in the editors
+- [ ] watch files which are imported in the loaded file as well as the loaded file and reload on change of any the files files
+- [ ] ability to install a library by giving the name (e.g. elm-lang/html). If library already available, don't do nothing
