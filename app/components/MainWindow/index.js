@@ -47,7 +47,13 @@ export default class Home extends Component {
                 <SplitPane split='vertical' defaultSize={this.props.showCodePanel ? '33%' : 0}>
                     {this.props.showCodePanel ?
                         <div className={styles.column}>
-                            <h3>Code goes here</h3>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: 10
+                            }}>
+                                <img src={require('file!../../images/code-funnel.svg')} style={{width: 16, height: 16}}/>
+                            </div>
                             <AceEditor
                                 ref={(node) => {
                                     if(node) {
@@ -76,7 +82,18 @@ export default class Home extends Component {
                         >
                         {this.props.showPlaygroundPanel ?
                             <div className={styles.column}>
-                                <h3>Playground</h3>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    padding: 10
+                                }}>
+                                    <img src={require('file!../../images/lab-flask.svg')} style={{width: 16, height: 16}}/>
+                                    <img
+                                        src={require('url!../../images/document-save-16x16.ico')}
+                                        style={{cursor: 'pointer'}}
+                                        onClick={this.props.onSavePlaygroundClick}
+                                        />
+                                </div>
                                 <AceEditor
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
@@ -96,7 +113,13 @@ export default class Home extends Component {
                         }
                         {this.props.showOutputPanel ?
                             <div className={styles.column}>
-                                <h3>Output</h3>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    padding: 10
+                                }}>
+                                    <img src={require('file!../../images/headphone-output.svg')} style={{width: 16, height: 16}}/>
+                                </div>
                                 <div style={{fontSize: 12, height: this.props.editorHeight, backgroundColor: 'black'}}>
                                     {this.props.output}
                                 </div>

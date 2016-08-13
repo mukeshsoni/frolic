@@ -7,6 +7,7 @@ var fs = require('fs')
 var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
 var readFile = Promise.promisify(fs.readFile)
+var fileAccess = Promise.promisify(fs.access)
 
 const storage = require('electron-json-storage');
 const getFromStorage = Promise.promisify(storage.get)
@@ -52,6 +53,23 @@ const compilers = {
     }
 }
 
+function getFileNameWithoutExtension(fileName) {
+    if(fileName.indexOf('.') >= 0) {
+        return _.initial(fileName.split('.')).join('.')
+    } else {
+        return fileName // no extension in the file name
+    }
+}
+
+function getPlaygroundFilePath(codeFilePath) {
+    if(!codeFilePath) {
+        return null
+    }
+
+    const codeFileName = _.last(codeFilePath.split('/'))
+    const codeFileFolderPath = _.initial(codeFilePath.split('/')).join('/')
+    return codeFileFolderPath + '/' + getFileNameWithoutExtension(codeFileName) + '.frolic'
+}
 
 export default class App extends Component {
     constructor(props) {
@@ -68,12 +86,14 @@ export default class App extends Component {
         this.handleFileOpenClick = _.debounce(this.handleFileOpenClick.bind(this), 500)
         this.handleFileSaveClick = _.debounce(this.handleFileSaveClick.bind(this), 500)
         this.handleNewFileClick = _.debounce(this.handleNewFileClick.bind(this), 500)
+        this.handleSavePlaygroundClick = _.debounce(this.handleSavePlaygroundClick.bind(this), 500)
         this.toggleCodePanelVisibility = this.toggleCodePanelVisibility.bind(this)
         this.togglePlaygroundPanelVisibility = this.togglePlaygroundPanelVisibility.bind(this)
         this.toggleOutputPanelVisibility = this.toggleOutputPanelVisibility.bind(this)
         this.loadFileFromHistory = this.loadFileFromHistory.bind(this)
         this.handleWindowResize = _.debounce(this.handleWindowResize.bind(this), 300)
-
+        this.loadPlaygroundFile = this.loadPlaygroundFile.bind(this)
+        
         this.state = {
             code: 'add x y = x + y',
             playgroundCode: 'add 2 3',
@@ -181,6 +201,14 @@ export default class App extends Component {
         })
     }
 
+    handleSavePlaygroundClick() {
+        saveFile(this.state.playgroundCode, getPlaygroundFilePath(this.state.openFilePath))
+            .then((filePath) => {
+                console.log('playground code saved to', filePath)
+            })
+            .catch((err) => console.log('error saving file ', err.message))
+    }
+
     handleLanguageChange(e) {
         compilers[this.state.language].cleanUp()
         this.setState({language: e.target.value})
@@ -195,38 +223,43 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        // the file has not yet been saved nor been loaded from some path
-        if(!this.state.openFilePath) {
-            saveFile(this.state.code, './temp/code.js')
-                .then((filePath) => {
-                    this.setState({
-                        openFilePath: filePath,
-                        fileSaved: true
-                    })
+        saveFile(this.state.code, this.state.openFilePath)
+            .then((filePath) => {
+                this.setState({
+                    openFilePath: filePath,
+                    fileSaved: true
                 })
-                .catch((err) => console.log('error saving file ', err.message))
-        } else {
-            writeFile(this.state.openFilePath, this.state.code)
-                .then(() => {
-                    // alert('File saved!')
-                    this.setState({
-                        fileSaved: true
-                    })
+            })
+            .catch((err) => console.log('error saving file ', err.message))
+    }
+
+    loadPlaygroundFile(codeFile) {
+        return fileAccess(getPlaygroundFilePath(codeFile.filePath))
+                .then((content) => {
+                    return readFile(getPlaygroundFilePath(codeFile.filePath))
+                            .then((content) => {
+                                return {
+                                    codeFile,
+                                    playgroundCode: content.toString(),
+                                }
+                            })
                 })
-                .catch((err) => alert('Error saving file ', err.toString()))
-        }
+                .catch(() => {codeFile, 'blah'})
     }
 
     handleFileOpenClick() {
         openFile()
-            .then((file) => {
+            .then(this.loadPlaygroundFile)
+            .then(({codeFile, playgroundCode}) => {
                 this.setState({
-                    openFilePath: file.filePath,
-                    code: file.content,
+                    openFilePath: codeFile.filePath,
+                    code: codeFile.content,
+                    playgroundCode,
                     fileSaved: true
                 }, () => {
                     this.storeFilePathInDb()
                     compilers[this.state.language].onNewFileLoad(this.state.openFilePath)
+                    this.compile()
                 })
             })
             .catch((err) => {
@@ -288,6 +321,7 @@ export default class App extends Component {
                     output={this.state.output}
                     onCodeChange={this.handleCodeChange}
                     onPlaygroundCodeChange={this.handlePlaygroundCodeChange}
+                    onSavePlaygroundClick={this.handleSavePlaygroundClick}
                     editorMode={compilers[this.state.language].editorMode}
                     showCodePanel={this.state.showCodePanel}
                     showPlaygroundPanel={this.state.showPlaygroundPanel}
