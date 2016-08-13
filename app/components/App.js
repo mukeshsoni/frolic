@@ -93,7 +93,7 @@ export default class App extends Component {
         this.loadFileFromHistory = this.loadFileFromHistory.bind(this)
         this.handleWindowResize = _.debounce(this.handleWindowResize.bind(this), 300)
         this.loadPlaygroundFile = this.loadPlaygroundFile.bind(this)
-        
+
         this.state = {
             code: 'add x y = x + y',
             playgroundCode: 'add 2 3',
@@ -244,7 +244,9 @@ export default class App extends Component {
                                 }
                             })
                 })
-                .catch(() => {codeFile, 'blah'})
+                .catch(() => {
+                    return {codeFile, playgroundCode: ''}
+                })
     }
 
     handleFileOpenClick() {
