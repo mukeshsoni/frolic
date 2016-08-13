@@ -7,9 +7,18 @@
 - [x] column hide and show (like in haskell for mac)
 - [ ] Red background to show errors
 - [ ] Save playground files
+- [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)
+    - [ ] Can start by not bundling it but just creating a repo with one elm file and one .frolic (playground) file for each question
 - [ ] Load corresponding playground file when loading a file
 - [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
+- [ ] **Frolic Lessons** - Allow creation of lessons (can start with lesson file with particular format). Allows users to go to next/previous questions etc., when a lesson is loaded
+    - [ ] load frolic-lesson.json. will have the order of question files. Should have corresponding .frolic (playground) files
+    - [ ] When user moves to next/previous/particular question, update json file so that next time the lesson file is loaded, start from that questions
+    - [ ] jump to question number 'x'
+    - [ ] Finish lesson?
+    - [ ] Feedback (how many correct/wrong etc.)
+    - [ ] hints
 - [ ] Allow font size and type change for editors and output window
 - [ ] might not work on windows because of folder paths (/ vs \)
 - [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
