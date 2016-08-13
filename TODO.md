@@ -5,7 +5,12 @@
 - [x] execute normal expressions using elm App.beginnerProgram instead of Debug.log
 
 - [x] column hide and show (like in haskell for mac)
-- [ ] ability to change font size, font type
+- [ ] Red background to show errors
+- [ ] Save playground files
+- [ ] Load corresponding playground file when loading a file
+- [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
+- [ ] Correct line number mapping when there are statements in there playground
+- [ ] Allow font size and type change for editors and output window
 - [ ] might not work on windows because of folder paths (/ vs \)
 - [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
