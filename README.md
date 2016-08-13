@@ -37,6 +37,7 @@ In frolic, you can start typing your expressions and see result in the output pa
 - Mix of ui components + normal expressions
 - Has around 38 packages built in (the list is below). E.g. Just do `import Http` and it will work.
 - Can load files from the disk and the dependencies will be resolves automatically
+- Can save playground code as a file. Also, when the code file is loaded in the future, the playground file automatically gets loaded with it. That way, you can think of the playground code as sort of clojurescript devcards.
 - Having multiple ui components to try out in same output window (like [clojurescript devcards](https://github.com/bhauman/devcards))
 
 ### How to setup the dev environment

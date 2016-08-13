@@ -49,7 +49,11 @@ function getFormattedError(error) {
                                     .join('\n')
                                     .slice(errorStringPrefix.length)
 
-    return <pre>{correctedErrorString}</pre>
+    return (
+        <div style={{height: '100%', background: '#D8000C'}}>
+            <pre>{correctedErrorString}</pre>
+        </div>
+    )
 }
 
 const tempFolderName = '.frolic'
