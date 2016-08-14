@@ -154,14 +154,14 @@ function tokenize(code) {
                         return acc.slice(0, acc.length - 1).concat({
                             ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + ' ' + _.trim(line),
+                            value: acc[acc.length - 1].value + ' ' + _.trim(cleanUpExpression(line)),
                         })
                     }
 
                     return acc.concat({
                         newlines: 1,
                         lineNumber: index,
-                        value: _.trimEnd(line)
+                        value: cleanUpExpression(line)
                     })
                 }, [])
                 .map((command) => {
@@ -197,9 +197,13 @@ function getToStrings(expression) {
         if(command.value === '') {
             return '"\n"'
         } else {
-            return `Basics.toString (${command.value}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
+            return `Basics.toString (${cleanUpExpression(command.value)}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
         }
     }).join(',')
+}
+
+function cleanUpExpression(expr) {
+    return _.trimEnd(expr.split('--')[0])
 }
 
 function getSimpleExpressionChunk(expression) {
