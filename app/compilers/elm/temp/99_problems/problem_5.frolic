@@ -1,0 +1,9 @@
+myReverse [1..4] -- [4, 3, 2, 1] 
+
+myReverse [2, 1] -- [1, 2] 
+
+myReverse [1] -- [1] 
+
+myReverse [] -- [] 
+
+myReverse [ 'a', 'b', 'c' ] -- [ 'c', 'b', 'a' ]

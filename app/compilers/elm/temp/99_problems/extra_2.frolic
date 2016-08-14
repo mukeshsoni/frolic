@@ -1,0 +1,12 @@
+isEven x = x % 2 == 0
+isOdd x = x % 2 /= 0
+
+takeWhile isOdd [1, 2, 1] -- [1] 
+
+takeWhile isEven [1, 2, 1] -- []
+
+takeWhile isEven [] -- []
+
+takeWhile isEven [2, 4, 100000, 1] -- [2, 4, 100000]
+
+takeWhile (\x -> x < 5 ) [1..10] -- [1, 2, 3, 4]

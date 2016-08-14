@@ -1,0 +1,11 @@
+penultimate [1..4] -- Just 3 
+
+penultimate [ 1, 2 ] -- Just 1 
+
+penultimate [ 1 ] -- Nothing 
+
+penultimate [] -- Nothing 
+
+penultimate [ "a", "b", "c" ] -- Just "b" 
+
+penultimate [ "a" ] -- Nothing

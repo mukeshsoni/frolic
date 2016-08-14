@@ -1,0 +1,7 @@
+countElements [1..4000] -- 4000
+
+countElements [ 1 ] -- 1
+
+countElements [] -- 0
+
+countElements [ 'a', 'b', 'c' ] -- 3

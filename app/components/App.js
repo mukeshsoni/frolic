@@ -208,18 +208,6 @@ export default class App extends Component {
         })
     }
 
-    handleSavePlaygroundClick() {
-        saveFile(
-            this.state.playgroundCode,
-            getPlaygroundFilePath(this.state.openFilePath, this.state.playgroundFilePath),
-            ['frolic'],
-            'Save Playground')
-            .then((filePath) => {
-                console.log('playground code saved to', filePath)
-            })
-            .catch((err) => console.log('error saving file ', err.message))
-    }
-
     handleLanguageChange(e) {
         compilers[this.state.language].cleanUp()
         this.setState({language: e.target.value})
@@ -228,6 +216,7 @@ export default class App extends Component {
     handleNewFileClick() {
         this.setState({
             openFilePath: null,
+            playgroundFilePath: null,
             fileSaved: false,
             code: '',
         })
@@ -259,14 +248,14 @@ export default class App extends Component {
             .catch((err) => console.log('error opening playground file', err.message))
     }
 
-    loadPlaygroundFile(codeFile) {
-        return fileAccess(getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath))
+    loadPlaygroundFile(codeFile, playgroundFilePath) {
+        return fileAccess(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath))
                 .then((content) => {
-                    return readFile(getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath))
+                    return readFile(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath))
                             .then((content) => {
                                 return {
                                     codeFile,
-                                    playgroundFile: {content: content.toString(), filePath: getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath)},
+                                    playgroundFile: {content: content.toString(), filePath: getPlaygroundFilePath(codeFile.filePath, playgroundFilePath)},
                                 }
                             })
                 })
@@ -276,9 +265,21 @@ export default class App extends Component {
                 })
     }
 
+    handleSavePlaygroundClick() {
+        saveFile(
+            this.state.playgroundCode,
+            getPlaygroundFilePath(this.state.openFilePath, this.state.playgroundFilePath),
+            ['frolic'],
+            'Save Playground')
+            .then((filePath) => {
+                console.log('playground code saved to', filePath)
+            })
+            .catch((err) => console.log('error saving file ', err.message))
+    }
+
     handleFileOpenClick() {
         openFile(['elm'])
-            .then(this.loadPlaygroundFile)
+            .then((codeFile) => this.loadPlaygroundFile(codeFile, null))
             .then(({codeFile, playgroundFile}) => {
                 this.setState({
                     openFilePath: codeFile.filePath,
