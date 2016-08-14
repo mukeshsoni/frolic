@@ -12,6 +12,8 @@
 - [x] Load corresponding playground file when loading a file
 - [x] Load particular playground file from disk
 - [x] Loading spinners in taskbar when compile is in progress
+- [ ] BUG - writing comments in playground file, specially in the same line as code breaks it
+- [ ] BUG - any whitespace after end of line in any expression breaks playground
 - [ ] Show Playground file path somewhere
 - [ ] Allow font size and type change for editors and output window
 - [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)

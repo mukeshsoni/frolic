@@ -154,14 +154,14 @@ function tokenize(code) {
                         return acc.slice(0, acc.length - 1).concat({
                             ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + _.trimStart(line),
+                            value: acc[acc.length - 1].value + ' ' + _.trim(line),
                         })
                     }
 
                     return acc.concat({
                         newlines: 1,
                         lineNumber: index,
-                        value: line
+                        value: _.trimEnd(line)
                     })
                 }, [])
                 .map((command) => {
@@ -284,7 +284,7 @@ export function compile(code, playgroundCode, openFilePath) {
     openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
     return updateFileSources(openFilePath)
             .then(() => writeCodeToFile(code, codePath))
-            .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName, codePath))
+            .then((userModuleName) => writeFilesForExpressions(playgroundCode.trim(), userModuleName, codePath))
             .then((expressions) => {
                 return new Promise((resolve, reject) => {
                     const allPromises = expressions.map((expression, index) => {

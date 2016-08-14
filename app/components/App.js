@@ -266,11 +266,12 @@ export default class App extends Component {
                             .then((content) => {
                                 return {
                                     codeFile,
-                                    playgroundCode: content.toString(),
+                                    playgroundFile: {content: content.toString(), filePath: getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath)},
                                 }
                             })
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.log('error reading playground file', err.message)
                     return {codeFile, playgroundFile: {content: '', filePath: null}}
                 })
     }
