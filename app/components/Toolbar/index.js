@@ -55,7 +55,7 @@ class Toolbar extends Component {
                     <select
                         value={this.props.editorTheme}
                         onChange={this.props.onEditorThemeChange}
-                        style={{marginRight: '0.5em', fontSize: 20, display: 'none'}}
+                        style={{marginRight: '0.5em', fontSize: 20}}
                         >
                         {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
                     </select>

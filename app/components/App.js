@@ -27,15 +27,6 @@ const { compile: compileElm, cleanUp: cleanUpElm, onNewFileLoad: onNewFileLoadEl
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
-const keyboardShortcuts = [
-    'command+s',
-    'ctrl+s',
-    'command+o',
-    'ctrl+o',
-    'command+n',
-    'ctrl+n',
-]
-
 
 import {ipcRenderer} from 'electron'
 
@@ -61,7 +52,11 @@ function getFileNameWithoutExtension(fileName) {
     }
 }
 
-function getPlaygroundFilePath(codeFilePath) {
+function getPlaygroundFilePath(codeFilePath, playgroundFilePath) {
+    if(playgroundFilePath) {
+        return playgroundFilePath
+    }
+
     if(!codeFilePath) {
         return null
     }
@@ -93,6 +88,7 @@ export default class App extends Component {
         this.loadFileFromHistory = this.loadFileFromHistory.bind(this)
         this.handleWindowResize = _.debounce(this.handleWindowResize.bind(this), 300)
         this.loadPlaygroundFile = this.loadPlaygroundFile.bind(this)
+        this.openPlaygroundFile = this.openPlaygroundFile.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -123,8 +119,14 @@ export default class App extends Component {
                 case 'openFile':
                     this.handleFileOpenClick()
                     break;
+                case 'openPlaygroundFile':
+                    this.openPlaygroundFile()
+                    break;
                 case 'saveFile':
                     this.handleFileSaveClick()
+                    break;
+                case 'savePlaygroundFile':
+                    this.handleSavePlaygroundClick()
                     break;
                 default:
                     console.log('don\'t understand the menu action', message.action)
@@ -202,7 +204,11 @@ export default class App extends Component {
     }
 
     handleSavePlaygroundClick() {
-        saveFile(this.state.playgroundCode, getPlaygroundFilePath(this.state.openFilePath))
+        saveFile(
+            this.state.playgroundCode,
+            getPlaygroundFilePath(this.state.openFilePath, this.state.playgroundFilePath),
+            ['frolic'],
+            'Save Playground')
             .then((filePath) => {
                 console.log('playground code saved to', filePath)
             })
@@ -223,7 +229,7 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        saveFile(this.state.code, this.state.openFilePath)
+        saveFile(this.state.code, this.state.openFilePath, ['elm'])
             .then((filePath) => {
                 this.setState({
                     openFilePath: filePath,
@@ -233,10 +239,25 @@ export default class App extends Component {
             .catch((err) => console.log('error saving file ', err.message))
     }
 
+    openPlaygroundFile() {
+        openFile(['frolic'])
+            .then(({filePath, content}) => {
+                this.setState({
+                    playgroundCode: content.toString(),
+                    playgroundFilePath: filePath,
+                }, () => {
+                    if(this.state.autoCompile) {
+                        this.compile()
+                    }
+                })
+            })
+            .catch((err) => console.log('error opening playground file', err.message))
+    }
+
     loadPlaygroundFile(codeFile) {
-        return fileAccess(getPlaygroundFilePath(codeFile.filePath))
+        return fileAccess(getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath))
                 .then((content) => {
-                    return readFile(getPlaygroundFilePath(codeFile.filePath))
+                    return readFile(getPlaygroundFilePath(codeFile.filePath, this.state.playgroundFilePath))
                             .then((content) => {
                                 return {
                                     codeFile,
@@ -250,18 +271,21 @@ export default class App extends Component {
     }
 
     handleFileOpenClick() {
-        openFile()
+        openFile(['elm'])
             .then(this.loadPlaygroundFile)
-            .then(({codeFile, playgroundCode}) => {
+            .then(({codeFile, playgroundFile}) => {
                 this.setState({
                     openFilePath: codeFile.filePath,
                     code: codeFile.content,
-                    playgroundCode,
+                    playgroundCode: playgroundFile.content,
+                    playgroundFilePath: playgroundFile.filePath,
                     fileSaved: true
                 }, () => {
                     this.storeFilePathInDb()
                     compilers[this.state.language].onNewFileLoad(this.state.openFilePath)
-                    this.compile()
+                    if(this.state.autoCompile) {
+                        this.compile()
+                    }
                 })
             })
             .catch((err) => {

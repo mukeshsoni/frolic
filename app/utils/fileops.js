@@ -10,10 +10,15 @@ var readFile = Promise.promisify(fs.readFile)
 // var remote = require('electron').remote; // Load remote compnent that contains the dialog dependency
 var { dialog } = require('electron').remote; // Load the dialogs component of the OS
 
-export function saveFile(content, filePath) {
+export function saveFile(content, filePath, extensions=[], title='Save') {
     return new Promise((resolve, reject) => {
         if(!filePath) {
-            dialog.showSaveDialog(function (fileName) {
+            dialog.showSaveDialog({
+                title,
+                filters: [
+                    {name: 'text', extensions}
+                ]
+            }, function (fileName) {
                 if (fileName === undefined){
                     return reject(new Error('No file name selected'))
                 } else {
@@ -31,11 +36,11 @@ export function saveFile(content, filePath) {
     })
 }
 
-export function openFile() {
+export function openFile(extensions) {
     return new Promise((resolve, reject) => {
         dialog.showOpenDialog({
             properties: ['openFile'],
-            filters: [{name: 'Elm files', extensions: ['elm']}]
+            filters: [{name: 'Elm files', extensions}]
         }, function(filePaths) {
             if(filePaths === undefined) {
                 return reject(new Error('no file selected'))

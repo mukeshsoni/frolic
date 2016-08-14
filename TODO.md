@@ -3,15 +3,21 @@
     - [x] depending on what is passed to render, use App.beginnerProgram or App.program
     - [x] detect render function and do eval stuff
 - [x] execute normal expressions using elm App.beginnerProgram instead of Debug.log
-
+- [x] for files loaded from disk, we add a path to the folder the file is in to file-sources in elm-package.json. but that will not suffice. We need to checkout where elm-package.json for that file might be and add that path along with all other paths mentioned in that elm-package.json's source-directories
+- [x] open to start a open blank file
+- [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
 - [x] column hide and show (like in haskell for mac)
-- [ ] Red background to show errors
-- [ ] Save playground files
+- [x] Red background to show errors
+- [x] Save playground files
+- [x] Load corresponding playground file when loading a file
+- [x] Load particular playground file from disk
+- [ ] Loading spinners in taskbar when compile is in progress
+- [ ] Playground file path somewhere
+- [ ] Allow font size and type change for editors and output window
 - [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)
     - [ ] Can start by not bundling it but just creating a repo with one elm file and one .frolic (playground) file for each question
-- [ ] Load corresponding playground file when loading a file
-- [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
+- [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] **Frolic Lessons** - Allow creation of lessons (can start with lesson file with particular format). Allows users to go to next/previous questions etc., when a lesson is loaded
     - [ ] load frolic-lesson.json. will have the order of question files. Should have corresponding .frolic (playground) files
     - [ ] When user moves to next/previous/particular question, update json file so that next time the lesson file is loaded, start from that questions
@@ -19,14 +25,10 @@
     - [ ] Finish lesson?
     - [ ] Feedback (how many correct/wrong etc.)
     - [ ] hints
-- [ ] Allow font size and type change for editors and output window
 - [ ] might not work on windows because of folder paths (/ vs \)
 - [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
-- [x] if user loads a file from file system, then `import ModuleX` where ModuleX is somewhere in the folder from where file is loaded, that should work!
 - [ ] elm-reactor does compilation and auto dependency installation. checkout it's code to see how it does auto dependency installation
-- [x] for files loaded from disk, we add a path to the folder the file is in to file-sources in elm-package.json. but that will not suffice. We need to checkout where elm-package.json for that file might be and add that path along with all other paths mentioned in that elm-package.json's source-directories
-- [x] open to start a open blank file
 - [ ] optimizations
     - [x] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
     - [x] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))
