@@ -26,7 +26,7 @@ render
 ```
 
 ### Why frolic
-The project was inspired by [haskell for mac](https://haskellformac.com). The main idea is to have a playground panel where users can type out code expressions and see the result instantaneously without any setup. There is a similar thing currently for elm ([elm-lang.org/try](elm-lang.org/try)) but it has limited functionality and doesn't work without having the ui layer (model, view, update, main etc.).
+The project was inspired by [haskell for mac](http://haskellformac.com). The main idea is to have a playground panel where users can type out code expressions and see the result instantaneously without any setup. There is a similar thing currently for elm ([elm-lang.org/try](elm-lang.org/try)) but it has limited functionality and doesn't work without having the ui layer (model, view, update, main etc.).
 
 In frolic, you can start typing your expressions and see result in the output panel without any glue code. Plus, it works for ui components too.
 
