@@ -25,6 +25,24 @@ import 'brace/theme/cobalt'
 import 'brace/theme/terminal'
 import 'brace/theme/twilight'
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getCompilingMessage() {
+    const messages = [
+        '👷👷',
+        '😴😴😴',
+        '💅',
+        'Here\'s a 🍠',
+        'Woof, working hard 🏗',
+        'Funcitonal Programming, yo! 😎',
+        '!Diversity 🐼',
+    ]
+
+    return messages[getRandomInt(0, messages.length - 1)]
+}
+
 export default class Home extends Component {
     constructor(props) {
         super(props)
@@ -119,6 +137,7 @@ export default class Home extends Component {
                                     padding: 10
                                 }}>
                                     <img src={require('file!../../images/headphone-output.svg')} style={{width: 16, height: 16}}/>
+                                    {this.props.compiling ? <span>{getCompilingMessage()}</span> : null}
                                 </div>
                                 <div style={{fontSize: 12, height: this.props.editorHeight, backgroundColor: 'black'}}>
                                     {this.props.output}

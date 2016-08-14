@@ -94,6 +94,7 @@ export default class App extends Component {
             code: 'add x y = x + y',
             playgroundCode: 'add 2 3',
             output: '',
+            compiling: false,
             language: 'elm',
             autoCompile: true,
             openFilePath: null,
@@ -177,9 +178,14 @@ export default class App extends Component {
     }
 
     compile() {
-        compilers[this.state.language].compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
-                    .then((output) => this.setState({output}))
-                    .catch((output) => this.setState({output}))
+        this.setState({
+            compiling: true,
+        }, () => {
+            compilers[this.state.language]
+                .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+                .then((output) => this.setState({output, compiling: false}))
+                .catch((output) => this.setState({output, compiling: false}))
+        })
     }
 
     handleCodeChange(newCode) {
@@ -345,6 +351,7 @@ export default class App extends Component {
                     code={this.state.code}
                     playgroundCode={this.state.playgroundCode}
                     output={this.state.output}
+                    compiling={this.state.compiling}
                     onCodeChange={this.handleCodeChange}
                     onPlaygroundCodeChange={this.handlePlaygroundCodeChange}
                     onSavePlaygroundClick={this.handleSavePlaygroundClick}
