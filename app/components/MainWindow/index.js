@@ -70,7 +70,11 @@ export default class Home extends Component {
                                 justifyContent: 'space-between',
                                 padding: 10
                             }}>
-                                <img src={require('file!../../images/code-funnel.svg')} style={{width: 16, height: 16}}/>
+                                <img
+                                    src={require('file!../../images/code-funnel.svg')}
+                                    title='Code'
+                                    alt='Code'
+                                    style={{width: 16, height: 16}}/>
                             </div>
                             <AceEditor
                                 ref={(node) => {
@@ -105,10 +109,16 @@ export default class Home extends Component {
                                     justifyContent: 'space-between',
                                     padding: 10
                                 }}>
-                                    <img src={require('file!../../images/lab-flask.svg')} style={{width: 16, height: 16}}/>
+                                    <img
+                                        src={require('file!../../images/lab-flask.svg')}
+                                        title='Playground'
+                                        alt='Playground'
+                                        style={{width: 16, height: 16}}/>
                                     <img
                                         src={require('url!../../images/document-save-16x16.ico')}
                                         style={{cursor: 'pointer'}}
+                                        title='Save Playground'
+                                        alt='Save Playground'
                                         onClick={this.props.onSavePlaygroundClick}
                                         />
                                 </div>
@@ -136,7 +146,11 @@ export default class Home extends Component {
                                     justifyContent: 'space-between',
                                     padding: 10
                                 }}>
-                                    <img src={require('file!../../images/headphone-output.svg')} style={{width: 16, height: 16}}/>
+                                    <img
+                                        src={require('file!../../images/headphone-output.svg')}
+                                        title='Output'
+                                        alt='Output'
+                                        style={{width: 16, height: 16}}/>
                                     {this.props.compiling ? <span>{getCompilingMessage()}</span> : null}
                                 </div>
                                 <div style={{fontSize: 12, height: this.props.editorHeight, backgroundColor: 'black'}}>
