@@ -271,7 +271,7 @@ export default class App extends Component {
                             })
                 })
                 .catch(() => {
-                    return {codeFile, playgroundCode: ''}
+                    return {codeFile, playgroundFile: {content: '', filePath: null}}
                 })
     }
 

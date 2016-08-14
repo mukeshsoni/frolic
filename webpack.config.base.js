@@ -1,6 +1,10 @@
 import path from 'path';
 
 export default {
+node: {
+  __filename: true,
+  __dirname: true
+},
   module: {
     loaders: [{
       test: /\.jsx?$/,

@@ -2,6 +2,7 @@ import React from 'react'
 import Promise from 'bluebird'
 import Elm from 'react-elm-components'
 
+var path = require('path')
 var exec = require('child_process').exec;
 var fs = require('fs')
 var jsonfile = require('jsonfile')
@@ -58,16 +59,17 @@ function getFormattedError(error) {
 
 const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
-let packageJsonTemplateFileContents = null
+let packageJsonTemplateFileContents = require('./temp/elm-package-template.js')
 
 function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath) {
     const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
+
     let packageJsonFileContents = {
         ...packageJsonTemplateFileContents,
-        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(basePath))
+        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(path.resolve(basePath)))
     }
 
-    if(basePath !== '.') {
+    if(basePath !== path.resolve(tempFolderPath)) {
         let folderToCheck = basePath
         let filesInFolderToCheck
         while(true) {
@@ -94,35 +96,18 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
     return writeJsonFile(packageJsonFilePath, packageJsonFileContents, {spaces: 4})
 }
 
-function getPackageTemplate() {
-    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
-
-    // if already read, read from cached file
-    if(packageJsonTemplateFileContents) {
-        return Promise.resolve(packageJsonTemplateFileContents)
-    } else {
-        packageJsonTemplateFileContents = jsonfile.readFileSync(packageJsonTemplateFilePath)
-        return Promise.resolve(packageJsonTemplateFileContents)
-    }
-}
-
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath) {
-    openFilePath = openFilePath || '.'
+    openFilePath = openFilePath || tempFolderPath
     if(lastOpenFilePath === openFilePath) {
         return Promise.resolve(true)
     } else {
         lastOpenFilePath = openFilePath
     }
 
-    return getPackageTemplate().then((templateContents) => {
-                return writeSourcesToElmPackageJson(templateContents, openFilePath)
-            })
-            .catch((err) => {
-                console.log('error parsing file: ', err.toString())
-            })
+    return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, openFilePath)
 }
 
 function writeCodeToFile(code, codePath) {
