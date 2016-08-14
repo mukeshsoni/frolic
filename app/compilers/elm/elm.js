@@ -2,6 +2,7 @@ import React from 'react'
 import Promise from 'bluebird'
 import Elm from 'react-elm-components'
 
+var path = require('path')
 var exec = require('child_process').exec;
 var fs = require('fs')
 var jsonfile = require('jsonfile')
@@ -58,16 +59,17 @@ function getFormattedError(error) {
 
 const tempFolderName = '.frolic'
 let lastOpenFilePath = ''
-let packageJsonTemplateFileContents = null
+let packageJsonTemplateFileContents = require('./temp/elm-package-template.js')
 
 function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath) {
     const packageJsonFilePath = `${tempFolderPath}/elm-package.json`
+
     let packageJsonFileContents = {
         ...packageJsonTemplateFileContents,
-        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(basePath))
+        'source-directories': _.uniq(packageJsonTemplateFileContents["source-directories"].concat(path.resolve(basePath)))
     }
 
-    if(basePath !== '.') {
+    if(basePath !== path.resolve(tempFolderPath)) {
         let folderToCheck = basePath
         let filesInFolderToCheck
         while(true) {
@@ -94,35 +96,18 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
     return writeJsonFile(packageJsonFilePath, packageJsonFileContents, {spaces: 4})
 }
 
-function getPackageTemplate() {
-    const packageJsonTemplateFilePath = `${tempFolderPath}/elm-package-template.json`
-
-    // if already read, read from cached file
-    if(packageJsonTemplateFileContents) {
-        return Promise.resolve(packageJsonTemplateFileContents)
-    } else {
-        packageJsonTemplateFileContents = jsonfile.readFileSync(packageJsonTemplateFilePath)
-        return Promise.resolve(packageJsonTemplateFileContents)
-    }
-}
-
 /*
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath) {
-    openFilePath = openFilePath || '.'
+    openFilePath = openFilePath || tempFolderPath
     if(lastOpenFilePath === openFilePath) {
         return Promise.resolve(true)
     } else {
         lastOpenFilePath = openFilePath
     }
 
-    return getPackageTemplate().then((templateContents) => {
-                return writeSourcesToElmPackageJson(templateContents, openFilePath)
-            })
-            .catch((err) => {
-                console.log('error parsing file: ', err.toString())
-            })
+    return writeSourcesToElmPackageJson(packageJsonTemplateFileContents, openFilePath)
 }
 
 function writeCodeToFile(code, codePath) {
@@ -169,14 +154,14 @@ function tokenize(code) {
                         return acc.slice(0, acc.length - 1).concat({
                             ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
-                            value: acc[acc.length - 1].value + _.trimStart(line),
+                            value: acc[acc.length - 1].value + ' ' + _.trim(cleanUpExpression(line)),
                         })
                     }
 
                     return acc.concat({
                         newlines: 1,
                         lineNumber: index,
-                        value: line
+                        value: cleanUpExpression(line)
                     })
                 }, [])
                 .map((command) => {
@@ -212,9 +197,13 @@ function getToStrings(expression) {
         if(command.value === '') {
             return '"\n"'
         } else {
-            return `Basics.toString (${command.value}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
+            return `Basics.toString (${cleanUpExpression(command.value)}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
         }
     }).join(',')
+}
+
+function cleanUpExpression(expr) {
+    return _.trimEnd(expr.split('--')[0])
 }
 
 function getSimpleExpressionChunk(expression) {
@@ -299,7 +288,7 @@ export function compile(code, playgroundCode, openFilePath) {
     openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
     return updateFileSources(openFilePath)
             .then(() => writeCodeToFile(code, codePath))
-            .then((userModuleName) => writeFilesForExpressions(playgroundCode, userModuleName, codePath))
+            .then((userModuleName) => writeFilesForExpressions(playgroundCode.trim(), userModuleName, codePath))
             .then((expressions) => {
                 return new Promise((resolve, reject) => {
                     const allPromises = expressions.map((expression, index) => {

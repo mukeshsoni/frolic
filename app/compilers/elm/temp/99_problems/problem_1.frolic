@@ -1,0 +1,9 @@
+last [1, 2, 3, 4] -- Just 4
+
+last [1..4] -- Just 4
+
+last [ 1 ] -- Just 1
+
+last [] -- Nothing
+
+last [ 'a', 'b', 'c' ] -- Just 'c'
