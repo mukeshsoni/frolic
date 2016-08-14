@@ -152,10 +152,9 @@ export default class App extends Component {
         })
     }
 
-
     handleWindowResize() {
         this.setState({
-            editorHeight: window.innerHeight - this.toolbarDiv.clientHeight - 100
+            editorHeight: this.mainWindow.clientHeight
         })
     }
 
@@ -348,6 +347,11 @@ export default class App extends Component {
                     }}
                 />
                 <MainWindow
+                    ref={(node) => {
+                        if(node) {
+                            this.mainWindow = ReactDOM.findDOMNode(node)
+                        }
+                    }}
                     code={this.state.code}
                     playgroundCode={this.state.playgroundCode}
                     output={this.state.output}
@@ -361,6 +365,7 @@ export default class App extends Component {
                     showOutputPanel={this.state.showOutputPanel}
                     editorHeight={this.state.editorHeight}
                     editorTheme={this.state.editorTheme}
+                    playgroundFilePath={getPlaygroundFilePath(this.state.openFilePath, this.state.playgroundFilePath)}
                     />
                 <Footer
                     fileSaved={this.state.fileSaved}

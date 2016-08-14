@@ -11,8 +11,8 @@
 - [x] Save playground files
 - [x] Load corresponding playground file when loading a file
 - [x] Load particular playground file from disk
-- [ ] Loading spinners in taskbar when compile is in progress
-- [ ] Playground file path somewhere
+- [x] Loading spinners in taskbar when compile is in progress
+- [ ] Show Playground file path somewhere
 - [ ] Allow font size and type change for editors and output window
 - [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)
     - [ ] Can start by not bundling it but just creating a repo with one elm file and one .frolic (playground) file for each question
