@@ -1,0 +1,50 @@
+const elmPackageTemplate = {
+    "version": "1.0.0",
+    "summary": "helpful summary of your project, less than 80 characters",
+    "repository": "https://github.com/user/project.git",
+    "license": "BSD3",
+    "source-directories": [
+        require('path').resolve(__dirname)
+    ],
+    "exposed-modules": [],
+    "dependencies": {
+        "elm-community/array-extra": "1.0.1 <= v < 2.0.0",
+        "elm-community/basics-extra": "1.1.0 <= v < 2.0.0",
+        "elm-community/dict-extra": "1.2.0 <= v < 2.0.0",
+        "elm-community/easing-functions": "1.0.1 <= v < 2.0.0",
+        "elm-community/elm-lazy-list": "1.1.0 <= v < 2.0.0",
+        "elm-community/elm-linear-algebra": "2.0.3 <= v < 3.0.0",
+        "elm-community/elm-material-icons": "2.0.0 <= v < 3.0.0",
+        "elm-community/elm-webgl": "3.0.3 <= v < 4.0.0",
+        "elm-community/graph": "1.0.0 <= v < 2.0.0",
+        "elm-community/html-extra": "2.0.0 <= v < 3.0.0",
+        "elm-community/intdict": "1.1.0 <= v < 2.0.0",
+        "elm-community/json-extra": "1.0.0 <= v < 2.0.0",
+        "elm-community/list-split": "1.0.1 <= v < 2.0.0",
+        "elm-community/maybe-extra": "1.1.0 <= v < 2.0.0",
+        "elm-community/random-extra": "1.0.0 <= v < 2.0.0",
+        "elm-community/result-extra": "1.0.0 <= v < 2.0.0",
+        "elm-community/string-extra": "1.0.2 <= v < 2.0.0",
+        "elm-community/svg-extra": "1.0.0 <= v < 2.0.0",
+        "elm-community/undo-redo": "1.0.0 <= v < 2.0.0",
+        "elm-lang/animation-frame": "1.0.0 <= v < 2.0.0",
+        "elm-lang/core": "4.0.4 <= v < 5.0.0",
+        "elm-lang/dom": "1.0.0 <= v < 2.0.0",
+        "elm-lang/geolocation": "1.0.1 <= v < 2.0.0",
+        "elm-lang/html": "1.1.0 <= v < 2.0.0",
+        "elm-lang/keyboard": "1.0.0 <= v < 2.0.0",
+        "elm-lang/lazy": "1.0.0 <= v < 2.0.0",
+        "elm-lang/mouse": "1.0.0 <= v < 2.0.0",
+        "elm-lang/navigation": "1.0.0 <= v < 2.0.0",
+        "elm-lang/page-visibility": "1.0.0 <= v < 2.0.0",
+        "elm-lang/svg": "1.1.1 <= v < 2.0.0",
+        "elm-lang/trampoline": "1.0.0 <= v < 2.0.0",
+        "elm-lang/websocket": "1.0.1 <= v < 2.0.0",
+        "elm-lang/window": "1.0.0 <= v < 2.0.0",
+        "evancz/elm-http": "3.0.1 <= v < 4.0.0",
+        "evancz/elm-markdown": "3.0.0 <= v < 4.0.0"
+    },
+    "elm-version": "0.17.1 <= v < 0.18.0"
+}
+
+export default elmPackageTemplate
