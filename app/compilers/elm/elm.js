@@ -263,6 +263,13 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
 let cachedCode = null
 let cachedComponentKeys = {}
 
+function getExpressionValue(expr) {
+    if(expr.commands) {
+        return expr.commands.reduce((acc, command) => acc + command.value, '')
+    } else {
+        return expr.value
+    }
+}
 /*
  * if the key for the component is not cached and generated afresh every time, two bad things happen
  * 1. All components lose all their state
@@ -272,15 +279,27 @@ let cachedComponentKeys = {}
  * Any expression in a chain changing would lead to cache busting of all other expressions (they are all in a single component anyways)
  */
 function getComponentKey(expressions, index, code) {
-    return Math.floor(Math.random() * 10000) + '_' + index
-    // if(cachedCode === code && cachedComponentKeys[expressions[index].value]) {
-    //     return
-    //     return expressions[index].value + '_' + index
+    if(!cachedComponentKeys[getExpressionValue(expressions[index]) + index]) {
+        cachedComponentKeys[getExpressionValue(expressions[index]) + index] = Math.floor(Math.random() * 10000) + '_' + index
+    } else {
+        console.log('serving cached key', cachedComponentKeys[getExpressionValue(expressions[index]) + index])
+    }
+
+    return cachedComponentKeys[getExpressionValue(expressions[index]) + index]
+}
+
+var cachedSources = {}
+
+function getSource(module, expression, index, codePath) {
+    // if(!cachedSources[expression.value] || true) {
+        const fileName = `main${index}`
+        eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString())
+        cachedSources[getExpressionValue(expression)] = module.exports[_.capitalize(fileName)]
     // } else {
-    //     cachedCode = code
-    //     cachedComponentKeys[expressions[index]] = Math.floor(Math.random() * 10000) + '_' + index
-    //     return cachedComponentKeys[expressions[index]]
+    //     console.log('feed source from cache', expression.value, cachedSources[expression.value])
     // }
+
+    return cachedSources[getExpressionValue(expression)]
 }
 
 export function compile(code, playgroundCode, openFilePath) {
@@ -299,11 +318,7 @@ export function compile(code, playgroundCode, openFilePath) {
                                     .then(() => {
                                         let sources = []
 
-                                        expressions.forEach((expression, index) => {
-                                            const fileName = `main${index}`
-                                            eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString())
-                                            sources.push(module.exports[_.capitalize(fileName)])
-                                        })
+                                        sources = expressions.map((expression, index) => getSource(module, expression, index, codePath))
 
                                         const elmComponents = sources.map((source, index) => {
                                             // only return elm component is source is not corrupted
