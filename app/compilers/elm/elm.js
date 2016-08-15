@@ -260,7 +260,7 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) {
     return Promise.all(fileWritePromises).then(() => expressions)
 }
 
-let cachedCode = null
+let cachedCode = ''
 let cachedComponentKeys = {}
 
 function getExpressionValue(expr) {
@@ -279,7 +279,7 @@ function getExpressionValue(expr) {
  * Any expression in a chain changing would lead to cache busting of all other expressions (they are all in a single component anyways)
  */
 function getComponentKey(expressions, index, code) {
-    if(!cachedComponentKeys[getExpressionValue(expressions[index]) + index]) {
+    if(cachedCode.trim() !== code.trim() || !cachedComponentKeys[getExpressionValue(expressions[index]) + index]) {
         cachedComponentKeys[getExpressionValue(expressions[index]) + index] = Math.floor(Math.random() * 10000) + '_' + index
     } else {
         console.log('serving cached key', cachedComponentKeys[getExpressionValue(expressions[index]) + index])
@@ -321,6 +321,12 @@ export function compile(code, playgroundCode, openFilePath) {
                                         sources = expressions.map((expression, index) => getSource(module, expression, index, codePath))
 
                                         const elmComponents = sources.map((source, index) => {
+                                            // bust all keys if user code has changed
+                                            if(cachedCode !== code) {
+                                                cachedCode = code
+                                                cachedComponentKeys = {}
+                                            }
+
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
                                                 return (

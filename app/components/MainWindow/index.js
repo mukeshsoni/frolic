@@ -157,7 +157,11 @@ export default class MainWindow extends Component {
                                         style={{width: 16, height: 16}}/>
                                     {this.props.compiling ? <span>{getCompilingMessage()}</span> : null}
                                 </div>
-                                <div style={{fontSize: this.props.fontSize, height: this.props.editorHeight, backgroundColor: 'black'}}>
+                                <div style={{
+                                        fontSize: this.props.fontSize,
+                                        height: this.props.editorHeight,
+                                        overflow: 'auto',
+                                        backgroundColor: 'black'}}>
                                     {this.props.output}
                                 </div>
                             </div>
