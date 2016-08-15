@@ -12,14 +12,18 @@
 - [x] Load corresponding playground file when loading a file
 - [x] Load particular playground file from disk
 - [x] Loading spinners in taskbar when compile is in progress
-- [ ] BUG - writing comments in playground file, specially in the same line as code breaks it
-- [ ] BUG - any whitespace after end of line in any expression breaks playground
+- [x] BUG - writing comments in playground file, specially in the same line as code breaks it
+- [x] BUG - any whitespace after end of line in any expression breaks playground
+- [ ] Correct line number mapping when there are statements in there playground
+- [ ] Generate tests from playground code
+    - [ ] For ui components, can generate tests for update function
+- [ ] Add confirmation dialogs when user does a 'new file' or 'load file' action and a file is already loaded in an unsaved statements. Also check for unsaved changes to playground
 - [ ] Show Playground file path somewhere
 - [ ] Allow font size and type change for editors and output window
 - [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)
     - [ ] Can start by not bundling it but just creating a repo with one elm file and one .frolic (playground) file for each question
-- [ ] Correct line number mapping when there are statements in there playground
 - [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
+- [ ] Load code section from templates (e.g. simple UI component, UI component with subscription etc.)
 - [ ] **Frolic Lessons** - Allow creation of lessons (can start with lesson file with particular format). Allows users to go to next/previous questions etc., when a lesson is loaded
     - [ ] load frolic-lesson.json. will have the order of question files. Should have corresponding .frolic (playground) files
     - [ ] When user moves to next/previous/particular question, update json file so that next time the lesson file is loaded, start from that questions
