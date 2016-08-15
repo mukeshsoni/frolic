@@ -346,7 +346,12 @@ function cleanUp() {
             .map((file) => fs.unlink(tempFolderPath + '/' + file))
 }
 
+// TODO - to be done
+function generateTests(code, playgroundCode, openFilePath) {
+    return '-- to be implemented'
+}
+
 // do some initialization work here
 export function compiler() {
-    return {compile, cleanUp, onNewFileLoad}
+    return {compile, cleanUp, onNewFileLoad, generateTests}
 }

@@ -14,15 +14,13 @@
 - [x] Loading spinners in taskbar when compile is in progress
 - [x] BUG - writing comments in playground file, specially in the same line as code breaks it
 - [x] BUG - any whitespace after end of line in any expression breaks playground
+- [x] Allow font size and type change for editors and output window
+- [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
-- [ ] Generate tests from playground code
-    - [ ] For ui components, can generate tests for update function
 - [ ] Add confirmation dialogs when user does a 'new file' or 'load file' action and a file is already loaded in an unsaved statements. Also check for unsaved changes to playground
 - [ ] Show Playground file path somewhere
-- [ ] Allow font size and type change for editors and output window
 - [ ] Bundle 99 elm problems along with the app (with corresponding playground files, which are picked from the unit tests)
     - [ ] Can start by not bundling it but just creating a repo with one elm file and one .frolic (playground) file for each question
-- [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Load code section from templates (e.g. simple UI component, UI component with subscription etc.)
 - [ ] **Frolic Lessons** - Allow creation of lessons (can start with lesson file with particular format). Allows users to go to next/previous questions etc., when a lesson is loaded
     - [ ] load frolic-lesson.json. will have the order of question files. Should have corresponding .frolic (playground) files
@@ -31,6 +29,8 @@
     - [ ] Finish lesson?
     - [ ] Feedback (how many correct/wrong etc.)
     - [ ] hints
+- [ ] Generate tests from playground code
+- [ ] For ui components, can generate tests for update function
 - [ ] might not work on windows because of folder paths (/ vs \)
 - [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component

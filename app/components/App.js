@@ -23,7 +23,7 @@ import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 
-const { compile: compileElm, cleanUp: cleanUpElm, onNewFileLoad: onNewFileLoadElm } = elmCompiler()
+const { compile: compileElm, cleanUp: cleanUpElm, onNewFileLoad: onNewFileLoadElm, generateTests: generateTestsElm } = elmCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
@@ -36,6 +36,7 @@ const compilers = {
         cleanUp: cleanUpElm,
         onNewFileLoad: onNewFileLoadElm,
         editorMode: 'elm',
+        generateTests: generateTestsElm,
     },
     purescript: {
         compile: compilePurescript,
@@ -73,7 +74,7 @@ export default class App extends Component {
 
         this.handleCodeChange = this.handleCodeChange.bind(this)
         this.handlePlaygroundCodeChange = this.handlePlaygroundCodeChange.bind(this)
-        this.compile = _.debounce(this.compile.bind(this), 500)
+        this.compile = _.debounce(this.compile.bind(this), 1000)
 
         this.handleLanguageChange = this.handleLanguageChange.bind(this)
         this.handleEditorThemeChange = this.handleEditorThemeChange.bind(this)
@@ -90,6 +91,7 @@ export default class App extends Component {
         this.handleWindowResize = _.debounce(this.handleWindowResize.bind(this), 300)
         this.loadPlaygroundFile = this.loadPlaygroundFile.bind(this)
         this.openPlaygroundFile = this.openPlaygroundFile.bind(this)
+        this.handleGenerateTestClick = this.handleGenerateTestClick.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -130,6 +132,9 @@ export default class App extends Component {
                     break;
                 case 'savePlaygroundFile':
                     this.handleSavePlaygroundClick()
+                    break;
+                case 'generateTests':
+                    this.handleGenerateTestClick()
                     break;
                 default:
                     console.log('don\'t understand the menu action', message.action)
@@ -233,6 +238,15 @@ export default class App extends Component {
                 })
             })
             .catch((err) => console.log('error saving file ', err.message))
+    }
+
+    handleGenerateTestClick() {
+        if(compilers[this.state.language].generateTests) {
+            compilers[this.state.language].generateTests(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+                .then((tests) => console.log('generated tests', tests))
+        } else {
+            alert('This compiler, ' + this.state.language + ', does not support test generation')
+        }
     }
 
     openPlaygroundFile() {

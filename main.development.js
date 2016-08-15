@@ -165,6 +165,16 @@ app.on('ready', async () => {
                 selector: 'selectAll:'
             }]
         }, {
+            // TODO - enable when generating tests feature is done in elm compiler
+        //     label: 'Actions',
+        //     submenu: [{
+        //         label: 'Generate Tests',
+        //         accelerator: 'Command+Shift+T',
+        //         click() {
+        //             mainWindow.webContents.send('menuActions', {action: 'generateTests'});
+        //         }
+        //     }]
+        // }, {
             label: 'View',
             submenu: (process.env.NODE_ENV === 'development') ? [{
                 label: 'Reload',
