@@ -77,6 +77,7 @@ export default class App extends Component {
 
         this.handleLanguageChange = this.handleLanguageChange.bind(this)
         this.handleEditorThemeChange = this.handleEditorThemeChange.bind(this)
+        this.handleFontSizeChange = this.handleFontSizeChange.bind(this)
         this.handleAutoCompileFlagChange = this.handleAutoCompileFlagChange.bind(this)
         this.handleFileOpenClick = _.debounce(this.handleFileOpenClick.bind(this), 500)
         this.handleFileSaveClick = _.debounce(this.handleFileSaveClick.bind(this), 500)
@@ -104,6 +105,7 @@ export default class App extends Component {
             editorTheme: 'terminal',
             autoCompile: true,
             editorHeight: 1000,
+            fontSize: 14
         }
     }
 
@@ -309,6 +311,10 @@ export default class App extends Component {
         this.setState({editorTheme: e.target.value})
     }
 
+    handleFontSizeChange(e) {
+        this.setState({fontSize: parseInt(e.target.value)})
+    }
+
     toggleCodePanelVisibility(showCodePanel) {
         this.setState({showCodePanel})
     }
@@ -326,7 +332,9 @@ export default class App extends Component {
             <div className={styles['root-container']}>
                 <Toolbar
                     editorTheme={this.state.editorTheme}
+                    fontSize={this.state.fontSize}
                     onEditorThemeChange={this.handleEditorThemeChange}
+                    onFontSizeChange={this.handleFontSizeChange}
                     language={this.state.language}
                     onLanguageChange={this.handleLanguageChange}
                     onCompileClick={this.compile}
@@ -354,6 +362,7 @@ export default class App extends Component {
                             this.mainWindow = ReactDOM.findDOMNode(node)
                         }
                     }}
+                    fontSize={this.state.fontSize}
                     code={this.state.code}
                     playgroundCode={this.state.playgroundCode}
                     output={this.state.output}

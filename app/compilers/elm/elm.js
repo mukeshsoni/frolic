@@ -309,10 +309,15 @@ export function compile(code, playgroundCode, openFilePath) {
                                             // only return elm component is source is not corrupted
                                             if(source && source.embed) {
                                                 return (
-                                                    <Elm
+                                                    <div
                                                         key={getComponentKey(expressions, index, code)}
-                                                        src={source}
-                                                        />
+                                                        style={{display: 'flex', justifyContent: 'center'}}
+                                                        >
+                                                        <Elm
+                                                            key={getComponentKey(expressions, index, code)}
+                                                            src={source}
+                                                            />
+                                                    </div>
                                                 )
                                             } else {
                                                 return <span>a</span>

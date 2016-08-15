@@ -43,7 +43,7 @@ function getCompilingMessage() {
     return messages[getRandomInt(0, messages.length - 1)]
 }
 
-export default class Home extends Component {
+export default class MainWindow extends Component {
     constructor(props) {
         super(props)
     }
@@ -64,7 +64,9 @@ export default class Home extends Component {
             <div className={styles['main-window']}>
                 <SplitPane split='vertical' defaultSize={this.props.showCodePanel ? '33%' : 0}>
                     {this.props.showCodePanel ?
-                        <div className={styles.column}>
+                        <div
+                            className={styles.column}
+                            >
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
@@ -82,6 +84,7 @@ export default class Home extends Component {
                                         this._codeEditor = node.editor
                                     }
                                 }}
+                                fontSize={this.props.fontSize}
                                 scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
@@ -123,6 +126,7 @@ export default class Home extends Component {
                                         />
                                 </div>
                                 <AceEditor
+                                    fontSize={this.props.fontSize}
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
@@ -153,7 +157,7 @@ export default class Home extends Component {
                                         style={{width: 16, height: 16}}/>
                                     {this.props.compiling ? <span>{getCompilingMessage()}</span> : null}
                                 </div>
-                                <div style={{fontSize: 12, height: this.props.editorHeight, backgroundColor: 'black'}}>
+                                <div style={{fontSize: this.props.fontSize, height: this.props.editorHeight, backgroundColor: 'black'}}>
                                     {this.props.output}
                                 </div>
                             </div>
