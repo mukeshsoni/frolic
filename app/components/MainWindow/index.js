@@ -38,6 +38,7 @@ function getCompilingMessage() {
         'Woof, working hard 🏗',
         'Funcitonal Programming, yo! 😎',
         '!Diversity 🐼',
+        // 'Compiling...'
     ]
 
     return messages[getRandomInt(0, messages.length - 1)]
@@ -70,7 +71,8 @@ export default class MainWindow extends Component {
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
-                                padding: 10
+                                padding: 15,
+                                height: 50
                             }}>
                                 <img
                                     src={require('file!../../images/code-funnel.svg')}
@@ -88,7 +90,7 @@ export default class MainWindow extends Component {
                                 scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
-                                height={this.props.editorHeight + 'px'}
+                                height={(this.props.editorHeight - 50) + 'px'}
                                 mode={this.props.editorMode}
                                 theme={this.props.editorTheme}
                                 showGutter={true}
@@ -110,7 +112,8 @@ export default class MainWindow extends Component {
                                 <div style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
-                                    padding: 10
+                                    padding: 15,
+                                    height: 50
                                 }}>
                                     <img
                                         src={require('file!../../images/lab-flask.svg')}
@@ -130,7 +133,7 @@ export default class MainWindow extends Component {
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
-                                    height={this.props.editorHeight + 'px'}
+                                    height={(this.props.editorHeight - 50) + 'px'}
                                     value={this.props.playgroundCode}
                                     theme={this.props.editorTheme}
                                     showGutter={true}
@@ -148,18 +151,19 @@ export default class MainWindow extends Component {
                                 <div style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
-                                    padding: 10
+                                    padding: 15,
+                                    height: 50,
                                 }}>
                                     <img
                                         src={require('file!../../images/headphone-output.svg')}
                                         title='Output'
                                         alt='Output'
                                         style={{width: 16, height: 16}}/>
-                                    {this.props.compiling ? <span>{getCompilingMessage()}</span> : null}
+                                    {this.props.compiling ? <div style={{verticalAlign: 'middle'}}>{getCompilingMessage()}</div> : null}
                                 </div>
                                 <div style={{
                                         fontSize: this.props.fontSize,
-                                        height: this.props.editorHeight,
+                                        height: (this.props.editorHeight - 50),
                                         overflow: 'auto',
                                         backgroundColor: 'black'}}>
                                     {this.props.output}

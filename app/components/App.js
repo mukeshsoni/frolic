@@ -226,6 +226,7 @@ export default class App extends Component {
             playgroundFilePath: null,
             fileSaved: false,
             code: '',
+            playgroundCode: ''
         })
     }
 

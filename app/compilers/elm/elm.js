@@ -150,7 +150,7 @@ function getType(code) {
 function tokenize(code) {
     return code.split('\n')
                 .reduce((acc, line, index) => {
-                    if((line[0] === ' ' && index !== 0)) {
+                    if(cleanUpExpression(line)[0] === ' ' && index !== 0) {
                         return acc.slice(0, acc.length - 1).concat({
                             ...acc[acc.length - 1],
                             newlines: acc[acc.length - 1].newlines + 1,
@@ -194,7 +194,7 @@ function hasSubscribed(code) {
 
 function getToStrings(expression) {
     return expression.commands.map((command) => {
-        if(command.value === '') {
+        if(command.value.trim().length === 0) {
             return '"\n"'
         } else {
             return `Basics.toString (${cleanUpExpression(command.value)}),` + _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
@@ -265,9 +265,9 @@ let cachedComponentKeys = {}
 
 function getExpressionValue(expr) {
     if(expr.commands) {
-        return expr.commands.reduce((acc, command) => acc + command.value, '')
+        return expr.commands.reduce((acc, command) => acc + cleanUpExpression(command.value), '')
     } else {
-        return expr.value
+        return cleanUpExpression(expr.value)
     }
 }
 /*
@@ -328,11 +328,11 @@ export function compile(code, playgroundCode, openFilePath) {
                                             }
 
                                             // only return elm component is source is not corrupted
+                                            // style={{display: 'flex', justifyContent: 'center'}}
                                             if(source && source.embed) {
                                                 return (
                                                     <div
                                                         key={getComponentKey(expressions, index, code)}
-                                                        style={{display: 'flex', justifyContent: 'center'}}
                                                         >
                                                         <Elm
                                                             key={getComponentKey(expressions, index, code)}

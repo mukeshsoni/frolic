@@ -16,6 +16,8 @@
 - [x] BUG - any whitespace after end of line in any expression breaks playground
 - [x] Allow font size and type change for editors and output window
 - [x] BUG - None of the panes scroll past the height of viewport
+- [ ] Need to implement split pane ourselves
+- [ ] css fix for height
 - [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
 - [ ] Add confirmation dialogs when user does a 'new file' or 'load file' action and a file is already loaded in an unsaved statements. Also check for unsaved changes to playground
