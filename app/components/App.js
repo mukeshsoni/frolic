@@ -23,7 +23,12 @@ import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 
-const { compile: compileElm, cleanUp: cleanUpElm, onNewFileLoad: onNewFileLoadElm, generateTests: generateTestsElm } = elmCompiler()
+const {
+    compile: compileElm,
+    cleanUp: cleanUpElm,
+    onNewFileLoad: onNewFileLoadElm,
+    formatCode: formatCodeElm,
+    generateTests: generateTestsElm } = elmCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
@@ -34,6 +39,7 @@ const compilers = {
     elm: {
         compile: compileElm,
         cleanUp: cleanUpElm,
+        formatCode: formatCodeElm,
         onNewFileLoad: onNewFileLoadElm,
         editorMode: 'elm',
         generateTests: generateTestsElm,
@@ -231,14 +237,19 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        saveFile(this.state.code, this.state.openFilePath, ['elm'])
-            .then((filePath) => {
-                this.setState({
-                    openFilePath: filePath,
-                    fileSaved: true
+        return saveFile(this.state.code, this.state.openFilePath, ['elm'])
+                .then((filePath) => {
+                    compilers[this.state.language]
+                        .formatCode(this.state.code)
+                        .then((formattedCode) => {
+                            this.setState({
+                                code: formattedCode,
+                                openFilePath: filePath,
+                                fileSaved: true
+                            })
+                        })
                 })
-            })
-            .catch((err) => console.log('error saving file ', err.message))
+                .catch((err) => console.log('error saving file ', err.message))
     }
 
     handleGenerateTestClick() {

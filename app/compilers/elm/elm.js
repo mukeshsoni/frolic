@@ -372,7 +372,12 @@ function generateTests(code, playgroundCode, openFilePath) {
     return '-- to be implemented'
 }
 
+function formatCode(code) {
+    return promisifiedExec(`echo "${code}" | ${basePath}/elm-format --stdin`)
+            .then((formattedCode) => _.drop(formattedCode.split('\n'), 2).join('\n'))
+}
+
 // do some initialization work here
 export function compiler() {
-    return {compile, cleanUp, onNewFileLoad, generateTests}
+    return {compile, cleanUp, onNewFileLoad, generateTests, formatCode}
 }
