@@ -372,8 +372,8 @@ export default class App extends Component {
             <div className={styles['root-container']}>
                 <Toolbar
                     editorTheme={this.state.editorTheme}
-                    fontSize={this.state.fontSize}
                     onEditorThemeChange={this.handleEditorThemeChange}
+                    fontSize={this.state.fontSize}
                     onFontSizeChange={this.handleFontSizeChange}
                     language={this.state.language}
                     onLanguageChange={this.handleLanguageChange}
@@ -431,6 +431,10 @@ export default class App extends Component {
                     ?
                     <Settings
                         onClose={this.handleSettingsClose}
+                        editorTheme={this.state.editorTheme}
+                        onEditorThemeChange={this.handleEditorThemeChange}
+                        fontSize={this.state.fontSize}
+                        onFontSizeChange={this.handleFontSizeChange}
                         />
                     : null}
             </div>
