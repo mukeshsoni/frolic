@@ -101,6 +101,7 @@ export default class App extends Component {
         this.openPlaygroundFile = this.openPlaygroundFile.bind(this)
         this.handleGenerateTestClick = this.handleGenerateTestClick.bind(this)
         this.handleSettingsClose = this.handleSettingsClose.bind(this)
+        this.handleKeyboardHandlerChange = this.handleKeyboardHandlerChange.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -118,6 +119,7 @@ export default class App extends Component {
             editorHeight: 1000,
             fontSize: 14,
             tabSize: 4,
+            keyboardHandler: 'ace',
             showSettings: false
         }
     }
@@ -361,6 +363,10 @@ export default class App extends Component {
         this.setState({tabSize: parseInt(e.target.value)})
     }
 
+    handleKeyboardHandlerChange(e) {
+        this.setState({keyboardHandler: e.target.value})
+    }
+
     toggleCodePanelVisibility(showCodePanel) {
         this.setState({showCodePanel})
     }
@@ -410,6 +416,7 @@ export default class App extends Component {
                     }}
                     fontSize={this.state.fontSize}
                     tabSize={this.state.tabSize}
+                    keyboardHandler={this.state.keyboardHandler}
                     code={this.state.code}
                     playgroundCode={this.state.playgroundCode}
                     output={this.state.output}
@@ -444,6 +451,8 @@ export default class App extends Component {
                         onFontSizeChange={this.handleFontSizeChange}
                         tabSize={this.state.tabSize}
                         onTabSizeChange={this.handleTabSizeChange}
+                        keyboardHandler={this.state.keyboardHandler}
+                        onKeyboardHandlerChange={this.handleKeyboardHandlerChange}
                         />
                     : null}
             </div>

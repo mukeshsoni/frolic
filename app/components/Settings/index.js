@@ -27,6 +27,12 @@ const fontSizes = [
     {id: '24', name: '24px'},
 ]
 
+const keyboardHandlers = [
+    {id: 'ace', name: 'ace'},
+    {id: 'vim', name: 'vim'},
+    {id: 'emacs', name: 'emacs'},
+]
+
 class Settings extends Component {
     constructor(props)  {
         super(props)
@@ -80,9 +86,21 @@ class Settings extends Component {
                             <input
                                 value={this.props.tabSize}
                                 onChange={this.props.onTabSizeChange}
-                                typ='text'
+                                type='text'
                                 style={{marginLeft: '1em'}}
                                 />
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            Key bindings
+                            <select
+                                value={this.props.keyboardHandler}
+                                onChange={this.props.onKeyboardHandlerChange}
+                                style={{marginLeft: '1em'}}
+                                >
+                                {keyboardHandlers.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                            </select>
                         </label>
                     </div>
                 </Modal>

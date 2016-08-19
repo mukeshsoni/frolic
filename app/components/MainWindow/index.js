@@ -25,6 +25,10 @@ import 'brace/theme/cobalt'
 import 'brace/theme/terminal'
 import 'brace/theme/twilight'
 
+// import vim and emacs key bindings
+import 'brace/keybinding/emacs'
+import 'brace/keybinding/vim'
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -51,6 +55,15 @@ export default class MainWindow extends Component {
 
     componentDidMount() {
         this.focusEditor()
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.keyboardHandler !== nextProps.keyboardHandler) {
+            if(this._codeEditor && this._playgroundEditor) {
+                this._codeEditor.setKeyboardHandler('ace/keyboard/' + nextProps.keyboardHandler);
+                this._playgroundEditor.setKeyboardHandler('ace/keyboard/' + nextProps.keyboardHandler);
+            }
+        }
     }
 
     focusEditor() {
@@ -88,6 +101,7 @@ export default class MainWindow extends Component {
                                 }}
                                 fontSize={this.props.fontSize}
                                 tabSize={this.props.tabSize}
+                                keyboardHandler={this.props.keyboardHandler}
                                 scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
@@ -100,6 +114,7 @@ export default class MainWindow extends Component {
                                 onChange={this.props.onCodeChange}
                                 name="definitions"
                                 width='100%'
+                                editorProps={{$blockScrolling: Infinity}}
                                 />
                         </div>
                         : <span></span>
@@ -130,8 +145,14 @@ export default class MainWindow extends Component {
                                         />
                                 </div>
                                 <AceEditor
+                                    ref={(node) => {
+                                        if(node) {
+                                            this._playgroundEditor = node.editor
+                                        }
+                                    }}
                                     fontSize={this.props.fontSize}
                                     tabSize={this.props.tabSize}
+                                    keyboardHandler={this.props.keyboardHandler}
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
@@ -144,6 +165,7 @@ export default class MainWindow extends Component {
                                     onChange={this.props.onPlaygroundCodeChange}
                                     name="playground_function_calls"
                                     width='100%'
+                                    editorProps={{$blockScrolling: Infinity}}
                                 />
                             </div>
                             : null
