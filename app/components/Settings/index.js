@@ -56,53 +56,49 @@ class Settings extends Component {
                         }
                     }}>
                     <h3>Editor Settings</h3>
-                    <div>
-                        <label>
-                            Theme
-                            <select
-                                value={this.props.editorTheme}
-                                onChange={this.props.onEditorThemeChange}
-                                style={{marginLeft: '1em'}}
-                                >
-                                {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
-                            </select>
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Font Size
-                            <select
-                                value={this.props.fontSize}
-                                onChange={this.props.onFontSizeChange}
-                                style={{marginLeft: '1em'}}
-                                >
-                                {fontSizes.map((font) => <option key={font.id} value={font.id}>{font.name}</option>)}
-                            </select>
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Tab Size
-                            <input
-                                value={this.props.tabSize}
-                                onChange={this.props.onTabSizeChange}
-                                type='text'
-                                style={{marginLeft: '1em'}}
-                                />
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Key bindings
-                            <select
-                                value={this.props.keyboardHandler}
-                                onChange={this.props.onKeyboardHandlerChange}
-                                style={{marginLeft: '1em'}}
-                                >
-                                {keyboardHandlers.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
-                            </select>
-                        </label>
-                    </div>
+                    <form>
+                        <ul className={styles['flex-outer']}>
+                            <li>
+                                <label>Theme: </label>
+                                <select
+                                    value={this.props.editorTheme}
+                                    onChange={this.props.onEditorThemeChange}
+                                    style={{marginLeft: '1em'}}
+                                    >
+                                    {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                                </select>
+                            </li>
+                            <li>
+                                <label>Font Size: </label>
+                                <select
+                                    value={this.props.fontSize}
+                                    onChange={this.props.onFontSizeChange}
+                                    style={{marginLeft: '1em'}}
+                                    >
+                                    {fontSizes.map((font) => <option key={font.id} value={font.id}>{font.name}</option>)}
+                                </select>
+                            </li>
+                            <li>
+                                <label>Tab Size: </label>
+                                <input
+                                    value={this.props.tabSize}
+                                    onChange={this.props.onTabSizeChange}
+                                    type='text'
+                                    style={{marginLeft: '1em'}}
+                                    />
+                            </li>
+                            <li>
+                                <label>Key bindings: </label>
+                                <select
+                                    value={this.props.keyboardHandler}
+                                    onChange={this.props.onKeyboardHandlerChange}
+                                    style={{marginLeft: '1em'}}
+                                    >
+                                    {keyboardHandlers.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                                </select>
+                            </li>
+                        </ul>
+                    </form>
                 </Modal>
             </div>
         )
