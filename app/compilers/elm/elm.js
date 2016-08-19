@@ -91,6 +91,7 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
                     break;
                 }
 
+                // something line '/Users' will result in ''. hence the ||
                 folderToCheck = _.initial(folderToCheck.split('/')).join('/') || '/'
             }
         }

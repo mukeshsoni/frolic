@@ -18,6 +18,7 @@ import { saveFile, openFile } from '../utils/fileops.js'
 
 import styles from './AppStyles.css'
 // our components
+import Settings from './Settings/index.js'
 import Toolbar from './Toolbar/index.js'
 import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
@@ -98,6 +99,7 @@ export default class App extends Component {
         this.loadPlaygroundFile = this.loadPlaygroundFile.bind(this)
         this.openPlaygroundFile = this.openPlaygroundFile.bind(this)
         this.handleGenerateTestClick = this.handleGenerateTestClick.bind(this)
+        this.handleSettingsClose = this.handleSettingsClose.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -113,7 +115,8 @@ export default class App extends Component {
             editorTheme: 'terminal',
             autoCompile: true,
             editorHeight: 1000,
-            fontSize: 14
+            fontSize: 14,
+            showSettings: false
         }
     }
 
@@ -141,6 +144,9 @@ export default class App extends Component {
                     break;
                 case 'generateTests':
                     this.handleGenerateTestClick()
+                    break;
+                case 'showPreferences':
+                    this.handleShowPreferences()
                     break;
                 default:
                     console.log('don\'t understand the menu action', message.action)
@@ -259,6 +265,14 @@ export default class App extends Component {
         } else {
             alert('This compiler, ' + this.state.language + ', does not support test generation')
         }
+    }
+
+    handleSettingsClose() {
+        this.setState({showSettings: false})
+    }
+
+    handleShowPreferences() {
+        this.setState({showSettings: true})
     }
 
     openPlaygroundFile() {
@@ -413,6 +427,12 @@ export default class App extends Component {
                         }
                     }}
                     />
+                {this.state.showSettings
+                    ?
+                    <Settings
+                        onClose={this.handleSettingsClose}
+                        />
+                    : null}
             </div>
         )
     }

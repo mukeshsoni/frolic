@@ -74,6 +74,14 @@ app.on('ready', async () => {
             }, {
                 type: 'separator'
             }, {
+                label: 'Preferences...',
+                accelerator: 'Command+,',
+                click() {
+                    mainWindow.webContents.send('menuActions', {action: 'showPreferences'})
+                }
+            }, {
+                type: 'separator'
+            }, {
                 label: 'Services',
                 submenu: []
             }, {
