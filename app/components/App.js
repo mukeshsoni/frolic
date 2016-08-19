@@ -86,6 +86,7 @@ export default class App extends Component {
         this.handleLanguageChange = this.handleLanguageChange.bind(this)
         this.handleEditorThemeChange = this.handleEditorThemeChange.bind(this)
         this.handleFontSizeChange = this.handleFontSizeChange.bind(this)
+        this.handleTabSizeChange = this.handleTabSizeChange.bind(this)
         this.handleAutoCompileFlagChange = this.handleAutoCompileFlagChange.bind(this)
         this.handleFileOpenClick = _.debounce(this.handleFileOpenClick.bind(this), 500)
         this.handleFileSaveClick = _.debounce(this.handleFileSaveClick.bind(this), 500)
@@ -116,6 +117,7 @@ export default class App extends Component {
             autoCompile: true,
             editorHeight: 1000,
             fontSize: 14,
+            tabSize: 4,
             showSettings: false
         }
     }
@@ -355,6 +357,10 @@ export default class App extends Component {
         this.setState({fontSize: parseInt(e.target.value)})
     }
 
+    handleTabSizeChange(e) {
+        this.setState({tabSize: parseInt(e.target.value)})
+    }
+
     toggleCodePanelVisibility(showCodePanel) {
         this.setState({showCodePanel})
     }
@@ -403,6 +409,7 @@ export default class App extends Component {
                         }
                     }}
                     fontSize={this.state.fontSize}
+                    tabSize={this.state.tabSize}
                     code={this.state.code}
                     playgroundCode={this.state.playgroundCode}
                     output={this.state.output}
@@ -435,6 +442,8 @@ export default class App extends Component {
                         onEditorThemeChange={this.handleEditorThemeChange}
                         fontSize={this.state.fontSize}
                         onFontSizeChange={this.handleFontSizeChange}
+                        tabSize={this.state.tabSize}
+                        onTabSizeChange={this.handleTabSizeChange}
                         />
                     : null}
             </div>

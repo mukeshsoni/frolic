@@ -74,6 +74,17 @@ class Settings extends Component {
                             </select>
                         </label>
                     </div>
+                    <div>
+                        <label>
+                            Tab Size
+                            <input
+                                value={this.props.tabSize}
+                                onChange={this.props.onTabSizeChange}
+                                typ='text'
+                                style={{marginLeft: '1em'}}
+                                />
+                        </label>
+                    </div>
                 </Modal>
             </div>
         )

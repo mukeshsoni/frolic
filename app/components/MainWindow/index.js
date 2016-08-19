@@ -87,6 +87,7 @@ export default class MainWindow extends Component {
                                     }
                                 }}
                                 fontSize={this.props.fontSize}
+                                tabSize={this.props.tabSize}
                                 scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
@@ -130,6 +131,7 @@ export default class MainWindow extends Component {
                                 </div>
                                 <AceEditor
                                     fontSize={this.props.fontSize}
+                                    tabSize={this.props.tabSize}
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
