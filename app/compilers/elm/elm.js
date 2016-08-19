@@ -72,7 +72,10 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
     if(basePath !== path.resolve(tempFolderPath)) {
         let folderToCheck = basePath
         let filesInFolderToCheck
-        while(true) {
+        let depth = 0
+        const maxDepth = 25
+        while(true && depth < maxDepth) {
+            depth += 1
             filesInFolderToCheck = fs.readdirSync(folderToCheck)
             if(_.includes(filesInFolderToCheck, 'elm-package.json')) {
                 const tempPackageJsonContent = jsonfile.readFileSync(`${folderToCheck}/elm-package.json`)
@@ -88,7 +91,7 @@ function writeSourcesToElmPackageJson(packageJsonTemplateFileContents, basePath)
                     break;
                 }
 
-                folderToCheck = _.initial(folderToCheck.split('/')).join('/')
+                folderToCheck = _.initial(folderToCheck.split('/')).join('/') || '/'
             }
         }
     }
@@ -116,7 +119,7 @@ function writeCodeToFile(code, codePath) {
 
     // if module declaration is there in the panel, don't add it again
     if(code.startsWith('module ')) {
-        const inlineModuleName = code.split(' ')[1]
+        const inlineModuleName = _.words(code)[1]
         codeToWrite = code.replace(`module ${inlineModuleName}`, 'module UserCode')
     } else if(code.trim() === '') { // if code panel is empty, insert a random function
         codeToWrite = `module ${moduleName} exposing (..)\n\nrandomIdentityFunction x = x`
@@ -374,7 +377,7 @@ function generateTests(code, playgroundCode, openFilePath) {
 
 function formatCode(code) {
     return promisifiedExec(`echo "${code}" | ${basePath}/elm-format --stdin`)
-            .then((formattedCode) => _.drop(formattedCode.split('\n'), 2).join('\n'))
+            // .then((formattedCode) => _.drop(formattedCode.split('\n'), 2).join('\n'))
 }
 
 // do some initialization work here
