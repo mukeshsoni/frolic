@@ -74,6 +74,14 @@ function getPlaygroundFilePath(codeFilePath, playgroundFilePath) {
     return codeFileFolderPath + '/' + getFileNameWithoutExtension(codeFileName) + '.frolic'
 }
 
+const editorPrefsDefaults = {
+    fontSize: 14,
+    tabSize: 4,
+    keyboardHandler: 'ace',
+    editorTheme: 'terminal',
+    formatOnSave: true
+}
+
 function savePreferences(preferences) {
     setToStorage('preferences', preferences)
         .then(() => console.log('preferences stored', preferences))
@@ -82,18 +90,7 @@ function savePreferences(preferences) {
 
 function getSavedPreferences() {
     return getFromStorage('preferences')
-            .then((preferences) => {
-                if(_.isEmpty(preferences)) {
-                    return {
-                        fontSize: 14,
-                        tabSize: 4,
-                        keyboardHandler: 'ace',
-                        theme: 'terminal'
-                    }
-                } else {
-                    return preferences
-                }
-            })
+            .then(preferences => _.defaults(preferences, editorPrefsDefaults))
 }
 
 export default class App extends Component {
@@ -124,6 +121,7 @@ export default class App extends Component {
         this.handleGenerateTestClick = this.handleGenerateTestClick.bind(this)
         this.handleSettingsClose = this.handleSettingsClose.bind(this)
         this.handleKeyboardHandlerChange = this.handleKeyboardHandlerChange.bind(this)
+        this.handleFormatOnSaveChange = this.handleFormatOnSaveChange.bind(this)
         this.savePreferences = this.savePreferences.bind(this)
 
         this.state = {
@@ -143,6 +141,7 @@ export default class App extends Component {
             fontSize: 14,
             tabSize: 4,
             keyboardHandler: 'ace',
+            formatOnSave: true,
             showSettings: false
         }
     }
@@ -274,7 +273,8 @@ export default class App extends Component {
     handleFileSaveClick() {
         return saveFile(this.state.code, this.state.openFilePath, ['elm'])
                 .then((filePath) => {
-                    compilers[this.state.language]
+                    if(this.state.formatOnSave) {
+                        compilers[this.state.language]
                         .formatCode(this.state.code)
                         .then((formattedCode) => {
                             this.setState({
@@ -283,6 +283,12 @@ export default class App extends Component {
                                 fileSaved: true
                             })
                         })
+                    } else {
+                        this.setState({
+                            openFilePath: filePath,
+                            fileSaved: true
+                        })
+                    }
                 })
                 .catch((err) => console.log('error saving file ', err.message))
     }
@@ -377,7 +383,7 @@ export default class App extends Component {
     }
 
     savePreferences() {
-        savePreferences(_.pick(this.state, ['fontSize', 'tabSize', 'editorTheme', 'keyboardHandler']))
+        savePreferences(_.pick(this.state, Object.keys(editorPrefsDefaults)))
     }
 
     handleEditorThemeChange(e) {
@@ -394,6 +400,10 @@ export default class App extends Component {
 
     handleKeyboardHandlerChange(e) {
         this.setState({keyboardHandler: e.target.value}, this.savePreferencesg)
+    }
+
+    handleFormatOnSaveChange(e) {
+        this.setState({formatOnSave: e.target.checked})
     }
 
     toggleCodePanelVisibility(showCodePanel) {
@@ -482,6 +492,8 @@ export default class App extends Component {
                         onTabSizeChange={this.handleTabSizeChange}
                         keyboardHandler={this.state.keyboardHandler}
                         onKeyboardHandlerChange={this.handleKeyboardHandlerChange}
+                        formatOnSave={this.state.formatOnSave}
+                        onFormatOnSaveChange={this.handleFormatOnSaveChange}
                         />
                     : null}
             </div>
