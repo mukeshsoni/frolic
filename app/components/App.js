@@ -74,6 +74,28 @@ function getPlaygroundFilePath(codeFilePath, playgroundFilePath) {
     return codeFileFolderPath + '/' + getFileNameWithoutExtension(codeFileName) + '.frolic'
 }
 
+function savePreferences(preferences) {
+    setToStorage('preferences', preferences)
+        .then(() => console.log('preferences stored', preferences))
+        .catch(err => console.log('error saving preferences', err))
+}
+
+function getSavedPreferences() {
+    return getFromStorage('preferences')
+            .then((preferences) => {
+                if(_.isEmpty(preferences)) {
+                    return {
+                        fontSize: 14,
+                        tabSize: 4,
+                        keyboardHandler: 'ace',
+                        theme: 'terminal'
+                    }
+                } else {
+                    return preferences
+                }
+            })
+}
+
 export default class App extends Component {
     constructor(props) {
         super(props)
@@ -102,6 +124,7 @@ export default class App extends Component {
         this.handleGenerateTestClick = this.handleGenerateTestClick.bind(this)
         this.handleSettingsClose = this.handleSettingsClose.bind(this)
         this.handleKeyboardHandlerChange = this.handleKeyboardHandlerChange.bind(this)
+        this.savePreferences = this.savePreferences.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -156,6 +179,8 @@ export default class App extends Component {
                     console.log('don\'t understand the menu action', message.action)
             }
         })
+
+        getSavedPreferences().then(preferences => this.setState({...preferences}))
     }
 
     componentDidMount() {
@@ -351,20 +376,24 @@ export default class App extends Component {
         this.setState({autoCompile: e.target.checked})
     }
 
+    savePreferences() {
+        savePreferences(_.pick(this.state, ['fontSize', 'tabSize', 'editorTheme', 'keyboardHandler']))
+    }
+
     handleEditorThemeChange(e) {
-        this.setState({editorTheme: e.target.value})
+        this.setState({editorTheme: e.target.value}, this.savePreferences)
     }
 
     handleFontSizeChange(e) {
-        this.setState({fontSize: parseInt(e.target.value)})
+        this.setState({fontSize: parseInt(e.target.value)}, this.savePreferences)
     }
 
     handleTabSizeChange(e) {
-        this.setState({tabSize: parseInt(e.target.value)})
+        this.setState({tabSize: parseInt(e.target.value)}, this.savePreferences)
     }
 
     handleKeyboardHandlerChange(e) {
-        this.setState({keyboardHandler: e.target.value})
+        this.setState({keyboardHandler: e.target.value}, this.savePreferencesg)
     }
 
     toggleCodePanelVisibility(showCodePanel) {
