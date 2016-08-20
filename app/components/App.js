@@ -123,6 +123,7 @@ export default class App extends Component {
         this.handleKeyboardHandlerChange = this.handleKeyboardHandlerChange.bind(this)
         this.handleFormatOnSaveChange = this.handleFormatOnSaveChange.bind(this)
         this.savePreferences = this.savePreferences.bind(this)
+        this.handleShowPreferences = this.handleShowPreferences.bind(this)
 
         this.state = {
             code: 'add x y = x + y',
@@ -470,6 +471,7 @@ export default class App extends Component {
                     editorHeight={this.state.editorHeight}
                     editorTheme={this.state.editorTheme}
                     playgroundFilePath={getPlaygroundFilePath(this.state.openFilePath, this.state.playgroundFilePath)}
+                    onPreferencesClick={this.handleShowPreferences}
                     />
                 <Footer
                     fileSaved={this.state.fileSaved}

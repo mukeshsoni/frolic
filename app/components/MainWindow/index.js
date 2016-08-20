@@ -51,6 +51,8 @@ function getCompilingMessage() {
 export default class MainWindow extends Component {
     constructor(props) {
         super(props)
+
+        this.editorCommands = this.editorCommands.bind(this)
     }
 
     componentDidMount() {
@@ -72,6 +74,15 @@ export default class MainWindow extends Component {
         }
     }
 
+    editorCommands() {
+        return [
+            {
+                name: "Preferences shortcut",
+                exec: this.props.onPreferencesClick,
+                bindKey: {mac: "cmd-,", win: "ctrl-,"}
+            }
+        ]
+    }
 
     render() {
         return (
@@ -115,6 +126,7 @@ export default class MainWindow extends Component {
                                 name="definitions"
                                 width='100%'
                                 editorProps={{$blockScrolling: Infinity}}
+                                commands={this.editorCommands()}
                                 />
                         </div>
                         : <span></span>
@@ -166,6 +178,7 @@ export default class MainWindow extends Component {
                                     name="playground_function_calls"
                                     width='100%'
                                     editorProps={{$blockScrolling: Infinity}}
+                                    commands={this.editorCommands()}
                                 />
                             </div>
                             : null
