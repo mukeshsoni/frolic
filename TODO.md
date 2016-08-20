@@ -17,6 +17,7 @@
 - [x] Allow font size and type change for editors and output window
 - [x] BUG - None of the panes scroll past the height of viewport
 - [ ] preference window (like atom). Can start with editor preferences (theme, fontsize, vim/emacs keybindings etc.)
+    - [ ] persist settings changes to json storage and load settings from storage when booting app
 - [x] integrate elm-format
 - [ ] Need to implement split pane ourselves
 - [ ] css fix for height
