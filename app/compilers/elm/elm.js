@@ -366,9 +366,9 @@ function onNewFileLoad(openFilePath) {
 
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
-    const files = fs.readdirSync(tempFolderPath)
-    files.filter((file) => file !== 'Main.elm' && (file.split('.')[1] === 'elm' || file.split('.')[1] === 'js'))
-            .map((file) => fs.unlink(tempFolderPath + '/' + file))
+    // const files = fs.readdirSync(tempFolderPath)
+    // files.filter((file) => file !== 'Main.elm' && (file.split('.')[1] === 'elm' || file.split('.')[1] === 'js'))
+    //         .map((file) => fs.unlink(tempFolderPath + '/' + file))
 }
 
 // TODO - to be done

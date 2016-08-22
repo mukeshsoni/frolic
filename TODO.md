@@ -16,10 +16,9 @@
 - [x] BUG - any whitespace after end of line in any expression breaks playground
 - [x] Allow font size and type change for editors and output window
 - [x] BUG - None of the panes scroll past the height of viewport
-- [ ] preference window (like atom). Can start with editor preferences (theme, fontsize, vim/emacs keybindings etc.)
-    - [ ] persist settings changes to json storage and load settings from storage when booting app
+- [x] preference window (like atom). Can start with editor preferences (theme, fontsize, vim/emacs keybindings etc.)
+    - [x] persist settings changes to json storage and load settings from storage when booting app
 - [x] integrate elm-format
-- [ ] Need to implement split pane ourselves
 - [ ] css fix for height
 - [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
@@ -41,6 +40,7 @@
 - [ ] because the key for Elm component doesn't change if that expression doesn't change, a change in the code window doesn't reflect in the output until something in the playground is changed :(
 - [ ] optimize `key` generated for <Elm /> components. We are generating random keys right now, which leads to flash of screen. The key can actually be the expression itself. In that case, if the expression didn't change, no new key, hence react won't update that component
 - [ ] elm-reactor does compilation and auto dependency installation. checkout it's code to see how it does auto dependency installation
+- [ ] Need to implement split pane ourselves
 - [ ] optimizations
     - [x] elm-package.json file is read and written on every compile. very very brute force. Need to take care of that. memoization might be a solution. or a variant of memoization where we remember the last openFilePath and don't do anything if things are same.
     - [x] optimize number of files generated (bundle expressions together in one file (create list of (toString (expression))))

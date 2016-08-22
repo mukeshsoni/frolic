@@ -116,7 +116,7 @@ export default class MainWindow extends Component {
                                 scrollPastEnd={true}
                                 enableBasicAutocompletion={true}
                                 enableLiveAutocompletion={true}
-                                height={(this.props.editorHeight - 50) + 'px'}
+                                height={(this.props.editorHeight) + 'px'}
                                 mode={this.props.editorMode}
                                 theme={this.props.editorTheme}
                                 showGutter={true}
@@ -168,7 +168,7 @@ export default class MainWindow extends Component {
                                     scrollPastEnd={true}
                                     enableBasicAutocompletion={true}
                                     enableLiveAutocompletion={true}
-                                    height={(this.props.editorHeight - 50) + 'px'}
+                                    height={(this.props.editorHeight) + 'px'}
                                     value={this.props.playgroundCode}
                                     theme={this.props.editorTheme}
                                     showGutter={true}

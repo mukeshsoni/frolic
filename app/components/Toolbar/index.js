@@ -8,6 +8,7 @@ import Button from '../uikit/button/index.js'
 const languages = [
     {id: 'elm', name: 'elm'},
     {id: 'purescript', name: 'purescript'},
+    {id: 'react', name: 'react'},
 ]
 
 class Toolbar extends Component {
@@ -44,7 +45,7 @@ class Toolbar extends Component {
                     <select
                         value={this.props.language}
                         onChange={this.props.onLanguageChange}
-                        style={{fontSize: 20, display: 'none'}}
+                        style={{fontSize: 20}}
                         >
                         {languages.map((language) => <option key={language.id} value={language.id}>{language.name}</option>)}
                     </select>

@@ -31,6 +31,14 @@ const {
     formatCode: formatCodeElm,
     generateTests: generateTestsElm } = elmCompiler()
 
+import { compiler as reactCompiler } from '../compilers/react/react.js'
+const {
+    compile: compileReact,
+    cleanUp: cleanUpReact,
+    onNewFileLoad: onNewFileLoadReact,
+    formatCode: formatCodeReact,
+    generateTests: generateTestsReact } = reactCompiler()
+
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
 
@@ -49,7 +57,15 @@ const compilers = {
         compile: compilePurescript,
         cleanUp: cleanUpPurescript,
         editorMode: 'haskell',
-    }
+    },
+    react: {
+        compile: compileReact,
+        cleanUp: cleanUpReact,
+        formatCode: formatCodeReact,
+        onNewFileLoad: onNewFileLoadReact,
+        editorMode: 'javascript',
+        generateTests: generateTestsReact,
+    },
 }
 
 function getFileNameWithoutExtension(fileName) {
@@ -130,7 +146,7 @@ export default class App extends Component {
             playgroundCode: 'add 2 3',
             output: '',
             compiling: false,
-            language: 'elm',
+            language: 'react',
             autoCompile: true,
             openFilePath: null,
             showCodePanel: true,
@@ -230,7 +246,10 @@ export default class App extends Component {
         }, () => {
             compilers[this.state.language]
                 .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
-                .then((output) => this.setState({output, compiling: false}))
+                .then((output) => {
+                    console.log('output', output)
+                    this.setState({output, compiling: false})
+                })
                 .catch((output) => this.setState({output, compiling: false}))
         })
     }
@@ -257,6 +276,7 @@ export default class App extends Component {
     }
 
     handleLanguageChange(e) {
+        debugger;
         compilers[this.state.language].cleanUp()
         this.setState({language: e.target.value})
     }
@@ -274,7 +294,7 @@ export default class App extends Component {
     handleFileSaveClick() {
         return saveFile(this.state.code, this.state.openFilePath, ['elm'])
                 .then((filePath) => {
-                    if(this.state.formatOnSave) {
+                    if(this.state.formatOnSave && compilers[this.state.language].formatCode) {
                         compilers[this.state.language]
                         .formatCode(this.state.code)
                         .then((formattedCode) => {
@@ -420,6 +440,7 @@ export default class App extends Component {
     }
 
     render() {
+        console.log('language', this.state.language)
         return (
             <div className={styles['root-container']}>
                 <Toolbar

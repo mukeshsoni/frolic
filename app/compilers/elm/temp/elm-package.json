@@ -5,7 +5,7 @@
     "license": "BSD3",
     "source-directories": [
         "/Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp",
-        "/Users/mukeshsoni/Documents/projects/elm-analog-clock"
+        "app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,app/compilers/elm/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm/temp,/Users/mukeshsoni/Documents/projects/elm-analog-clock"
     ],
     "exposed-modules": [],
     "dependencies": {
