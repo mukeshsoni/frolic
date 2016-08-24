@@ -19,6 +19,8 @@
 - [x] preference window (like atom). Can start with editor preferences (theme, fontsize, vim/emacs keybindings etc.)
     - [x] persist settings changes to json storage and load settings from storage when booting app
 - [x] integrate elm-format
+- [ ] use [memory-fs](https://www.npmjs.com/package/memory-fs) instead of writing files
+- [ ] add [standard](https://www.npmjs.com/package/standard) for eslintrc
 - [ ] css fix for height
 - [ ] Caching components generated for output - don't need to evaluate them all. In fact don't need to create files for them all
 - [ ] Correct line number mapping when there are statements in there playground
