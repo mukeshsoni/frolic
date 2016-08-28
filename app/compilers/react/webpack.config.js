@@ -25,7 +25,8 @@ module.exports = {
 	],
 	output: {
 		path: path.resolve(__dirname),
-		filename: 'bundle.js'
+		filename: 'bundle.js',
+		libraryTarget: "commonjs2"
 	},
 	resolve: {
 		extensions: ['', '.js', '.jsx']

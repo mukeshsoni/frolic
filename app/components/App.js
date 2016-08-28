@@ -142,8 +142,8 @@ export default class App extends Component {
         this.handleShowPreferences = this.handleShowPreferences.bind(this)
 
         this.state = {
-            code: 'add x y = x + y',
-            playgroundCode: 'add 2 3',
+            code: 'module.exports = 42',
+            playgroundCode: '{1+1}',
             output: '',
             compiling: false,
             language: 'react',
