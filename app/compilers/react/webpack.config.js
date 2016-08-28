@@ -1,27 +1,27 @@
-// var webpack =  require('webpack')
+// import webpack from 'webpack'
 import path from 'path'
-// import loaders from './webpack.loaders.js'
+import loaders from './webpack.loaders.js'
 
 // global css
-// loaders.push({
-// 	test: /[\/\\](node_modules|global)[\/\\].*\.css$/,
-// 	loaders: [
-// 		'style?sourceMap',
-// 		'css'
-// 	]
-// })
+loaders.push({
+	test: /[\/\\](node_modules|global)[\/\\].*\.css$/,
+	loaders: [
+		'style?sourceMap',
+		'css'
+	]
+})
 // local css modules
-// loaders.push({
-// 	test: /[\/\\]src[\/\\].*\.css$/,
-// 	loaders: [
-// 		'style?sourceMap',
-// 		'css?modules&importLoaders=1&localIdentName=[path]___[name]__[local]___[hash:base64:5]'
-// 	]
-// })
+loaders.push({
+	test: /[\/\\]src[\/\\].*\.css$/,
+	loaders: [
+		'style?sourceMap',
+		'css?modules&importLoaders=1&localIdentName=[path]___[name]__[local]___[hash:base64:5]'
+	]
+})
 
 module.exports = {
 	entry: [
-		`./index.js` // Your appʼs entry point
+		path.resolve(__dirname + `/index.js`) // Your appʼs entry point
 	],
 	output: {
 		path: path.resolve(__dirname),
@@ -30,9 +30,9 @@ module.exports = {
 	resolve: {
 		extensions: ['', '.js', '.jsx']
 	},
-	// module: {
-	// 	loaders
-	// },
+	module: {
+		loaders
+	},
 	// devServer: {
 	// 	contentBase: "./public",
 	// 	// do not print bundle build stats

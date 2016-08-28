@@ -276,7 +276,6 @@ export default class App extends Component {
     }
 
     handleLanguageChange(e) {
-        debugger;
         compilers[this.state.language].cleanUp()
         this.setState({language: e.target.value})
     }
@@ -440,7 +439,6 @@ export default class App extends Component {
     }
 
     render() {
-        console.log('language', this.state.language)
         return (
             <div className={styles['root-container']}>
                 <Toolbar

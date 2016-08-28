@@ -1,19 +1,21 @@
 import React from 'react'
 import Promise from 'bluebird'
 // import webpack from 'webpack'
-// import MemoryFileSystem from 'memory-fs'
-// var mfs = new MemoryFileSystem()
+import MemoryFileSystem from 'memory-fs'
+var mfs = new MemoryFileSystem()
 
 import webpackConfig from './webpack.config.js'
 
 
-// let webpackCompiler = webpack(webpackConfig)
-// webpackCompiler.outputFileSystem = mfs
+let webpackCompiler = webpack(webpackConfig)
+console.log('webpackCompiler', webpackCompiler)
+webpackCompiler.outputFileSystem = mfs
 
 function compile(code, playgroundCode, openFilePath) {
-    // webpackCompiler((err, stats) => {
-    //     console.log('webpack stats', stats.toString())
-    // })
+    console.log('wohoo')
+    webpackCompiler.run((err, stats) => {
+        console.log('webpack stats', stats.toString())
+    })
 
     return new Promise.resolve(<div>hey from react</div>)
 }
