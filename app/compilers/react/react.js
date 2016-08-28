@@ -52,7 +52,6 @@ var App = React.createClass({
     render() {
         return (
             <div>
-                the output should come here
                 ${code}
             </div>
         )
@@ -74,12 +73,8 @@ function compile(code, playgroundCode, openFilePath) {
                     console.log('webpack error compiling code', err.toString())
                     reject(err.toString())
                 } else {
-                    console.log('webpack stats', stats.toString())
-                    let bundle = fs.readFileSync(path.resolve(__dirname+'/bundle.js')).toString()
-                    console.log('bundle', bundle)
-                    eval(bundle)
-                    console.log('default module', module.exports)
-                    resolve(<div>wassup{module.exports}</div>)
+                    var App = require('./index.js')
+                    resolve(<div><App /></div>)
                 }
             })
         })

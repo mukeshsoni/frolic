@@ -5,7 +5,6 @@ var App = React.createClass({
     render() {
         return (
             <div>
-                the output should come here
                 {1+1}
             </div>
         )
