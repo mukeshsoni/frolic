@@ -23,6 +23,7 @@ module.exports = a
 const basePath = path.resolve(__dirname)
 const indexFilePath = basePath + '/index.js'
 const codeFilePath = basePath + '/code.js'
+const bundleFilePath = basePath + '/bundle.js'
 // const playgroundFilePath = basePath + '/playground.js'
 
 console.log(indexFilePath)
@@ -44,9 +45,15 @@ function writeCodeToFile(code) {
     return writeFile(codeFilePath, code)
 }
 
+function tokenize(code) {
+    return code
+}
+
 function writePlaygroundCodeToFile(code) {
+    const tokenizedCode = tokenize(code)
+
 const indexFileContent = `import React from 'react'
-import Code from './code.js'
+import Comp from './code.js'
 
 var App = React.createClass({
     render() {
@@ -63,22 +70,14 @@ module.exports = App
     return writeFile(indexFilePath, indexFileContent)
 }
 
+let pendingPromise = null
+
 function compile(code, playgroundCode, openFilePath) {
-    return new Promise((resolve, reject) => {
-        writeCodeToFile(code)
+    pendingPromise = Promise.pending()
+    return writeCodeToFile(code)
         .then(() => writePlaygroundCodeToFile(playgroundCode))
-        .then(() => {
-            webpackCompiler.run((err, stats) => {
-                if(err) {
-                    console.log('webpack error compiling code', err.toString())
-                    reject(err.toString())
-                } else {
-                    var App = require('./index.js')
-                    resolve(<div><App /></div>)
-                }
-            })
-        })
-    })
+        .then(() => pendingPromise.promise)
+
 
     // return new Promise.resolve(<div>hey from react</div>)
 }
@@ -100,6 +99,27 @@ function generateTests() {
 }
 
 export function compiler() {
+    webpackCompiler.watch({ // watch options:
+        aggregateTimeout: 300, // wait so long for more changes
+        poll: true // use polling instead of native watchers
+        // pass a number to set the polling interval
+    }, (err, stats) => {
+        console.log('got here?')
+        if(!pendingPromise) {
+            return
+        }
+
+        if(err) {
+            console.log('webpack error compiling code', err.toString())
+            pendingPromise.reject(err.toString())
+        } else {
+            const bundle = fs.readFileSync(bundleFilePath).toString()
+            eval(bundle)
+            const App = module.exports
+            pendingPromise.resolve(<div><App /></div>)
+        }
+    })
+
     return {
         compile,
         cleanUp,
