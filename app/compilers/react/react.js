@@ -1,10 +1,12 @@
 import React from 'react'
+import _ from 'lodash'
 import Promise from 'bluebird'
 import path from 'path'
 
 // acorn jsx parse
 var acorn = require('acorn-jsx')
-var escodegen = require('escodegen')
+// var escodegen = require('escodegen')
+var escodegen = require('escodegen-wallaby')
 var astring = require('astring')
 
 var fs = require('fs')
@@ -50,28 +52,99 @@ function writeCodeToFile(code) {
 }
 
 function tokenize(code) {
-    try {
-        var ast = acorn.parse(code, {plugins: {jsx: true}})
-        console.log('generated code: ', astring(ast.body[0], {}))
-        console.log('ast:', ast)
-    } catch(e) {
-        console.log('error parsing code', e.toString())
-    }
-
-    return code
+    return new Promise((resolve, reject) => {
+        try {
+            var ast = acorn.parse(code, {plugins: {jsx: true}})
+            var tokens = ast.body.map((node) => ({
+                type: node.type,
+                node,
+                codeString: escodegen.generate(node)
+            }))
+            resolve(tokens)
+        } catch(e) {
+            console.log('error parsing code', e.toString())
+            reject(e)
+        }
+    })
 }
 
-function writePlaygroundCodeToFile(code) {
-    const tokenizedCode = tokenize(code)
-code = '{1+10}'
-    const indexFileContent = `import React from 'react'
+function getAssignmentStatements(tokens) {
+    return tokens.filter(token => token.type === 'VariableDeclaration')
+                .reduce((acc, token) => `${acc}\n${token.codeString}`, '')
+}
+
+function isRenderCall(token) {
+    return token.type === 'ExpressionStatement'
+            && token.node.expression.type === 'CallExpression'
+            && token.node.expression.callee.name === 'render'
+}
+
+function getJSXExpr(token) {
+    return _.trimStart(token.codeString.slice(7, token.codeString.length - 2))
+}
+
+function getJSXExprs(tokens) {
+    return tokens.filter(isRenderCall)
+                .map(getJSXExpr)
+}
+
+function isExpression(token) {
+    return token.type === 'ExpressionStatement'
+}
+
+function getJSXFileContent(token, assignmentStatements) {
+    const jsxExpr = getJSXExpr(token)
+
+    return `import React from 'react'
 import Comp from './code.js'
+
+${assignmentStatements}
+
+var CompUser = React.createClass({
+    render() {
+        return (<div>
+            ${jsxExpr}
+        </div>)
+    }
+})
+
+export default CompUser`
+}
+
+var crypto = require('crypto');
+
+function writePlaygroundCodeToFile(code) {
+    return tokenize(code)
+            .then((tokens) => {
+                const assignmentStatements = getAssignmentStatements(tokens)
+                const fileNames = tokens.filter(isExpression).map((token) => {
+                    const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,6)
+                    if(isRenderCall(token)) {
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements))
+                    } else {
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', token.codeString)
+                    }
+
+                    return fileName
+                })
+
+                const alphabets = _.toUpper('abcdefghijklmnopqrstuvwxyz')
+                const importStatements = fileNames.map((fileName, index) => {
+                    return `import ${alphabets[index]} from './${fileName}.js'`
+                }).join('\n')
+                const jsxElements = fileNames.map((fileName, index) => {
+                    return `<${alphabets[index]}/>`
+                }).join('\n')
+
+                const indexFileContent = `import React from 'react'
+import Comp from './code.js'
+${importStatements}
 
 var App = React.createClass({
     render() {
         return (
             <div>
-                ${code}
+                ${jsxElements}
             </div>
         )
     }
@@ -79,7 +152,10 @@ var App = React.createClass({
 
 module.exports = App
 `
-    return writeFile(indexFilePath, indexFileContent)
+                return writeFile(indexFilePath, indexFileContent)
+            })
+            .catch(e => console.log('error generating tokens: ', e.toString()))
+
 }
 
 let pendingPromise = null
@@ -122,11 +198,13 @@ export function compiler() {
             pendingPromise.reject(err.toString())
         } else {
             const bundle = fs.readFileSync(bundleFilePath).toString()
+
             try {
                 eval(bundle)
             } catch(e) {
                 console.log('error evaluating bundle', e.toString())
             }
+
             let App = null
             try {
                 App = React.createElement(module.exports)
