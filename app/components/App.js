@@ -95,7 +95,8 @@ const editorPrefsDefaults = {
     tabSize: 4,
     keyboardHandler: 'ace',
     editorTheme: 'terminal',
-    formatOnSave: true
+    formatOnSave: true,
+    autoCompile: true
 }
 
 function savePreferences(preferences) {
@@ -301,7 +302,7 @@ export default class App extends Component {
                                 code: formattedCode,
                                 openFilePath: filePath,
                                 fileSaved: true
-                            })
+                            }, this.compile)
                         })
                     } else {
                         this.setState({
@@ -399,7 +400,7 @@ export default class App extends Component {
 
 
     handleAutoCompileFlagChange(e) {
-        this.setState({autoCompile: e.target.checked})
+        this.setState({autoCompile: e.target.checked}, this.savePreferences)
     }
 
     savePreferences() {

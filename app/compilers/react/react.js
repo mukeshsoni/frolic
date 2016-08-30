@@ -26,7 +26,6 @@ const codeFilePath = basePath + '/code.js'
 const bundleFilePath = basePath + '/bundle.js'
 // const playgroundFilePath = basePath + '/playground.js'
 
-console.log(indexFilePath)
 // mfs.mkdirpSync(basePath)
 // try {
 //     mfs.writeFileSync(indexFilePath, indexFileContent)
@@ -37,7 +36,6 @@ import webpackConfig from './webpack.config.js'
 
 
 let webpackCompiler = webpack(webpackConfig)
-console.log('webpackCompiler', webpackCompiler)
 // webpackCompiler.inputFileSystem = mfs
 // webpackCompiler.outputFileSystem = mfs
 
@@ -104,7 +102,6 @@ export function compiler() {
         poll: true // use polling instead of native watchers
         // pass a number to set the polling interval
     }, (err, stats) => {
-        console.log('got here?')
         if(!pendingPromise) {
             return
         }

@@ -5,7 +5,7 @@ var App = React.createClass({
     render() {
         return (
             <div>
-                <Comp />
+                {1+1}
             </div>
         )
     }
