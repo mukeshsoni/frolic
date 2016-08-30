@@ -14,6 +14,8 @@ import 'brace/ext/language_tools'
 
 import 'brace/mode/elm'
 import 'brace/mode/haskell'
+import 'brace/mode/javascript'
+import 'brace/mode/jsx'
 
 // terminal themes
 import 'brace/theme/ambiance'

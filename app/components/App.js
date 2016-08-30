@@ -51,19 +51,22 @@ const compilers = {
         formatCode: formatCodeElm,
         onNewFileLoad: onNewFileLoadElm,
         editorMode: 'elm',
+        extension: 'elm',
         generateTests: generateTestsElm,
     },
     purescript: {
         compile: compilePurescript,
         cleanUp: cleanUpPurescript,
         editorMode: 'haskell',
+        extension: 'purs'
     },
     react: {
         compile: compileReact,
         cleanUp: cleanUpReact,
         formatCode: formatCodeReact,
         onNewFileLoad: onNewFileLoadReact,
-        editorMode: 'javascript',
+        editorMode: 'jsx',
+        extension: 'js',
         generateTests: generateTestsReact,
     },
 }
@@ -144,7 +147,7 @@ export default class App extends Component {
 
         this.state = {
             code: 'module.exports = 42',
-            playgroundCode: '{1+1}',
+            playgroundCode: '<div>hey wassup?</div>',
             output: '',
             compiling: false,
             language: 'react',
@@ -292,7 +295,7 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        return saveFile(this.state.code, this.state.openFilePath, ['elm'])
+        return saveFile(this.state.code, this.state.openFilePath, [compilers[this.state.language].extension])
                 .then((filePath) => {
                     if(this.state.formatOnSave && compilers[this.state.language].formatCode) {
                         compilers[this.state.language]
@@ -376,7 +379,7 @@ export default class App extends Component {
     }
 
     handleFileOpenClick() {
-        openFile(['elm'])
+        openFile([compilers[this.state.language].extension])
             .then((codeFile) => this.loadPlaygroundFile(codeFile, null))
             .then(({codeFile, playgroundFile}) => {
                 this.setState({

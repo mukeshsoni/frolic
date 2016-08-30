@@ -1,6 +1,12 @@
 import React from 'react'
 import Promise from 'bluebird'
 import path from 'path'
+
+// acorn jsx parse
+var acorn = require('acorn-jsx')
+var escodegen = require('escodegen')
+var astring = require('astring')
+
 var fs = require('fs')
 var jsonfile = require('jsonfile')
 var writeJsonFile = Promise.promisify(jsonfile.writeFile)
@@ -44,13 +50,21 @@ function writeCodeToFile(code) {
 }
 
 function tokenize(code) {
+    try {
+        var ast = acorn.parse(code, {plugins: {jsx: true}})
+        console.log('generated code: ', astring(ast.body[0], {}))
+        console.log('ast:', ast)
+    } catch(e) {
+        console.log('error parsing code', e.toString())
+    }
+
     return code
 }
 
 function writePlaygroundCodeToFile(code) {
     const tokenizedCode = tokenize(code)
-
-const indexFileContent = `import React from 'react'
+code = '{1+10}'
+    const indexFileContent = `import React from 'react'
 import Comp from './code.js'
 
 var App = React.createClass({
@@ -75,9 +89,6 @@ function compile(code, playgroundCode, openFilePath) {
     return writeCodeToFile(code)
         .then(() => writePlaygroundCodeToFile(playgroundCode))
         .then(() => pendingPromise.promise)
-
-
-    // return new Promise.resolve(<div>hey from react</div>)
 }
 
 function cleanUp() {
@@ -111,9 +122,23 @@ export function compiler() {
             pendingPromise.reject(err.toString())
         } else {
             const bundle = fs.readFileSync(bundleFilePath).toString()
-            eval(bundle)
-            const App = module.exports
-            pendingPromise.resolve(<div><App /></div>)
+            try {
+                eval(bundle)
+            } catch(e) {
+                console.log('error evaluating bundle', e.toString())
+            }
+            let App = null
+            try {
+                App = React.createElement(module.exports)
+            } catch(e) {
+                App = null
+            }
+
+            if(App) {
+                pendingPromise.resolve(App)
+            } else {
+                pendingPromise.resolve(<div>Error: {e.toString()}</div>)
+            }
         }
     })
 
