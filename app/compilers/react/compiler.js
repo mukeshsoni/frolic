@@ -3,6 +3,8 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import path from 'path'
 
+var beautify = require('js-beautify').js_beautify
+
 // acorn jsx parse
 var acorn = require('acorn-jsx')
 // var escodegen = require('escodegen')
@@ -194,7 +196,7 @@ function onNewFileLoad() {
 }
 
 function formatCode(code) {
-    return code
+    return Promise.resolve(beautify(code, {indent_size: 4}))
 }
 
 function generateTests() {

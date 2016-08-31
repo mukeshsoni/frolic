@@ -101,7 +101,7 @@ class Settings extends Component {
                                 <label>Format on save (uses elm-format): </label>
                                 <input
                                     type='checkbox'
-                                    value={this.props.formatOnSave}
+                                    checked={this.props.formatOnSave}
                                     onChange={this.props.onFormatOnSaveChange}
                                     />
                             </li>
