@@ -23,11 +23,7 @@ var mkdirp = Promise.promisify(require('mkdirp'));
 // import webpack from 'webpack'
 // import MemoryFileSystem from 'memory-fs'
 // var mfs = new MemoryFileSystem()
-
-const indexFileContent = `import React from 'react'
-const a = 10
-module.exports = a
-`
+let watcher = null // will store handle to webpack watch, so that we can close it on cleanup
 
 const basePath = path.resolve(__dirname)
 const indexFilePath = basePath + '/index.js'
@@ -188,7 +184,7 @@ function compile(code, playgroundCode, openFilePath) {
 }
 
 function cleanUp() {
-
+    watcher.close()
 }
 
 function onNewFileLoad() {
@@ -204,7 +200,7 @@ function generateTests() {
 }
 
 export function compiler() {
-    webpackCompiler.watch({ // watch options:
+    watcher = webpackCompiler.watch({ // watch options:
         aggregateTimeout: 300, // wait so long for more changes
         poll: true // use polling instead of native watchers
         // pass a number to set the polling interval
