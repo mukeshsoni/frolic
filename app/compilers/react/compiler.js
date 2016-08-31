@@ -196,7 +196,7 @@ function onNewFileLoad() {
 }
 
 function formatCode(code) {
-    return Promise.resolve(beautify(code, {indent_size: 4}))
+    return Promise.resolve(beautify(code, {indent_size: 4, e4x: true}))
 }
 
 function generateTests() {
