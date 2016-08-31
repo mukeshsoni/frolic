@@ -22,6 +22,8 @@ import Settings from './Settings/index.js'
 import Toolbar from './Toolbar/index.js'
 import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
+import Error from './Error/index.js'
+
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 
 const {
@@ -291,11 +293,7 @@ export default class App extends Component {
                 })
                 .catch((e) => {
                     console.log('output after exception: ', this.state.output)
-                    const FormattedError = <div style={{height: '100%', background: '#D8000C'}}>
-                        <pre>{e.toString()}</pre>
-                    </div>
-
-                    this.setState({output: FormattedError, compiling: false})
+                    this.setState({output: <Error error={e} />, compiling: false})
                 })
         })
     }

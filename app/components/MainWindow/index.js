@@ -4,6 +4,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import SplitPane from 'react-split-pane'
+import Error from '../Error/index.js'
 
 import styles from './MainWindow.css'
 
@@ -91,7 +92,7 @@ export default class MainWindow extends Component {
         if(React.isValidElement(this.props.output) || _.isString(this.props.output)) {
             return this.props.output
         } else {
-            return <span>output is not a valid react element</span>
+            return <Error error={new Error('output is not a valid react element')} />
         }
     }
 
