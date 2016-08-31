@@ -96,7 +96,7 @@ var Input = React.createClass({
 
 export default Input
 `,
-        samplePlaygroundCode: `render(<div>hey wassup?<Comp value='sa'/></div>)`
+        samplePlaygroundCode: `render(<div>hey wassup?<Input value='sa'/></div>)`
     },
 }
 

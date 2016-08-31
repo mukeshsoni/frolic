@@ -106,11 +106,11 @@ function isExpression(token) {
     return token.type === 'ExpressionStatement'
 }
 
-function getJSXFileContent(token, assignmentStatements, fnDeclarations) {
+function getJSXFileContent(token, assignmentStatements, fnDeclarations, moduleName) {
     const jsxExpr = getJSXExpr(token)
 
     return `import React from 'react'
-import Comp from './code.js'
+import ${moduleName.trim()} from './code.js'
 
 ${assignmentStatements}
 ${fnDeclarations}
@@ -126,9 +126,9 @@ var CompUser = React.createClass({
 export default CompUser`
 }
 
-function getExprFileContent(token, assignmentStatements, fnDeclarations) {
+function getExprFileContent(token, assignmentStatements, fnDeclarations, moduleName) {
     return `import React from 'react'
-import Comp from './code.js'
+import ${moduleName.trim()} from './code.js'
 
 ${assignmentStatements}
 ${fnDeclarations}
@@ -147,7 +147,7 @@ export default CompUser`
 
 var crypto = require('crypto');
 
-function writePlaygroundCodeToFile(code) {
+function writePlaygroundCodeToFile(code, moduleName='Comp') {
     return tokenize(code)
             .then((tokens) => {
                 const assignmentStatements = getAssignmentStatements(tokens)
@@ -155,9 +155,9 @@ function writePlaygroundCodeToFile(code) {
                 const fileNames = tokens.filter(isExpression).map((token) => {
                     const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,6)
                     if(isRenderCall(token)) {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations))
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
                     } else {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations))
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations, moduleName))
                     }
 
                     return fileName
@@ -172,7 +172,6 @@ function writePlaygroundCodeToFile(code) {
                 }).join('\n')
 
                 const indexFileContent = `import React from 'react'
-import Comp from './code.js'
 ${importStatements}
 
 var App = React.createClass({
@@ -193,13 +192,29 @@ module.exports = App
 
 }
 
-let pendingPromise = null
+function getModuleName(code) {
+    if(code.match(/export\s+default.*/)) {
+        const exportLine = code.match(/export\s+default.*/)[0]
+        const exportLineParts = exportLine.split(/\s+/)
+        return Promise.resolve(exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp')
+    }
 
+    if(code.match(/module\.exports\s+=.*/)) {
+        const exportLine = code.match(/module\.exports\s+=.*/)[0]
+        const exportLineParts = exportLine.split(/\s+/)
+        return Promise.resolve(exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp')
+    }
+    
+    return Promise.resolve('Comp')
+}
+
+let pendingPromise = null
 function compile(code, playgroundCode, openFilePath) {
     pendingPromise = Promise.pending()
     return checkSyntaxErrors(code)
             .then(() => writeCodeToFile(code))
-            .then(() => writePlaygroundCodeToFile(playgroundCode))
+            .then(() => getModuleName(code))
+            .then((moduleName) => writePlaygroundCodeToFile(playgroundCode, moduleName))
             .catch((e) => {
                 console.log('syntax error', e.toString())
                 pendingPromise.reject(e.toString())
