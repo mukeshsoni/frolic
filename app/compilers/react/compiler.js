@@ -29,7 +29,6 @@ const basePath = path.resolve(__dirname)
 const indexFilePath = basePath + '/index.js'
 const codeFilePath = basePath + '/code.js'
 const bundleFilePath = basePath + '/bundle.js'
-// const playgroundFilePath = basePath + '/playground.js'
 
 // mfs.mkdirpSync(basePath)
 // try {
@@ -38,8 +37,6 @@ const bundleFilePath = basePath + '/bundle.js'
 //     console.log('error writing file', e.toString())
 // }
 import webpackConfig from './webpack.config.js'
-
-
 let webpackCompiler = webpack(webpackConfig)
 // webpackCompiler.inputFileSystem = mfs
 // webpackCompiler.outputFileSystem = mfs
@@ -57,6 +54,7 @@ function tokenize(code) {
                 node,
                 codeString: escodegen.generate(node)
             }))
+            console.log('tokens', tokens)
             resolve(tokens)
         } catch(e) {
             console.log('error parsing code', e.toString())
@@ -84,6 +82,11 @@ function getAssignmentStatements(tokens) {
                 .reduce((acc, token) => `${acc}\n${token.codeString}`, '')
 }
 
+function getFunctionDeclarations(tokens) {
+    return tokens.filter(token => token.type === 'FunctionDeclaration')
+                .reduce((acc, token) => `${acc}\n${token.codeString}`, '')
+}
+
 function isRenderCall(token) {
     return token.type === 'ExpressionStatement'
             && token.node.expression.type === 'CallExpression'
@@ -103,18 +106,38 @@ function isExpression(token) {
     return token.type === 'ExpressionStatement'
 }
 
-function getJSXFileContent(token, assignmentStatements) {
+function getJSXFileContent(token, assignmentStatements, fnDeclarations) {
     const jsxExpr = getJSXExpr(token)
 
     return `import React from 'react'
 import Comp from './code.js'
 
 ${assignmentStatements}
+${fnDeclarations}
 
 var CompUser = React.createClass({
     render() {
         return (<div>
             ${jsxExpr}
+        </div>)
+    }
+})
+
+export default CompUser`
+}
+
+function getExprFileContent(token, assignmentStatements, fnDeclarations) {
+    return `import React from 'react'
+import Comp from './code.js'
+
+${assignmentStatements}
+${fnDeclarations}
+
+var CompUser = React.createClass({
+    render() {
+        var exprVal = ${token.codeString}
+        return (<div>
+            {exprVal}
         </div>)
     }
 })
@@ -128,12 +151,13 @@ function writePlaygroundCodeToFile(code) {
     return tokenize(code)
             .then((tokens) => {
                 const assignmentStatements = getAssignmentStatements(tokens)
+                const functionDeclarations = getFunctionDeclarations(tokens)
                 const fileNames = tokens.filter(isExpression).map((token) => {
                     const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,6)
                     if(isRenderCall(token)) {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements))
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations))
                     } else {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', token.codeString)
+                        fs.writeFileSync(basePath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations))
                     }
 
                     return fileName
@@ -144,7 +168,7 @@ function writePlaygroundCodeToFile(code) {
                     return `import ${alphabets[index]} from './${fileName}.js'`
                 }).join('\n')
                 const jsxElements = fileNames.map((fileName, index) => {
-                    return `<${alphabets[index]}/>`
+                    return `<${alphabets[index]}/><br/><br/>`
                 }).join('\n')
 
                 const indexFileContent = `import React from 'react'
