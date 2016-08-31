@@ -31,7 +31,7 @@ const {
     formatCode: formatCodeElm,
     generateTests: generateTestsElm } = elmCompiler()
 
-import { compiler as reactCompiler } from '../compilers/react/react.js'
+import { compiler as reactCompiler } from '../compilers/react/compiler.js'
 const {
     compile: compileReact,
     cleanUp: cleanUpReact,
@@ -146,8 +146,26 @@ export default class App extends Component {
         this.handleShowPreferences = this.handleShowPreferences.bind(this)
 
         this.state = {
-            code: 'module.exports = 42',
-            playgroundCode: '<div>hey wassup?</div>',
+            code: `import React from 'React'
+
+var Input = React.createClass({
+    getInitialState() {
+        return {value: ''}
+    },
+    handleChange(e) {
+        this.setState({value: e.target.value})
+    },
+    render() {
+        return  <div>
+            <input value={this.state.value} onChange={this.handleChange}/>
+            {this.state.value}
+        </div>
+    }
+    })
+
+export default Input
+`,
+            playgroundCode: 'render(<div>hey wassup?<Comp/></div>)',
             output: '',
             compiling: false,
             language: 'react',
@@ -245,6 +263,7 @@ export default class App extends Component {
     }
 
     compile() {
+        console.log('state:', this.state, React.isValidElement(this.state.output))
         this.setState({
             compiling: true,
         }, () => {
@@ -252,9 +271,17 @@ export default class App extends Component {
                 .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
                 .then((output) => {
                     console.log('output', output)
-                    this.setState({output, compiling: false})
+                    try {
+                        this.setState({output, compiling: false})
+                    } catch(e) {
+                        this.setState({output: 'some error'})
+                        console.log('exception in setState', e.toString())
+                    }
                 })
-                .catch((output) => this.setState({output, compiling: false}))
+                .catch((output) => {
+                    console.log('output after exception: ', output)
+                    this.setState({output: 'error somewhere', compiling: false})
+                })
         })
     }
 

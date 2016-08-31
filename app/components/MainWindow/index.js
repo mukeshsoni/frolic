@@ -55,6 +55,7 @@ export default class MainWindow extends Component {
         super(props)
 
         this.editorCommands = this.editorCommands.bind(this)
+        this.getOutput = this.getOutput.bind(this)
     }
 
     componentDidMount() {
@@ -84,6 +85,23 @@ export default class MainWindow extends Component {
                 bindKey: {mac: "cmd-,", win: "ctrl-,"}
             }
         ]
+    }
+
+    getOutput() {
+        console.log('getOutput', this.props.output)
+        if(this.props.output && this.props.output.name && this.props.output.name.indexOf('Error:') >= 0) {
+            return 'blheheeehehe'
+        } else {
+            return this.props.output
+        }
+        // return 'blheheeehehe'
+        // if(React.isValidElement(this.props.output) || _.isString(this.props.output)) {
+        //     console.log('valid output', this.props.output)
+        //     return this.props.output
+        // } else {
+        //     console.log('invalid output', this.props.output)
+        //     return <span>output is not a valid react element</span>
+        // }
     }
 
     render() {
@@ -205,7 +223,7 @@ export default class MainWindow extends Component {
                                         height: (this.props.editorHeight - 50),
                                         overflow: 'auto',
                                         backgroundColor: 'black'}}>
-                                    {this.props.output}
+                                    {this.getOutput()}
                                 </div>
                             </div>
                             : null
