@@ -88,20 +88,11 @@ export default class MainWindow extends Component {
     }
 
     getOutput() {
-        console.log('getOutput', this.props.output)
-        if(this.props.output && this.props.output.name && this.props.output.name.indexOf('Error:') >= 0) {
-            return 'blheheeehehe'
-        } else {
+        if(React.isValidElement(this.props.output) || _.isString(this.props.output)) {
             return this.props.output
+        } else {
+            return <span>output is not a valid react element</span>
         }
-        // return 'blheheeehehe'
-        // if(React.isValidElement(this.props.output) || _.isString(this.props.output)) {
-        //     console.log('valid output', this.props.output)
-        //     return this.props.output
-        // } else {
-        //     console.log('invalid output', this.props.output)
-        //     return <span>output is not a valid react element</span>
-        // }
     }
 
     render() {

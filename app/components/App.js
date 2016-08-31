@@ -53,6 +53,8 @@ const compilers = {
         editorMode: 'elm',
         extension: 'elm',
         generateTests: generateTestsElm,
+        sampleCode: 'add x y = x + y',
+        samplePlaygroundCode: 'add 1 2'
     },
     purescript: {
         compile: compilePurescript,
@@ -68,8 +70,35 @@ const compilers = {
         editorMode: 'jsx',
         extension: 'js',
         generateTests: generateTestsReact,
+        sampleCode: `import React from 'React'
+
+var Input = React.createClass({
+    getInitialState() {
+        return {value: this.props.value}
+    },
+    getDefaultProps() {
+        return {
+            value: ''
+        }
+    },
+    handleChange(e) {
+        this.setState({value: e.target.value})
+    },
+    render() {
+        return  <div>
+            <input value={this.state.value} onChange={this.handleChange}/>
+            {this.state.value}
+        </div>
+    }
+})
+
+export default Input
+`,
+        samplePlaygroundCode: `render(<div>hey wassup?<Comp value='sa'/></div>)`
     },
 }
+
+const defaultLanguage = 'react'
 
 function getFileNameWithoutExtension(fileName) {
     if(fileName.indexOf('.') >= 0) {
@@ -146,26 +175,8 @@ export default class App extends Component {
         this.handleShowPreferences = this.handleShowPreferences.bind(this)
 
         this.state = {
-            code: `import React from 'React'
-
-var Input = React.createClass({
-    getInitialState() {
-        return {value: ''}
-    },
-    handleChange(e) {
-        this.setState({value: e.target.value})
-    },
-    render() {
-        return  <div>
-            <input value={this.state.value} onChange={this.handleChange}/>
-            {this.state.value}
-        </div>
-    }
-    })
-
-export default Input
-`,
-            playgroundCode: 'render(<div>hey wassup?<Comp/></div>)',
+            code: compilers[defaultLanguage].sampleCode || '',
+            playgroundCode: compilers[defaultLanguage].samplePlaygroundCode || '',
             output: '',
             compiling: false,
             language: 'react',
@@ -278,9 +289,13 @@ export default Input
                         console.log('exception in setState', e.toString())
                     }
                 })
-                .catch((output) => {
-                    console.log('output after exception: ', output)
-                    this.setState({output: 'error somewhere', compiling: false})
+                .catch((e) => {
+                    console.log('output after exception: ', this.state.output)
+                    const FormattedError = <div style={{height: '100%', background: '#D8000C'}}>
+                        <pre>{e.toString()}</pre>
+                    </div>
+
+                    this.setState({output: FormattedError, compiling: false})
                 })
         })
     }

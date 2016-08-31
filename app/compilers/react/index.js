@@ -1,6 +1,6 @@
 import React from 'react'
 import Comp from './code.js'
-import A from './8e088c.js'
+import A from './431725.js'
 
 var App = React.createClass({
     render() {
