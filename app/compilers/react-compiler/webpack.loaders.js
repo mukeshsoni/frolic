@@ -40,10 +40,10 @@ module.exports = [
         test: /\.scss$/,
         loaders: ["style", "css", "sass"]
 	},
-	{
-        test: /\.css$/,
-        loader: "style!css"
- 	},
+	// {
+    //     test: /\.css$/,
+    //     loader: "style!css"
+ // 	},
 	{
         test: /\.json/,
         loader: "json"

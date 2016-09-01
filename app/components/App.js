@@ -33,7 +33,7 @@ const {
     formatCode: formatCodeElm,
     generateTests: generateTestsElm } = elmCompiler()
 
-import { compiler as reactCompiler } from '../compilers/react/compiler.js'
+import { compiler as reactCompiler } from '../compilers/react-compiler/compiler.js'
 const {
     compile: compileReact,
     cleanUp: cleanUpReact,
@@ -72,7 +72,10 @@ const compilers = {
         editorMode: 'jsx',
         extension: 'js',
         generateTests: generateTestsReact,
-        sampleCode: `import React from 'React'
+        sampleCode: `import React from 'react'
+import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
+import SB from 'pp/shared/ui/buttons/submitbutton'
+// import 'pp-core.less'
 
 var Input = React.createClass({
     getInitialState() {
@@ -90,6 +93,7 @@ var Input = React.createClass({
         return  <div>
             <input value={this.state.value} onChange={this.handleChange}/>
             {this.state.value}
+            <SB label='submit' />
         </div>
     }
 })

@@ -1,6 +1,6 @@
 // import webpack from 'webpack'
-import path from 'path'
-import loaders from './webpack.loaders.js'
+var path = require('path')
+var loaders = require('./webpack.loaders.js')
 
 // global css
 loaders.push({
@@ -34,9 +34,22 @@ module.exports = {
 	resolve: {
 		root: path.resolve(baseSrcPath + '/src'),
 		extensions: ['', '.js', '.jsx', '.less', '.css', '.sass', '.json'],
-		moduleDirectories: ['', 'node_modules', 'bower_components', 'src/pp/core/less/', path.resolve(baseSrcPath + '/src')],
+		modulesDirectories: [
+			'',
+			'node_modules',
+			'bower_components',
+			// 'pp/modules/root/less',
+			'pp/core/less',
+			path.resolve(baseSrcPath + '/src')
+		],
 	},
 	module: {
+		preLoaders: [
+            {
+                test: /\.less$/,
+                loader: __dirname + '/loaders/addtilde'
+            }
+        ],
 		loaders
 	},
 	// devServer: {

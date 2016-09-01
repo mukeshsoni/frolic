@@ -1,5 +1,5 @@
 import React from 'react'
-import A from './temp/ea7456.js'
+import A from './temp/52334f.js'
 
 var App = React.createClass({
     render() {
