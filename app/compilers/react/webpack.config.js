@@ -19,6 +19,9 @@ loaders.push({
 	]
 })
 
+// TODO - should be dynamic
+var baseSrcPath = '/Users/mukesh/Documents/main_service/frontend/harmony'
+
 module.exports = {
 	entry: [
 		path.resolve(__dirname + `/index.js`) // Your appʼs entry point
@@ -29,7 +32,9 @@ module.exports = {
 		libraryTarget: "commonjs2"
 	},
 	resolve: {
-		extensions: ['', '.js', '.jsx']
+		root: path.resolve(baseSrcPath + '/src'),
+		extensions: ['', '.js', '.jsx', '.less', '.css', '.sass', '.json'],
+		moduleDirectories: ['', 'node_modules', 'bower_components', 'src/pp/core/less/', path.resolve(baseSrcPath + '/src')],
 	},
 	module: {
 		loaders

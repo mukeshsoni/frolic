@@ -23,19 +23,20 @@ var mkdirp = Promise.promisify(require('mkdirp'));
 // import webpack from 'webpack'
 // import MemoryFileSystem from 'memory-fs'
 // var mfs = new MemoryFileSystem()
-let watcher = null // will store handle to webpack watch, so that we can close it on cleanup
-
-const basePath = path.resolve(__dirname)
-const indexFilePath = basePath + '/index.js'
-const codeFilePath = basePath + '/code.js'
-const bundleFilePath = basePath + '/bundle.js'
-
 // mfs.mkdirpSync(basePath)
 // try {
 //     mfs.writeFileSync(indexFilePath, indexFileContent)
 // } catch(e) {
 //     console.log('error writing file', e.toString())
 // }
+let watcher = null // will store handle to webpack watch, so that we can close it on cleanup
+
+const basePath = path.resolve(__dirname)
+const tempPath = basePath + '/temp'
+const indexFilePath = basePath + '/index.js'
+const codeFilePath = tempPath + '/code.js'
+const bundleFilePath = basePath + '/bundle.js'
+
 import webpackConfig from './webpack.config.js'
 let webpackCompiler = webpack(webpackConfig)
 // webpackCompiler.inputFileSystem = mfs
@@ -54,7 +55,6 @@ function tokenize(code) {
                 node,
                 codeString: escodegen.generate(node)
             }))
-            console.log('tokens', tokens)
             resolve(tokens)
         } catch(e) {
             console.log('error parsing code', e.toString())
@@ -110,7 +110,7 @@ function getJSXFileContent(token, assignmentStatements, fnDeclarations, moduleNa
     const jsxExpr = getJSXExpr(token)
 
     return `import React from 'react'
-import ${moduleName.trim()} from './code.js'
+import ${moduleName.trim()} from '${codeFilePath}'
 
 ${assignmentStatements}
 ${fnDeclarations}
@@ -128,7 +128,7 @@ export default CompUser`
 
 function getExprFileContent(token, assignmentStatements, fnDeclarations, moduleName) {
     return `import React from 'react'
-import ${moduleName.trim()} from './code.js'
+import ${moduleName.trim()} from '${codeFilePath}'
 
 ${assignmentStatements}
 ${fnDeclarations}
@@ -155,12 +155,12 @@ function writePlaygroundCodeToFile(code, moduleName='Comp') {
                 const fileNames = tokens.filter(isExpression).map((token) => {
                     const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,6)
                     if(isRenderCall(token)) {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                        fs.writeFileSync(tempPath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
                     } else {
-                        fs.writeFileSync(basePath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                        fs.writeFileSync(tempPath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations, moduleName))
                     }
 
-                    return fileName
+                    return 'temp/' + fileName
                 })
 
                 const alphabets = _.toUpper('abcdefghijklmnopqrstuvwxyz')
@@ -204,7 +204,7 @@ function getModuleName(code) {
         const exportLineParts = exportLine.split(/\s+/)
         return Promise.resolve(exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp')
     }
-    
+
     return Promise.resolve('Comp')
 }
 
@@ -238,7 +238,7 @@ function generateTests() {
     return ''
 }
 
-export function compiler() {
+function startWebpack() {
     watcher = webpackCompiler.watch({ // watch options:
         aggregateTimeout: 300, // wait so long for more changes
         poll: true // use polling instead of native watchers
@@ -277,6 +277,10 @@ export function compiler() {
             }
         }
     })
+}
+
+export function compiler() {
+    startWebpack()
 
     return {
         compile,
