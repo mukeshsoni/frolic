@@ -73,9 +73,9 @@ const compilers = {
         extension: 'js',
         generateTests: generateTestsReact,
         sampleCode: `import React from 'react'
-import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
+// import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
 import SB from 'pp/shared/ui/buttons/submitbutton'
-// import 'pp-core.less'
+import 'pp/core/less/pp-core.less'
 
 var Input = React.createClass({
     getInitialState() {
@@ -280,19 +280,17 @@ export default class App extends Component {
     }
 
     compile() {
-        console.log('state:', this.state, React.isValidElement(this.state.output))
         this.setState({
             compiling: true,
         }, () => {
             compilers[this.state.language]
                 .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
                 .then((output) => {
-                    console.log('output', output)
                     try {
                         this.setState({output, compiling: false})
                     } catch(e) {
-                        this.setState({output: 'some error'})
                         console.log('exception in setState', e.toString())
+                        this.setState({output: 'some error'})
                     }
                 })
                 .catch((e) => {

@@ -20,7 +20,7 @@ loaders.push({
 })
 
 // TODO - should be dynamic
-var baseSrcPath = '/Users/mukesh/Documents/main_service/frontend/harmony'
+var baseSrcPath = process.env.HOME + '/Documents/main_service/frontend/harmony'
 
 module.exports = {
 	entry: [
@@ -38,16 +38,15 @@ module.exports = {
 			'',
 			'node_modules',
 			'bower_components',
-			// 'pp/modules/root/less',
+			'pp/modules/root/less',
 			'pp/core/less',
-			path.resolve(baseSrcPath + '/src')
 		],
 	},
 	module: {
 		preLoaders: [
             {
                 test: /\.less$/,
-                loader: __dirname + '/loaders/addtilde'
+                loader: path.resolve(__dirname + '/loaders/addtilde')
             }
         ],
 		loaders

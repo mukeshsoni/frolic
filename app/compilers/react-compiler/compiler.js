@@ -252,6 +252,11 @@ function startWebpack() {
             console.log('webpack error compiling code', err.toString())
             pendingPromise.reject(err)
         } else {
+            if(stats && stats.compilation && stats.compilation.errors.length > 0) {
+                console.log('stats', stats.compilation.errors)
+                return pendingPromise.reject(stats.compilation.errors[0].details)
+            }
+
             const bundle = fs.readFileSync(bundleFilePath).toString()
 
             try {
