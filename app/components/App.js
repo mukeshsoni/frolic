@@ -75,6 +75,7 @@ const compilers = {
         sampleCode: `import React from 'react'
 // import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
 import SB from 'pp/shared/ui/buttons/submitbutton'
+import Badge from 'pp/shared/ui/badge'
 import 'pp/core/less/pp-core.less'
 
 var Input = React.createClass({
@@ -83,17 +84,21 @@ var Input = React.createClass({
     },
     getDefaultProps() {
         return {
-            value: ''
+            value: '',
+            borderRadius: 3
         }
     },
-    handleChange(e) {
-        this.setState({value: e.target.value})
+    handleClick(e) {
+        alert('wow!')
     },
     render() {
+        let style = {
+            borderRadius: this.props.borderRadius
+        }
+
         return  <div>
-            <input value={this.state.value} onChange={this.handleChange}/>
-            {this.state.value}
-            <SB label='submit' />
+            <SB label='submit' onClick={this.handleClick}/>
+            <Badge count={10} style={style}/>
         </div>
     }
 })

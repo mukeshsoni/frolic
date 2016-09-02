@@ -51,6 +51,11 @@ module.exports = {
         ],
 		loaders
 	},
+	externals: {
+        'webpack': 'webpack',
+        'react': 'react',
+        "react-dom": "react-dom"
+    },
 	// devServer: {
 	// 	contentBase: "./public",
 	// 	// do not print bundle build stats
