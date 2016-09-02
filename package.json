@@ -112,6 +112,7 @@
     "postcss": "^5.1.0",
     "react": "^15.2.1",
     "react-ace": "^3.5.0",
+    "react-addons-test-utils": "^15.3.1",
     "react-dom": "^15.2.1",
     "react-elm-components": "^1.0.0",
     "react-modal": "1.4.0",

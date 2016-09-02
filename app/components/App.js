@@ -2,6 +2,8 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
+var ReactTestUtils = require('react-addons-test-utils');
+
 // import Mousetrap from 'mousetrap'
 var fs = require('fs')
 var writeFile = Promise.promisify(fs.writeFile)
@@ -22,7 +24,7 @@ import Settings from './Settings/index.js'
 import Toolbar from './Toolbar/index.js'
 import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
-import Error from './Error/index.js'
+import ErrorComponent from './Error/index.js'
 
 import { compiler as elmCompiler } from '../compilers/elm/elm.js'
 
@@ -292,15 +294,16 @@ export default class App extends Component {
                 .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
                 .then((output) => {
                     try {
+                        ReactTestUtils.renderIntoDocument(<div>{output}</div>)
                         this.setState({output, compiling: false})
-                    } catch(e) {
-                        console.log('exception in setState', e.toString())
-                        this.setState({output: 'some error'})
+                    } catch (e) {
+                        console.log('testutils: error rending into document', e.toString())
+                        this.setState({output: <ErrorComponent error='Error in React rendering. Probably some render method returning wrong stuff'/>})
                     }
                 })
                 .catch((e) => {
                     console.log('output after exception: ', this.state.output)
-                    this.setState({output: <Error error={e} />, compiling: false})
+                    this.setState({output: <ErrorComponent error={e} />, compiling: false})
                 })
         })
     }

@@ -33,6 +33,7 @@ node: {
   externals: {
       'webpack': 'webpack',
       'react': 'react',
-      'react-dom': 'react-dom'
+      'react-dom': 'react-dom',
+      'react-addons-test-utils': 'react-addons-test-utils'
   },
 };
