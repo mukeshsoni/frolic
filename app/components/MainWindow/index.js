@@ -89,11 +89,7 @@ export default class MainWindow extends Component {
     }
 
     getOutput() {
-        if(React.isValidElement(this.props.output) || _.isString(this.props.output)) {
-            return this.props.output
-        } else {
-            return <Error error={new Error('output is not a valid react element')} />
-        }
+        return this.props.output
     }
 
     render() {

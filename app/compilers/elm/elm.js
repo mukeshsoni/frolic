@@ -1,6 +1,7 @@
 import React from 'react'
 import Promise from 'bluebird'
 import Elm from 'react-elm-components'
+import _ from 'lodash'
 
 var path = require('path')
 var exec = require('child_process').exec;
