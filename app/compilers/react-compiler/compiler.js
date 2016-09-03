@@ -45,6 +45,7 @@ let webpackCompiler = webpack(webpackConfig)
 // only write to temp/code.js if the file in code panel is not loaded from disk
 // else, just update codeFilePath which is then used in import statements in the playground code files
 function writeCodeToFile(code, openFilePath) {
+    console.log('openFilePath', openFilePath)
     if(openFilePath && openFilePath !== codeFilePath) {
         codeFilePath = openFilePath
     } else {
@@ -52,7 +53,7 @@ function writeCodeToFile(code, openFilePath) {
     }
 
     // only write to temp/code.js if the file in code panel is not loaded from disk
-    if(codeFilePath === tempPath + '/code.js') {
+    if(codeFilePath === (tempPath + '/code.js')) {
         return writeFile(codeFilePath, code)
     } else {
         return Promise.resolve({})
@@ -266,7 +267,8 @@ function startWebpack() {
             pendingPromise.reject(err)
         } else {
             if(stats && stats.compilation && stats.compilation.errors.length > 0) {
-                return pendingPromise.reject(stats.compilation.errors[0].details)
+                console.log('compilation error', stats.compilation.errors)
+                return pendingPromise.reject(stats.compilation.errors.map(error => error.message).join('\n'))
             }
 
             try {

@@ -55,7 +55,7 @@ const compilers = {
         formatCode: formatCodeElm,
         onNewFileLoad: onNewFileLoadElm,
         editorMode: 'elm',
-        extension: 'elm',
+        extensions: ['elm'],
         generateTests: generateTestsElm,
         sampleCode: 'add x y = x + y',
         samplePlaygroundCode: 'add 1 2'
@@ -64,7 +64,7 @@ const compilers = {
         compile: compilePurescript,
         cleanUp: cleanUpPurescript,
         editorMode: 'haskell',
-        extension: 'purs'
+        extensions: ['purs']
     },
     react: {
         compile: compileReact,
@@ -72,7 +72,7 @@ const compilers = {
         formatCode: formatCodeReact,
         onNewFileLoad: onNewFileLoadReact,
         editorMode: 'jsx',
-        extension: 'js',
+        extensions: ['js', 'jsx'],
         generateTests: generateTestsReact,
         sampleCode: `import React from 'react'
 // import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
@@ -348,7 +348,7 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        return saveFile(this.state.code, this.state.openFilePath, [compilers[this.state.language].extension])
+        return saveFile(this.state.code, this.state.openFilePath, compilers[this.state.language].extensions)
                 .then((filePath) => {
                     if(this.state.formatOnSave && compilers[this.state.language].formatCode) {
                         compilers[this.state.language]
@@ -433,7 +433,7 @@ export default class App extends Component {
     }
 
     handleFileOpenClick() {
-        openFile([compilers[this.state.language].extension])
+        openFile(compilers[this.state.language].extensions)
             .then((codeFile) => this.loadPlaygroundFile(codeFile, null))
             .then(({codeFile, playgroundFile}) => {
                 this.setState({

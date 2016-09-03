@@ -32,7 +32,7 @@ module.exports = {
 		libraryTarget: "commonjs2"
 	},
 	resolve: {
-		root: path.resolve(baseSrcPath + '/src'),
+		root: [path.resolve(baseSrcPath + '/src'), path.resolve(__dirname)],
 		extensions: ['', '.js', '.jsx', '.less', '.css', '.sass', '.json'],
 		modulesDirectories: [
 			'',
