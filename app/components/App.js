@@ -80,13 +80,14 @@ import SB from 'pp/shared/ui/buttons/submitbutton'
 import Badge from 'pp/shared/ui/badge'
 import 'pp/core/less/pp-core.less'
 
-var Input = React.createClass({
+var MyComp = React.createClass({
     getInitialState() {
         return {value: this.props.value}
     },
     getDefaultProps() {
         return {
-            value: '',
+            count: 10,
+            label: 'Submit',
             borderRadius: 3
         }
     },
@@ -99,15 +100,17 @@ var Input = React.createClass({
         }
 
         return  <div>
-            <SB label='submit' onClick={this.handleClick}/>
-            <Badge count={10} style={style}/>
+            <SB label={this.props.label} onClick={this.handleClick}/>
+            <Badge count={this.props.count} style={style}/>
         </div>
     }
 })
 
-export default Input
+export default MyComp
 `,
-        samplePlaygroundCode: `render(<div>hey wassup?<Input value='sa'/></div>)`
+        samplePlaygroundCode: `render(<MyComp label='Submit' count={20}/>)
+
+render(<MyComp label='Skicka' count={40}/>)`
     },
 }
 
@@ -424,6 +427,7 @@ export default class App extends Component {
             'Save Playground')
             .then((filePath) => {
                 console.log('playground code saved to', filePath)
+                this.compile()
             })
             .catch((err) => console.log('error saving file ', err.message))
     }

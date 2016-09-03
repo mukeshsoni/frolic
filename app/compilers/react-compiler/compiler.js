@@ -34,7 +34,7 @@ let watcher = null // will store handle to webpack watch, so that we can close i
 const basePath = path.resolve(__dirname)
 const tempPath = basePath + '/temp'
 const indexFilePath = basePath + '/index.js'
-const codeFilePath = tempPath + '/code.js'
+let codeFilePath = tempPath + '/code.js'
 const bundleFilePath = basePath + '/bundle.js'
 
 import webpackConfig from './webpack.config.js'
@@ -42,8 +42,21 @@ let webpackCompiler = webpack(webpackConfig)
 // webpackCompiler.inputFileSystem = mfs
 // webpackCompiler.outputFileSystem = mfs
 
-function writeCodeToFile(code) {
-    return writeFile(codeFilePath, code)
+// only write to temp/code.js if the file in code panel is not loaded from disk
+// else, just update codeFilePath which is then used in import statements in the playground code files
+function writeCodeToFile(code, openFilePath) {
+    if(openFilePath && openFilePath !== codeFilePath) {
+        codeFilePath = openFilePath
+    } else {
+        codeFilePath = tempPath + '/code.js'
+    }
+
+    // only write to temp/code.js if the file in code panel is not loaded from disk
+    if(codeFilePath === tempPath + '/code.js') {
+        return writeFile(codeFilePath, code)
+    } else {
+        return Promise.resolve({})
+    }
 }
 
 function tokenize(code) {
@@ -153,7 +166,7 @@ function writePlaygroundCodeToFile(code, moduleName='Comp') {
                 const assignmentStatements = getAssignmentStatements(tokens)
                 const functionDeclarations = getFunctionDeclarations(tokens)
                 const fileNames = tokens.filter(isExpression).map((token) => {
-                    const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,6)
+                    const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,8)
                     if(isRenderCall(token)) {
                         fs.writeFileSync(tempPath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
                     } else {
@@ -196,23 +209,24 @@ function getModuleName(code) {
     if(code.match(/export\s+default.*/)) {
         const exportLine = code.match(/export\s+default.*/)[0]
         const exportLineParts = exportLine.split(/\s+/)
-        return Promise.resolve(exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp')
-    }
-
-    if(code.match(/module\.exports\s+=.*/)) {
+        return exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp'
+    } else if(code.match(/module\.exports\s+=.*/)) {
         const exportLine = code.match(/module\.exports\s+=.*/)[0]
         const exportLineParts = exportLine.split(/\s+/)
-        return Promise.resolve(exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp')
+        return exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp'
+    } else {
+        return 'Comp'
     }
-
-    return Promise.resolve('Comp')
 }
 
 let pendingPromise = null
 function compile(code, playgroundCode, openFilePath) {
     pendingPromise = Promise.pending()
+
+    // openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
+
     return checkSyntaxErrors(code)
-            .then(() => writeCodeToFile(code))
+            .then(() => writeCodeToFile(code, openFilePath))
             .then(() => getModuleName(code))
             .then((moduleName) => writePlaygroundCodeToFile(playgroundCode, moduleName))
             .catch((e) => {
@@ -249,31 +263,21 @@ function startWebpack() {
         }
 
         if(err) {
-            console.log('webpack error compiling code', err.toString())
             pendingPromise.reject(err)
         } else {
             if(stats && stats.compilation && stats.compilation.errors.length > 0) {
-                console.log('stats', stats.compilation.errors)
                 return pendingPromise.reject(stats.compilation.errors[0].details)
             }
 
-            const bundle = fs.readFileSync(bundleFilePath).toString()
-
             try {
+                const bundle = fs.readFileSync(bundleFilePath).toString()
                 eval(bundle)
             } catch(e) {
                 console.log('error evaluating bundle', e.toString())
                 return pendingPromise.reject(e)
             }
 
-            let App = null
-            let createElementError = null
-            try {
-                App = React.createElement(module.exports)
-            } catch(e) {
-                App = null
-                createElementError = e
-            }
+            let App = React.createElement(module.exports)
 
             if(App) {
                 return pendingPromise.resolve(App)
