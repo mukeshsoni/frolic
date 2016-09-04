@@ -45,17 +45,19 @@ let webpackCompiler = webpack(webpackConfig)
 // only write to temp/code.js if the file in code panel is not loaded from disk
 // else, just update codeFilePath which is then used in import statements in the playground code files
 function writeCodeToFile(code, openFilePath) {
+    const tempCodePath = tempPath + '/code.js'
     console.log('openFilePath', openFilePath)
-    if(openFilePath && openFilePath !== codeFilePath) {
+    if(openFilePath && openFilePath !== tempCodePath) {
         codeFilePath = openFilePath
     } else {
-        codeFilePath = tempPath + '/code.js'
+        codeFilePath = tempCodePath
     }
 
     // only write to temp/code.js if the file in code panel is not loaded from disk
-    if(codeFilePath === (tempPath + '/code.js')) {
+    if(codeFilePath === tempCodePath) {
         return writeFile(codeFilePath, code)
     } else {
+        console.log('not writing code file')
         return Promise.resolve({})
     }
 }
@@ -166,22 +168,29 @@ function writePlaygroundCodeToFile(code, moduleName='Comp') {
             .then((tokens) => {
                 const assignmentStatements = getAssignmentStatements(tokens)
                 const functionDeclarations = getFunctionDeclarations(tokens)
-                const fileNames = tokens.filter(isExpression).map((token) => {
+                const filePaths = tokens.filter(isExpression).map((token) => {
                     const fileName = crypto.createHash('md5').update(token.codeString).digest('hex').slice(0,8)
-                    if(isRenderCall(token)) {
-                        fs.writeFileSync(tempPath + '/' + fileName + '.js', getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                    const filePath = tempPath + '/' + fileName + '.js'
+
+                    // don't need to write the file again, if it's already there (md5 checksum ensures content is same)
+                    if(!fs.existsSync(filePath)) {
+                        if(isRenderCall(token)) {
+                            fs.writeFileSync(filePath, getJSXFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                        } else {
+                            fs.writeFileSync(filePath, getExprFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                        }
                     } else {
-                        fs.writeFileSync(tempPath + '/' + fileName + '.js', getExprFileContent(token, assignmentStatements, functionDeclarations, moduleName))
+                        console.log('yay! didn\'t need to write playground file for code', token.codeString)
                     }
 
                     return 'temp/' + fileName
                 })
 
                 const alphabets = _.toUpper('abcdefghijklmnopqrstuvwxyz')
-                const importStatements = fileNames.map((fileName, index) => {
-                    return `import ${alphabets[index]} from './${fileName}.js'`
+                const importStatements = filePaths.map((filePath, index) => {
+                    return `import ${alphabets[index]} from '${filePath}'`
                 }).join('\n')
-                const jsxElements = fileNames.map((fileName, index) => {
+                const jsxElements = filePaths.map((filePaths, index) => {
                     return `<${alphabets[index]}/><br/><br/>`
                 }).join('\n')
 
@@ -210,11 +219,11 @@ function getModuleName(code) {
     if(code.match(/export\s+default.*/)) {
         const exportLine = code.match(/export\s+default.*/)[0]
         const exportLineParts = exportLine.split(/\s+/)
-        return exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp'
+        return exportLineParts.length >= 2 ? _.trimEnd(exportLineParts[2], ';') : 'Comp'
     } else if(code.match(/module\.exports\s+=.*/)) {
         const exportLine = code.match(/module\.exports\s+=.*/)[0]
         const exportLineParts = exportLine.split(/\s+/)
-        return exportLineParts.length >= 2 ? exportLineParts[2] : 'Comp'
+        return exportLineParts.length >= 2 ? _.trimEnd(exportLineParts[2], ';') : 'Comp'
     } else {
         return 'Comp'
     }
@@ -275,7 +284,7 @@ function startWebpack() {
                 const bundle = fs.readFileSync(bundleFilePath).toString()
                 eval(bundle)
             } catch(e) {
-                console.log('error evaluating bundle', e.toString())
+                console.log('error evaluating bundle', e)
                 return pendingPromise.reject(e)
             }
 
