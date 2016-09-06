@@ -19,6 +19,7 @@
 - [x] preference window (like atom). Can start with editor preferences (theme, fontsize, vim/emacs keybindings etc.)
     - [x] persist settings changes to json storage and load settings from storage when booting app
 - [x] integrate elm-format
+- [ ] change elm and purescript compilers to use rxjs
 - [ ] the interface with compilers needs to be observables. That way they can keep sending signals like 'compiling', 'compiling done x%', 'installing module x' etc. Streams are much more flexible for the use case
 - [ ] background color for output pane should be customizable
 - [ ] use [memory-fs](https://www.npmjs.com/package/memory-fs) instead of writing files

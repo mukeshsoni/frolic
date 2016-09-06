@@ -2,6 +2,7 @@ import React from 'react'
 import _ from 'lodash'
 import Promise from 'bluebird'
 import path from 'path'
+var Rx = require('rxjs/Rx');
 
 var beautify = require('js-beautify').js_beautify
 
@@ -231,19 +232,15 @@ function getModuleName(code) {
 
 let pendingPromise = null
 function compile(code, playgroundCode, openFilePath) {
-    pendingPromise = Promise.pending()
-
-    // openFilePath = openFilePath ? _.initial(openFilePath.split('/')).join('/') : null
-
+    // pendingPromise = Promise.pending()
     return checkSyntaxErrors(code)
             .then(() => writeCodeToFile(code, openFilePath))
             .then(() => getModuleName(code))
             .then((moduleName) => writePlaygroundCodeToFile(playgroundCode, moduleName))
             .catch((e) => {
                 console.log('syntax error', e.toString())
-                pendingPromise.reject(e.toString())
+                subscriber.next(e.toString())
             })
-            .then(() => pendingPromise.promise)
 }
 
 function cleanUp() {
@@ -268,16 +265,17 @@ function startWebpack() {
         poll: true // use polling instead of native watchers
         // pass a number to set the polling interval
     }, (err, stats) => {
-        if(!pendingPromise) {
+        if(!subscriber) {
             return
         }
 
         if(err) {
-            pendingPromise.reject(err)
+            console.log('error compiling webpack', err)
+            return subscriber.next(err)
         } else {
             if(stats && stats.compilation && stats.compilation.errors.length > 0) {
                 console.log('compilation error', stats.compilation.errors)
-                return pendingPromise.reject(stats.compilation.errors.map(error => error.message).join('\n'))
+                return subscriber.next(stats.compilation.errors.map(error => error.message).join('\n'))
             }
 
             try {
@@ -285,17 +283,24 @@ function startWebpack() {
                 eval(bundle)
             } catch(e) {
                 console.log('error evaluating bundle', e)
-                return pendingPromise.reject(e)
+                return subscriber.next(e)
             }
 
             let App = React.createElement(module.exports)
 
             if(App) {
-                return pendingPromise.resolve(App)
+                return subscriber.next(App)
             } else {
-                return pendingPromise.reject(e)
+                return subscriber.next(e)
             }
         }
+    })
+}
+
+var subscriber = null
+function getObservable() {
+    return Rx.Observable.create((o) => {
+        subscriber = o
     })
 }
 
@@ -308,5 +313,6 @@ export function compiler() {
         onNewFileLoad,
         formatCode,
         generateTests,
+        outputGenerator: getObservable()
     }
 }

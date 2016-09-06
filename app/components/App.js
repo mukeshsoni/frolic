@@ -41,7 +41,8 @@ const {
     cleanUp: cleanUpReact,
     onNewFileLoad: onNewFileLoadReact,
     formatCode: formatCodeReact,
-    generateTests: generateTestsReact } = reactCompiler()
+    generateTests: generateTestsReact,
+    outputGenerator: outputGeneratorReact } = reactCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
 const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
@@ -74,6 +75,7 @@ const compilers = {
         editorMode: 'jsx',
         extensions: ['js', 'jsx'],
         generateTests: generateTestsReact,
+        outputGenerator: outputGeneratorReact,
         sampleCode: `import React from 'react'
 // import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
 import SB from 'pp/shared/ui/buttons/submitbutton'
@@ -189,6 +191,7 @@ export default class App extends Component {
         this.handleFormatOnSaveChange = this.handleFormatOnSaveChange.bind(this)
         this.savePreferences = this.savePreferences.bind(this)
         this.handleShowPreferences = this.handleShowPreferences.bind(this)
+        this.handleOutput = this.handleOutput.bind(this)
 
         this.state = {
             code: compilers[defaultLanguage].sampleCode || '',
@@ -248,7 +251,18 @@ export default class App extends Component {
         getSavedPreferences().then(preferences => this.setState({...preferences}))
     }
 
+    handleOutput(output) {
+        try {
+            ReactTestUtils.renderIntoDocument(<div>{output}</div>)
+            this.setState({output, compiling: false})
+        } catch (e) {
+            console.log('testutils: error rending into document', e.toString())
+            this.setState({output: <ErrorComponent error='Error in React rendering. Probably some render method returning wrong stuff'/>})
+        }
+    }
+
     componentDidMount() {
+        compilers[this.state.language].outputGenerator.subscribe(this.handleOutput)
         window.onresize = this.handleWindowResize
         this.handleWindowResize()
 
@@ -295,19 +309,6 @@ export default class App extends Component {
         }, () => {
             compilers[this.state.language]
                 .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
-                .then((output) => {
-                    try {
-                        ReactTestUtils.renderIntoDocument(<div>{output}</div>)
-                        this.setState({output, compiling: false})
-                    } catch (e) {
-                        console.log('testutils: error rending into document', e.toString())
-                        this.setState({output: <ErrorComponent error='Error in React rendering. Probably some render method returning wrong stuff'/>})
-                    }
-                })
-                .catch((e) => {
-                    console.log('output after exception: ', this.state.output)
-                    this.setState({output: <ErrorComponent error={e} />, compiling: false})
-                })
         })
     }
 
@@ -334,6 +335,7 @@ export default class App extends Component {
 
     handleLanguageChange(e) {
         compilers[this.state.language].cleanUp()
+        compilers[e.target.value].outputGenerator.subscribe(this.handleOutput)
         this.setState({language: e.target.value})
     }
 
