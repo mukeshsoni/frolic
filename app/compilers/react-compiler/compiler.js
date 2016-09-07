@@ -244,7 +244,13 @@ function compile(code, playgroundCode, openFilePath) {
 }
 
 function cleanUp() {
-    watcher.close()
+    if(subscriber) {
+        subscriber.complete()
+    }
+
+    if(watcher) {
+        watcher.close()
+    }
 }
 
 function onNewFileLoad() {
@@ -313,6 +319,6 @@ export function compiler() {
         onNewFileLoad,
         formatCode,
         generateTests,
-        outputGenerator: getObservable()
+        outputStream: getObservable()
     }
 }

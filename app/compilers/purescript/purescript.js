@@ -1,7 +1,10 @@
 import React from 'react'
 import Promise from 'bluebird'
 import _ from 'lodash'
+var Rx = require('rxjs/Rx');
+
 var exec = require('child_process').exec;
+
 var fs = require('fs')
 var writeFile = Promise.promisify(fs.writeFile)
 var appendFile = Promise.promisify(fs.appendFile)
@@ -126,9 +129,11 @@ export function compile(code, playgroundCode) {
                     exec(`cd ${tempFolderPath} && pulp run`, (err, stdout, stderr) => {
                         if(err) {
                             console.log('purescript compilation error', err.toString())
-                            resolve(getFormattedError(err))
+                            // resolve(getFormattedError(err))
+                            subscriber.next(getFormattedError(err))
                         } else {
-                            resolve(getFormattedOutput(stdout))
+                            // resolve(getFormattedOutput(stdout))
+                            subscriber.next(getFormattedOutput(stdout))
                         }
                     })
                 })
@@ -137,15 +142,32 @@ export function compile(code, playgroundCode) {
 
 function cleanUp() {
     console.log('cleaning up purescript temp space')
+    if(subscriber) {
+        subscriber.complete()
+    }
+
     const files = fs.readdirSync(tempFolderPath + '/src')
     files.filter((file) => file !== 'Main.purs' && (file.split('.')[1] === 'purs'))
             .map((file) => fs.unlink(tempFolderPath + '/src/' + file))
+}
+
+function formatCode(code) {
+    return code
+}
+
+var subscriber = null
+function getObservable() {
+    return Rx.Observable.create((o) => {
+        subscriber = o
+    })
 }
 
 // do some initialization work here
 export function compiler() {
     return {
         compile,
-        cleanUp
+        cleanUp,
+        formatCode,
+        outputStream: getObservable()
     }
 }

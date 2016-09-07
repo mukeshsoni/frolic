@@ -33,6 +33,7 @@ const {
     cleanUp: cleanUpElm,
     onNewFileLoad: onNewFileLoadElm,
     formatCode: formatCodeElm,
+    outputStream: outputStreamElm,
     generateTests: generateTestsElm } = elmCompiler()
 
 import { compiler as reactCompiler } from '../compilers/react-compiler/compiler.js'
@@ -42,10 +43,14 @@ const {
     onNewFileLoad: onNewFileLoadReact,
     formatCode: formatCodeReact,
     generateTests: generateTestsReact,
-    outputGenerator: outputGeneratorReact } = reactCompiler()
+    outputStream: outputStreamReact } = reactCompiler()
 
 import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
-const { compile: compilePurescript, cleanUp: cleanUpPurescript } = purescriptCompiler()
+const {
+    compile: compilePurescript,
+    formatCode: formatCodePurescript,
+    outputStream: outputStreamPurescript,
+    cleanUp: cleanUpPurescript } = purescriptCompiler()
 
 import {ipcRenderer} from 'electron'
 
@@ -58,12 +63,15 @@ const compilers = {
         editorMode: 'elm',
         extensions: ['elm'],
         generateTests: generateTestsElm,
+        outputStream: outputStreamElm,
         sampleCode: 'add x y = x + y',
         samplePlaygroundCode: 'add 1 2'
     },
     purescript: {
         compile: compilePurescript,
         cleanUp: cleanUpPurescript,
+        formatCode: formatCodePurescript,
+        outputStream: outputStreamPurescript,
         editorMode: 'haskell',
         extensions: ['purs']
     },
@@ -75,7 +83,7 @@ const compilers = {
         editorMode: 'jsx',
         extensions: ['js', 'jsx'],
         generateTests: generateTestsReact,
-        outputGenerator: outputGeneratorReact,
+        outputStream: outputStreamReact,
         sampleCode: `import React from 'react'
 // import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
 import SB from 'pp/shared/ui/buttons/submitbutton'
@@ -116,7 +124,7 @@ render(<MyComp label='Skicka' count={40}/>)`
     },
 }
 
-const defaultLanguage = 'react'
+const defaultLanguage = 'elm'
 
 function getFileNameWithoutExtension(fileName) {
     if(fileName.indexOf('.') >= 0) {
@@ -198,7 +206,7 @@ export default class App extends Component {
             playgroundCode: compilers[defaultLanguage].samplePlaygroundCode || '',
             output: '',
             compiling: false,
-            language: 'react',
+            language: defaultLanguage,
             autoCompile: true,
             openFilePath: null,
             showCodePanel: true,
@@ -262,7 +270,7 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        compilers[this.state.language].outputGenerator.subscribe(this.handleOutput)
+        compilers[this.state.language].outputStream.subscribe(this.handleOutput)
         window.onresize = this.handleWindowResize
         this.handleWindowResize()
 
@@ -335,8 +343,12 @@ export default class App extends Component {
 
     handleLanguageChange(e) {
         compilers[this.state.language].cleanUp()
-        compilers[e.target.value].outputGenerator.subscribe(this.handleOutput)
-        this.setState({language: e.target.value})
+        compilers[e.target.value].outputStream.subscribe(this.handleOutput)
+        this.setState({
+            language: e.target.value,
+            code: compilers[e.target.value].sampleCode,
+            playgroundCode: compilers[e.target.value].samplePlaygroundCode,
+        })
     }
 
     handleNewFileClick() {

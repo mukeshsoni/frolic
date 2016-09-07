@@ -2,6 +2,7 @@ import React from 'react'
 import Promise from 'bluebird'
 import Elm from 'react-elm-components'
 import _ from 'lodash'
+var Rx = require('rxjs/Rx');
 
 var path = require('path')
 var exec = require('child_process').exec;
@@ -350,11 +351,11 @@ export function compile(code, playgroundCode, openFilePath) {
                                             }
                                         })
 
-                                        resolve(elmComponents)
+                                        subscriber.next(elmComponents)
                                     })
                                     .catch((err) => {
                                         console.log('elm compilation error', err.toString())
-                                        resolve(getFormattedError(err))
+                                        subscriber.next(getFormattedError(err))
                                     })
                 })
             })
@@ -367,6 +368,9 @@ function onNewFileLoad(openFilePath) {
 
 function cleanUp() {
     console.log('cleaning up elm compiler folder')
+    if(subscriber) {
+        subscriber.complete()
+    }
     // const files = fs.readdirSync(tempFolderPath)
     // files.filter((file) => file !== 'Main.elm' && (file.split('.')[1] === 'elm' || file.split('.')[1] === 'js'))
     //         .map((file) => fs.unlink(tempFolderPath + '/' + file))
@@ -382,7 +386,21 @@ function formatCode(code) {
             // .then((formattedCode) => _.drop(formattedCode.split('\n'), 2).join('\n'))
 }
 
+var subscriber = null
+function getObservable() {
+    return Rx.Observable.create((o) => {
+        subscriber = o
+    })
+}
+
 // do some initialization work here
 export function compiler() {
-    return {compile, cleanUp, onNewFileLoad, generateTests, formatCode}
+    return {
+        compile,
+        cleanUp,
+        onNewFileLoad,
+        generateTests,
+        formatCode,
+        outputStream: getObservable()
+    }
 }
