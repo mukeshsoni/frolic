@@ -124,7 +124,7 @@ render(<MyComp label='Skicka' count={40}/>)`
     },
 }
 
-const defaultLanguage = 'elm'
+const defaultLanguage = 'react'
 
 function getFileNameWithoutExtension(fileName) {
     if(fileName.indexOf('.') >= 0) {
