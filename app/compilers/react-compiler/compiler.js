@@ -3,7 +3,7 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import path from 'path'
 var Rx = require('rxjs/Rx');
-
+var flowRemoveTypes = require('flow-remove-types');
 var beautify = require('js-beautify').js_beautify
 
 // acorn jsx parse
@@ -233,7 +233,7 @@ function getModuleName(code) {
 let pendingPromise = null
 function compile(code, playgroundCode, openFilePath) {
     // pendingPromise = Promise.pending()
-    return checkSyntaxErrors(code)
+    return checkSyntaxErrors(flowRemoveTypes(code))
             .then(() => writeCodeToFile(code, openFilePath))
             .then(() => getModuleName(code))
             .then((moduleName) => writePlaygroundCodeToFile(playgroundCode, moduleName))
