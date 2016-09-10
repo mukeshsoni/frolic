@@ -212,7 +212,7 @@ module.exports = App
 `
                 return writeFile(indexFilePath, indexFileContent)
             })
-            .catch(e => console.log('error generating tokens: ', e.toString()))
+            // .catch(e => console.log('error generating tokens: ', e.toString()))
 
 }
 

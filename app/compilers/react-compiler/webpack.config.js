@@ -1,6 +1,7 @@
 // import webpack from 'webpack'
 var path = require('path')
 var loaders = require('./webpack.loaders.js')
+var FlowStatusWebpackPlugin = require('flow-status-webpack-plugin');
 
 // global css
 loaders.push({
@@ -69,11 +70,12 @@ module.exports = {
 	// 	port: PORT,
 	// 	host: HOST
 	// },
-	// plugins: [
+	plugins: [
+		new FlowStatusWebpackPlugin()
 		// new webpack.NoErrorsPlugin(),
 		// new webpack.HotModuleReplacementPlugin(),
 		// new HtmlWebpackPlugin({
 		// 	template: './src/template.html'
 		// })
-	// ]
+	]
 }
