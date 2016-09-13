@@ -162,12 +162,26 @@ function getObservable() {
     })
 }
 
+function onCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
+function onPlaygroundCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
 // do some initialization work here
 export function compiler() {
     return {
         compile,
         cleanUp,
         formatCode,
-        outputStream: getObservable()
+        outputStream: getObservable(),
+        onCodeChange,
+        onPlaygroundCodeChange,
+        editorMode: 'haskell',
+        extensions: ['purs'],
+        sampleCode: 'add x y = x + y',
+        samplePlaygroundCode: 'add 1 2',
     }
 }

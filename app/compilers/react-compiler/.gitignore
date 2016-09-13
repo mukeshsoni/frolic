@@ -1,5 +1,5 @@
 node_modules
 temp
-index.js
+index-for-webpack.js
 bundle.js
 *.bundle.js

@@ -16,7 +16,7 @@ var readFile = Promise.promisify(fs.readFile)
 
 var mkdirp = Promise.promisify(require('mkdirp'));
 
-const basePath = process.env.NODE_ENV === 'development' ? 'app/compilers/elm' : 'dist/app/compilers/elm'
+const basePath = process.env.NODE_ENV === 'development' ? 'app/compilers/elm-compiler' : 'dist/app/compilers/elm-compiler'
 
 const tempFolderPath = basePath + '/temp'
 const codePath = tempFolderPath
@@ -393,6 +393,14 @@ function getObservable() {
     })
 }
 
+function onCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
+function onPlaygroundCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
 // do some initialization work here
 export function compiler() {
     return {
@@ -401,6 +409,12 @@ export function compiler() {
         onNewFileLoad,
         generateTests,
         formatCode,
-        outputStream: getObservable()
+        outputStream: getObservable(),
+        onCodeChange,
+        onPlaygroundCodeChange,
+        editorMode: 'elm',
+        extensions: ['elm'],
+        sampleCode: 'add x y = x + y',
+        samplePlaygroundCode: 'add 1 2',
     }
 }

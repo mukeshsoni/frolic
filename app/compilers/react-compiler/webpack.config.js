@@ -25,7 +25,7 @@ var baseSrcPath = process.env.HOME + '/Documents/main_service/frontend/harmony'
 
 module.exports = {
 	entry: [
-		path.resolve(__dirname + `/index.js`) // Your appʼs entry point
+		path.resolve(__dirname + `/index-for-webpack.js`) // Your appʼs entry point
 	],
 	output: {
 		path: path.resolve(__dirname),

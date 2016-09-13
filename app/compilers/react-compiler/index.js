@@ -33,8 +33,9 @@ var mkdirp = Promise.promisify(require('mkdirp'));
 let watcher = null // will store handle to webpack watch, so that we can close it on cleanup
 
 const basePath = path.resolve(__dirname)
+console.log('basePath', basePath)
 const tempPath = basePath + '/temp'
-const indexFilePath = basePath + '/index.js'
+const indexFilePath = basePath + '/index-for-webpack.js'
 let codeFilePath = tempPath + '/code.js'
 const bundleFilePath = basePath + '/bundle.js'
 
@@ -310,6 +311,14 @@ function getObservable() {
     })
 }
 
+function onCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
+function onPlaygroundCodeChange(code, playgroundCode, openFilePath) {
+    return this.compile(code, playgroundCode, openFilePath)
+}
+
 export function compiler() {
     startWebpack()
 
@@ -319,6 +328,47 @@ export function compiler() {
         onNewFileLoad,
         formatCode,
         generateTests,
-        outputStream: getObservable()
+        outputStream: getObservable(),
+        onCodeChange,
+        onPlaygroundCodeChange,
+        editorMode: 'jsx',
+        extensions: ['js', 'jsx'],
+        sampleCode: `import React from 'react'
+// import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
+import SB from 'pp/shared/ui/buttons/submitbutton'
+import Badge from 'pp/shared/ui/badge'
+import 'pp/core/less/pp-core.less'
+
+var MyComp = React.createClass({
+    getInitialState() {
+        return {value: this.props.value}
+    },
+    getDefaultProps() {
+        return {
+            count: 10,
+            label: 'Submit',
+            borderRadius: 3
+        }
+    },
+    handleClick(e) {
+        alert('wow!')
+    },
+    render() {
+        let style = {
+            borderRadius: this.props.borderRadius
+        }
+
+        return  <div>
+            <SB label={this.props.label} onClick={this.handleClick}/>
+            <Badge count={this.props.count} style={style}/>
+        </div>
+    }
+})
+
+export default MyComp
+`,
+        samplePlaygroundCode: `render(<MyComp label='Submit' count={20}/>)
+
+render(<MyComp label='Skicka' count={40}/>)`
     }
 }

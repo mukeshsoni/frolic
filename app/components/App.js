@@ -26,104 +26,14 @@ import MainWindow from './MainWindow/index.js'
 import Footer from './Footer/index.js'
 import ErrorComponent from './Error/index.js'
 
-import { compiler as elmCompiler } from '../compilers/elm/elm.js'
-
-const {
-    compile: compileElm,
-    cleanUp: cleanUpElm,
-    onNewFileLoad: onNewFileLoadElm,
-    formatCode: formatCodeElm,
-    outputStream: outputStreamElm,
-    generateTests: generateTestsElm } = elmCompiler()
-
-import { compiler as reactCompiler } from '../compilers/react-compiler/compiler.js'
-const {
-    compile: compileReact,
-    cleanUp: cleanUpReact,
-    onNewFileLoad: onNewFileLoadReact,
-    formatCode: formatCodeReact,
-    generateTests: generateTestsReact,
-    outputStream: outputStreamReact } = reactCompiler()
-
-import { compiler as purescriptCompiler } from '../compilers/purescript/purescript.js'
-const {
-    compile: compilePurescript,
-    formatCode: formatCodePurescript,
-    outputStream: outputStreamPurescript,
-    cleanUp: cleanUpPurescript } = purescriptCompiler()
-
-import {ipcRenderer} from 'electron'
-
+// const compilers = ['elm', 'react', 'purescript']
 const compilers = {
-    elm: {
-        compile: compileElm,
-        cleanUp: cleanUpElm,
-        formatCode: formatCodeElm,
-        onNewFileLoad: onNewFileLoadElm,
-        editorMode: 'elm',
-        extensions: ['elm'],
-        generateTests: generateTestsElm,
-        outputStream: outputStreamElm,
-        sampleCode: 'add x y = x + y',
-        samplePlaygroundCode: 'add 1 2'
-    },
-    purescript: {
-        compile: compilePurescript,
-        cleanUp: cleanUpPurescript,
-        formatCode: formatCodePurescript,
-        outputStream: outputStreamPurescript,
-        editorMode: 'haskell',
-        extensions: ['purs']
-    },
-    react: {
-        compile: compileReact,
-        cleanUp: cleanUpReact,
-        formatCode: formatCodeReact,
-        onNewFileLoad: onNewFileLoadReact,
-        editorMode: 'jsx',
-        extensions: ['js', 'jsx'],
-        generateTests: generateTestsReact,
-        outputStream: outputStreamReact,
-        sampleCode: `import React from 'react'
-// import EmptyFolder from 'pp/modules/documents/views/pastelabel/index.js'
-import SB from 'pp/shared/ui/buttons/submitbutton'
-import Badge from 'pp/shared/ui/badge'
-import 'pp/core/less/pp-core.less'
-
-var MyComp = React.createClass({
-    getInitialState() {
-        return {value: this.props.value}
-    },
-    getDefaultProps() {
-        return {
-            count: 10,
-            label: 'Submit',
-            borderRadius: 3
-        }
-    },
-    handleClick(e) {
-        alert('wow!')
-    },
-    render() {
-        let style = {
-            borderRadius: this.props.borderRadius
-        }
-
-        return  <div>
-            <SB label={this.props.label} onClick={this.handleClick}/>
-            <Badge count={this.props.count} style={style}/>
-        </div>
-    }
-})
-
-export default MyComp
-`,
-        samplePlaygroundCode: `render(<MyComp label='Submit' count={20}/>)
-
-render(<MyComp label='Skicka' count={40}/>)`
-    },
+    elm: require('../compilers/elm-compiler'),
+    react: require('../compilers/react-compiler'),
+    purescript: require('../compilers/purescript-compiler'),
 }
 
+import {ipcRenderer} from 'electron'
 const defaultLanguage = 'react'
 
 function getFileNameWithoutExtension(fileName) {
@@ -201,12 +111,16 @@ export default class App extends Component {
         this.handleShowPreferences = this.handleShowPreferences.bind(this)
         this.handleOutput = this.handleOutput.bind(this)
 
+        // var compiler = require('../compilers/' + defaultLanguage + '-compiler/index.js').compiler()
+        var compiler = compilers[defaultLanguage].compiler()
+console.log('compiler', compiler)
         this.state = {
-            code: compilers[defaultLanguage].sampleCode || '',
-            playgroundCode: compilers[defaultLanguage].samplePlaygroundCode || '',
+            code: compiler.sampleCode || '',
+            playgroundCode: compiler.samplePlaygroundCode || '',
             output: '',
             compiling: false,
             language: defaultLanguage,
+            compiler,
             autoCompile: true,
             openFilePath: null,
             showCodePanel: true,
@@ -270,21 +184,18 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        compilers[this.state.language].outputStream.subscribe(this.handleOutput)
+        this.state.compiler.outputStream.subscribe(this.handleOutput)
         window.onresize = this.handleWindowResize
         this.handleWindowResize()
 
         if(this.state.autoCompile) {
-            this.compile()
+            this.state.compiler.onCodeChange(this.state.code, this.state.onPlaygroundCodeChange, this.state.openFilePath)
         }
     }
 
     componentWillUnmount() {
         this.storeFilePathInDb()
-
-        Object.keys(compilers).map((compilerKey) => {
-            compilers[compilerKey].cleanUp()
-        })
+        this.state.compiler.cleanUp()
     }
 
     handleWindowResize() {
@@ -311,22 +222,13 @@ export default class App extends Component {
                 })
     }
 
-    compile() {
-        this.setState({
-            compiling: true,
-        }, () => {
-            compilers[this.state.language]
-                .compile(this.state.code, this.state.playgroundCode, this.state.openFilePath)
-        })
-    }
-
     handleCodeChange(newCode) {
         this.setState({
             code: newCode,
             fileSaved: false
         }, () => {
             if(this.state.autoCompile) {
-                this.compile()
+                this.state.compiler.onCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
             }
         })
     }
@@ -336,18 +238,24 @@ export default class App extends Component {
             playgroundCode: newCode
         }, () => {
             if(this.state.autoCompile) {
-                this.compile()
+                this.state.compiler.onPlaygroundCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
             }
         })
     }
 
     handleLanguageChange(e) {
-        compilers[this.state.language].cleanUp()
-        compilers[e.target.value].outputStream.subscribe(this.handleOutput)
+        debugger;
+        this.state.compiler.cleanUp()
+        // var compiler = require('../compilers/' + e.target.value + '-compiler/index.js').compiler()
+        var compiler = compilers[e.target.value].compiler()
+
         this.setState({
             language: e.target.value,
-            code: compilers[e.target.value].sampleCode,
-            playgroundCode: compilers[e.target.value].samplePlaygroundCode,
+            compiler,
+            code: compiler.sampleCode || '',
+            playgroundCode: compiler.samplePlaygroundCode || '',
+        }, () => {
+            this.state.compiler.outputStream.subscribe(this.handleOutput)
         })
     }
 
@@ -362,17 +270,17 @@ export default class App extends Component {
     }
 
     handleFileSaveClick() {
-        return saveFile(this.state.code, this.state.openFilePath, compilers[this.state.language].extensions)
+        return saveFile(this.state.code, this.state.openFilePath, this.state.compiler.extensions)
                 .then((filePath) => {
-                    if(this.state.formatOnSave && compilers[this.state.language].formatCode) {
-                        compilers[this.state.language]
+                    if(this.state.formatOnSave && this.state.compiler.formatCode) {
+                        this.state.compiler
                         .formatCode(this.state.code)
                         .then((formattedCode) => {
                             this.setState({
                                 code: formattedCode,
                                 openFilePath: filePath,
                                 fileSaved: true
-                            }, this.compile)
+                            }, this.handleCodeChange)
                         })
                     } else {
                         this.setState({
@@ -385,8 +293,8 @@ export default class App extends Component {
     }
 
     handleGenerateTestClick() {
-        if(compilers[this.state.language].generateTests) {
-            compilers[this.state.language].generateTests(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+        if(this.state.compiler.generateTests) {
+            this.state.compiler.generateTests(this.state.code, this.state.playgroundCode, this.state.openFilePath)
                 .then((tests) => console.log('generated tests', tests))
         } else {
             alert('This compiler, ' + this.state.language + ', does not support test generation')
@@ -446,8 +354,12 @@ export default class App extends Component {
             .catch((err) => console.log('error saving file ', err.message))
     }
 
+    compile() {
+        this.state.compiler.onCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+    }
+
     handleFileOpenClick() {
-        openFile(compilers[this.state.language].extensions)
+        openFile(this.state.compiler.extensions)
             .then((codeFile) => this.loadPlaygroundFile(codeFile, null))
             .then(({codeFile, playgroundFile}) => {
                 this.setState({
@@ -458,7 +370,7 @@ export default class App extends Component {
                     fileSaved: true
                 }, () => {
                     this.storeFilePathInDb()
-                    compilers[this.state.language].onNewFileLoad(this.state.openFilePath)
+                    this.state.compiler.onNewFileLoad && this.state.compiler.onNewFileLoad(this.state.openFilePath)
                     if(this.state.autoCompile) {
                         this.compile()
                     }
@@ -555,7 +467,7 @@ export default class App extends Component {
                     onCodeChange={this.handleCodeChange}
                     onPlaygroundCodeChange={this.handlePlaygroundCodeChange}
                     onSavePlaygroundClick={this.handleSavePlaygroundClick}
-                    editorMode={compilers[this.state.language].editorMode}
+                    editorMode={this.state.compiler.editorMode}
                     showCodePanel={this.state.showCodePanel}
                     showPlaygroundPanel={this.state.showPlaygroundPanel}
                     showOutputPanel={this.state.showOutputPanel}
