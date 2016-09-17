@@ -21,6 +21,7 @@
 - [x] integrate elm-format
 - [x] change elm and purescript compilers to use rxjs
 - [x] the interface with compilers needs to be observables. That way they can keep sending signals like 'compiling', 'compiling done x%', 'installing module x' etc. Streams are much more flexible for the use case
+- [ ] use css `contain` property for output pane so that styles for output are isolated from rest of the styles - https://justmarkup.com/log/2016/04/css-containment/
 - [ ] the app should not know about which compilers to require. Instead the compilers should register themselves.
 - [ ] cmd/ctrl-f to find stuff
 - [ ] shortcuts to jump between editors
