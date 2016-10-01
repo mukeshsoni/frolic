@@ -377,7 +377,16 @@ function generateTests(code, playgroundCode, openFilePath) {
 }
 
 function formatCode(code) {
-    return promisifiedExec(`echo "${code}" | ${basePath}/elm-format --stdin`)
+    const cmd = `${basePath}/elm-format --stdin`
+
+    function execFormat(callback) {
+        const child = exec(cmd, callback)
+        child.stdin.write(code)
+        child.stdin.end()
+        return child
+    }
+
+    return Promise.promisify(execFormat)()
             // .then((formattedCode) => _.drop(formattedCode.split('\n'), 2).join('\n'))
 }
 
