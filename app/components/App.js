@@ -33,6 +33,7 @@ const compilers = {
 
 import { ipcRenderer } from 'electron'
 const defaultLanguage = 'elm'
+let cachedPlaygroundCode = {}
 
 function getFileNameWithoutExtension(fileName) {
   if (fileName.indexOf('.') >= 0) {
@@ -185,6 +186,14 @@ export default class App extends Component {
     this.state.compiler.cleanUp()
   }
 
+  getCodePath() {
+    if (this.state.openFilePath) {
+      return this.state.openFilePath
+    } else {
+      return 'makarana_playground'
+    }
+  }
+
   handleWindowResize() {
     this.setState({ editorHeight: this.mainWindow.clientHeight })
   }
@@ -232,6 +241,8 @@ export default class App extends Component {
   }
 
   handlePlaygroundCodeChange(newCode) {
+    cachedPlaygroundCode[this.getCodePath()] = newCode
+
     this.setState({
       playgroundCode: newCode
     }, () => {
@@ -260,7 +271,8 @@ export default class App extends Component {
     this.setState({
       openFilePath: null,
       playgroundFilePath: null,
-      fileSaved: false, code: '',
+      fileSaved: false,
+      code: '',
       playgroundCode: ''
     })
   }
@@ -315,26 +327,57 @@ export default class App extends Component {
   }
 
   loadPlaygroundFile(codeFile, playgroundFilePath) {
-    return fileAccess(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath)).then(() =>
-      readFile(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath))
-        .then((content) => ({
-          codeFile,
-          playgroundFile: {
-            content: content.toString(),
-            filePath: getPlaygroundFilePath(codeFile.filePath, playgroundFilePath)
-          }
-        })
-      )
-    ).catch((err) => {
-      console.log('error reading playground file', err.message) // eslint-disable-line no-console
-      return {
+    if (cachedPlaygroundCode[codeFile.filePath]) {
+      return Promise.resolve({
         codeFile,
         playgroundFile: {
-          content: '',
+          content: cachedPlaygroundCode[codeFile.filePath],
           filePath: null
         }
-      }
-    })
+      })
+    }
+
+    return fileAccess(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath))
+            .then(() => {
+              if (cachedPlaygroundCode[codeFile.filePath]) {
+                return Promise.resolve({
+                  codeFile,
+                  playgroundFile: {
+                    content: cachedPlaygroundCode[codeFile.filePath],
+                    filePath: getPlaygroundFilePath(codeFile.filePath, playgroundFilePath)
+                  }
+                })
+              } else {
+                return readFile(getPlaygroundFilePath(codeFile.filePath, playgroundFilePath))
+                        .then((content) => ({
+                          codeFile,
+                          playgroundFile: {
+                            content: content.toString(),
+                            filePath: getPlaygroundFilePath(codeFile.filePath, playgroundFilePath)
+                          }
+                        }))
+              }
+            })
+            .catch((err) => {
+              console.log('error reading playground file', err.message) // eslint-disable-line no-console
+              if (cachedPlaygroundCode[codeFile.filePath]) {
+                return Promise.resolve({
+                  codeFile,
+                  playgroundFile: {
+                    content: cachedPlaygroundCode[codeFile.filePath],
+                    filePath: null
+                  }
+                })
+              } else {
+                return {
+                  codeFile,
+                  playgroundFile: {
+                    content: '',
+                    filePath: null
+                  }
+                }
+              }
+            })
   }
 
   handleSavePlaygroundClick() {
@@ -348,7 +391,9 @@ export default class App extends Component {
   }
 
   handleFileOpenClick() {
-    openFile(this.state.compiler.extensions).then((codeFile) => this.loadPlaygroundFile(codeFile, null)).then(({ codeFile, playgroundFile }) => {
+    openFile(this.state.compiler.extensions)
+    .then((codeFile) => this.loadPlaygroundFile(codeFile, null))
+    .then(({ codeFile, playgroundFile }) => {
       this.setState({
         openFilePath: codeFile.filePath,
         code: codeFile.content,
