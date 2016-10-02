@@ -12,7 +12,14 @@
     "no-use-before-define": 0,
     "import/no-unresolved": [2, { ignore: ['electron'] }],
     "react/jsx-no-bind": 0,
-    "react/prefer-stateless-function": 0
+    "react/prefer-stateless-function": 0,
+    "semi": 0,
+    "indent": ["error", 2],
+    "max-len": 0,
+    "quotes": ["error", "single"],
+    "no-else-return": 0,
+    "vars-on-top": 0,
+    "space-before-function-paren": [0, {"anonymous": "always", "named": "never"}]
   },
   "plugins": [
     "import",

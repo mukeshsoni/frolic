@@ -34,7 +34,7 @@ const compilers = {
 }
 
 import {ipcRenderer} from 'electron'
-const defaultLanguage = 'react'
+const defaultLanguage = 'elm'
 
 function getFileNameWithoutExtension(fileName) {
     if(fileName.indexOf('.') >= 0) {
