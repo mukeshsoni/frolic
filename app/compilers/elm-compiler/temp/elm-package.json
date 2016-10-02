@@ -5,7 +5,8 @@
     "license": "BSD3",
     "source-directories": [
         "/Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm-compiler/temp",
-        "app/compilers/elm-compiler/temp//Users/mukeshsoni/Documents/projects/frolic/app/compilers/elm-compiler/temp,/Users/mukeshsoni/Desktop/test/elm-architecture-tutorial/examples,/Users/mukeshsoni/Desktop/test/elm-architecture-tutorial/nesting"
+        "/Users/mukeshsoni/Desktop/test/elm-architecture-tutorial/examples",
+        "/Users/mukeshsoni/Desktop/test/elm-architecture-tutorial/nesting"
     ],
     "exposed-modules": [],
     "dependencies": {

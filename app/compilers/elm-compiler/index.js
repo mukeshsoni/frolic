@@ -133,8 +133,13 @@ function writeCodeToFile(code) {
           .then(() => moduleName) // return the moduleName for playgroundFileWritercatch((err) => console.log('error writing file', `${codePath}/${moduleName}.elm`, err.toString()))
 }
 
-function isRenderExpression(code) {
+function isRenderExpression (code) {
   return code.startsWith('render ')
+    || code.startsWith('Html.beginnerProgram')
+    || code.startsWith('beginnerProgram')
+    || code.startsWith('Html.program')
+    || code.startsWith('App.program')
+    || code.startsWith('program')
 }
 
 function getType(code) {
@@ -229,7 +234,7 @@ import ${userModuleName} exposing (..)`
 ${mainFileTemplateForComponents}
 ${statements}
 main =
-    ${appProgram} ${expression.value.slice(7)}`
+    ${appProgram} ${_.drop(expression.value.split(' ')).join(' ')}`
   } else {
     fileContent = `module Main${counter} exposing (..)
 import String

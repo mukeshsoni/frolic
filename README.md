@@ -31,14 +31,27 @@ npm run start
 ```
 
 **Note**
-To test out your ui components just copy whatever you would pass to `main` and call it (in the playground panel) will a function named `render` (also checkout the gif in case of confusion). E.g.
+To test out your views just copy whatever you would assign to `main`. E.g. if your code has -
+
 ```
-render
+main =
+  Html.program
     { init = init
     , view = view
     , update = update
     , subscriptions = subscriptions
     }
+```
+
+copy this to the playground -
+
+```
+Html.program
+  { init = init
+  , view = view
+  , update = update
+  , subscriptions = subscriptions
+  }
 ```
 
 ## Packages included by default
