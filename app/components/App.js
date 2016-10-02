@@ -63,7 +63,8 @@ const editorPrefsDefaults = {
   keyboardHandler: 'ace',
   editorTheme: 'terminal',
   formatOnSave: true,
-  autoCompile: true
+  autoCompile: true,
+  compileOnSave: true
 }
 
 function savePreferences(preferences) {
@@ -104,6 +105,7 @@ export default class App extends Component {
     this.handleSettingsClose = this.handleSettingsClose.bind(this)
     this.handleKeyboardHandlerChange = this.handleKeyboardHandlerChange.bind(this)
     this.handleFormatOnSaveChange = this.handleFormatOnSaveChange.bind(this)
+    this.handleCompileOnSaveChange = this.handleCompileOnSaveChange.bind(this)
     this.savePreferences = this.savePreferences.bind(this)
     this.handleShowPreferences = this.handleShowPreferences.bind(this)
     this.handleOutput = this.handleOutput.bind(this)
@@ -234,7 +236,8 @@ export default class App extends Component {
       code: newCode,
       fileSaved: false
     }, () => {
-      if (this.state.autoCompile) {
+      // if it's a file opened from disk, only compile on save
+      if (this.state.autoCompile && !this.state.openFilePath) {
         this.state.compiler.onCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
       }
     })
@@ -285,10 +288,18 @@ export default class App extends Component {
             code: formattedCode,
             openFilePath: filePath,
             fileSaved: true
-          }, this.handleCodeChange)
+          }, () => {
+            if (this.state.compileOnSave) {
+              this.state.compiler.onCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+            }
+          })
         })
       } else {
-        this.setState({ openFilePath: filePath, fileSaved: true })
+        this.setState({ openFilePath: filePath, fileSaved: true }, () => {
+          if (this.state.compileOnSave) {
+            this.state.compiler.onCodeChange(this.state.code, this.state.playgroundCode, this.state.openFilePath)
+          }
+        })
       }
     })
     .catch((err) => console.log('error saving file ', err.message)) // eslint-disable-line no-console
@@ -447,11 +458,15 @@ export default class App extends Component {
   handleKeyboardHandlerChange(e) {
     this.setState({
       keyboardHandler: e.target.value
-    }, this.savePreferencesg)
+    }, this.savePreferences)
   }
 
   handleFormatOnSaveChange(e) {
-    this.setState({ formatOnSave: e.target.checked })
+    this.setState({ formatOnSave: e.target.checked }, this.savePreferences)
+  }
+
+  handleCompileOnSaveChange(e) {
+    this.setState({ compileOnSave: e.target.checked })
   }
 
   toggleCodePanelVisibility(showCodePanel) {
@@ -542,6 +557,8 @@ export default class App extends Component {
             onKeyboardHandlerChange={this.handleKeyboardHandlerChange}
             formatOnSave={this.state.formatOnSave}
             onFormatOnSaveChange={this.handleFormatOnSaveChange}
+            compileOnSave={this.state.compileOnSave}
+            onCompileOnSaveChange={this.handleCompileOnSaveChange}
           />
           : null}
       </div>
