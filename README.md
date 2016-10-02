@@ -1,3 +1,5 @@
+**Note** - I have ported the backend of frolic into an atom plugin so that the editor experience is much better - https://atom.io/packages/elm-instant
+
 # Frolic
 
 With Frolic, you can start typing expressions and immediately see results in the output panel without any glue code. Plus, it works for ui components too!
