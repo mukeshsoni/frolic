@@ -73,7 +73,7 @@ function writeSourcesToElmPackageJson(templateFileContents, basePathForEditorCod
 
   let packageJsonFileContents = {
     ...templateFileContents,
-    'source-directories': _.uniq(templateFileContents['source-directories'].concat(path.resolve(basePathForEditorCode)))
+    'source-directories': _.uniq(templateFileContents['source-directories'].concat([path.resolve(tempFolderPath), path.resolve(basePathForEditorCode)]))
   }
 
   if (basePathForEditorCode !== path.resolve(tempFolderPath)) {

@@ -3,9 +3,7 @@ const elmPackageTemplate = {
     "summary": "helpful summary of your project, less than 80 characters",
     "repository": "https://github.com/user/project.git",
     "license": "BSD3",
-    "source-directories": [
-        require('path').resolve(__dirname)
-    ],
+    "source-directories": [],
     "exposed-modules": [],
     "dependencies": {
         "elm-community/array-extra": "1.0.1 <= v < 2.0.0",
@@ -47,4 +45,4 @@ const elmPackageTemplate = {
     "elm-version": "0.17.1 <= v < 0.18.0"
 }
 
-export default elmPackageTemplate
+module.exports = elmPackageTemplate
