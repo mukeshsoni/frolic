@@ -8,6 +8,11 @@ const path = require('path')
 const exec = require('child_process').exec;
 const fs = require('fs')
 const jsonfile = require('jsonfile')
+
+Promise.config({
+  cancellation: true
+})
+
 const writeJsonFile = Promise.promisify(jsonfile.writeFile)
 
 const writeFile = Promise.promisify(fs.writeFile)
@@ -106,6 +111,7 @@ function writeSourcesToElmPackageJson(templateFileContents, basePathForEditorCod
  * Update elm-package.json src property to include path from where the file is loaded
  */
 function updateFileSources(openFilePath = tempFolderPath) {
+  openFilePath = openFilePath || tempFolderPath
   if (lastOpenFilePath === openFilePath) {
     return Promise.resolve(true)
   } else {
@@ -298,7 +304,10 @@ function getSource(module, expression, index) {
   return cachedSources[getExpressionValue(expression)]
 }
 
+let elmMakePromises = Promise.resolve()
+
 export function compile(code, playgroundCode, openFilePath) {
+  elmMakePromises.cancel()
   // get folder path from file path
   const openFileFolderPath = openFilePath
     ? _.initial(openFilePath.split('/')).join('/')
@@ -312,36 +321,61 @@ export function compile(code, playgroundCode, openFilePath) {
                 const fileName = `main${index}`
                 return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
               })
-              return Promise.all(allPromises).then(() => {
-                let sources = []
-
-                sources = expressions.map((expression, index) => getSource(module, expression, index))
-
-                const elmComponents = sources.map((source, index) => {
-                  // bust all keys if user code has changed
-                  if (cachedCode !== code) {
-                    cachedCode = code
-                    cachedComponentKeys = {}
-                  }
-
-                  // only return elm component is source is not corrupted
-                  // style={{display: 'flex', justifyContent: 'center'}}
-                  if (source && source.embed) {
-                    return (
-                      <div key={getComponentKey(expressions, index, code)}>
-                        <Elm key={getComponentKey(expressions, index, code)} src={source} />
-                      </div>
-                    )
-                  } else {
-                    return <span>a</span>
-                  }
+              elmMakePromises = new Promise((resolve, reject, onCancel) => {
+                // on cancellation of promise
+                onCancel(() => {
+                  ps.lookup({
+                    command: 'elm-make',
+                    psargs: 'ax'
+                  }, (err, resultList) => {
+                    if (err) {
+                      console.log('error getting command info', err.toString()) // eslint-disable-line no-console
+                    } else {
+                      resultList.forEach((process) => {
+                        ps.kill(process.pid, (errorGettingProcessInfo) => {
+                          if (errorGettingProcessInfo) {
+                            console.error('Error killing process ', errorGettingProcessInfo.toString()) // eslint-disable-line no-console
+                          }
+                        })
+                      })
+                    }
+                  })
                 })
+                return Promise.all(allPromises)
+                  .then(resolve)
+                  .then(() => {
+                    let sources = []
 
-                subscriber.next(elmComponents)
-              }).catch((err) => {
-                console.error('elm compilation error', err.toString()) // eslint-disable-line no-console
-                subscriber.next(getFormattedError(err))
-              })
+                    sources = expressions.map((expression, index) => getSource(module, expression, index))
+
+                    const elmComponents = sources.map((source, index) => {
+                      // bust all keys if user code has changed
+                      if (cachedCode !== code) {
+                        cachedCode = code
+                        cachedComponentKeys = {}
+                      }
+
+                      // only return elm component is source is not corrupted
+                      // style={{display: 'flex', justifyContent: 'center'}}
+                      if (source && source.embed) {
+                        return (
+                          <div key={getComponentKey(expressions, index, code)}>
+                            <Elm key={getComponentKey(expressions, index, code)} src={source} />
+                          </div>
+                        )
+                      } else {
+                        return <span>a</span>
+                      }
+                    })
+
+                    subscriber.next(elmComponents)
+                  })
+                  .catch(reject)
+                })
+                .catch((err) => {
+                  console.error('elm compilation error', err.toString()) // eslint-disable-line no-console
+                  subscriber.next(getFormattedError(err))
+                })
             })
           })
 }
