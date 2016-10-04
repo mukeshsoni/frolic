@@ -1,19 +1,20 @@
 var Promise = require('bluebird')
 var mkdirp = Promise.promisify(require('mkdirp'))
 var ncp = Promise.promisify(require('ncp').ncp)
-var rimraf = Promise.promisify(require('rimraf'))
 const writeFile = Promise.promisify(require('fs').writeFile)
 var path = require('path')
 var exec = Promise.promisify(require('child_process').exec)
 
-mkdirp('dist/app/compilers/elm-compiler/temp')
-  .then(() => ncp('app/compilers/elm-compiler/temp', 'dist/app/compilers/elm-compiler/temp'))
+const tempFolderPath = 'app/compilers/elm-compiler/temp'
+
+exec('rm -rf dist')
+  .then(() => mkdirp('dist/' + tempFolderPath))
+  .then(() => ncp(tempFolderPath, 'dist/' + tempFolderPath))
   .then(() => {
-    process.chdir('dist/app/compilers/elm-compiler/temp')
+    process.chdir('dist/' + tempFolderPath)
     var elmPackageJson = require(path.join(process.cwd(), 'elm-package-template.js'))
-    return writeFile('elm-package.json', JSON.stringify(elmPackageJson))
-            .then(() => exec('rm -rf elm-stuff'))
-            .then(() => rimraf('rm -rf elm-package.json'))
+    exec('rm -rf elm-stuff elm-package.json')
+      .then(() => writeFile('elm-package.json', JSON.stringify(elmPackageJson)))
   })
   .then(() => exec('elm-package install -y'))
   .then(console.log)
