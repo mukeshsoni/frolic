@@ -13,7 +13,7 @@ exec('rm -rf dist')
   .then(() => {
     process.chdir('dist/' + tempFolderPath)
     var elmPackageJson = require(path.join(process.cwd(), 'elm-package-template.js'))
-    exec('rm -rf elm-stuff elm-package.json')
+    return exec('rm -rf elm-stuff elm-package.json')
       .then(() => writeFile('elm-package.json', JSON.stringify(elmPackageJson)))
   })
   .then(() => exec('elm-package install -y'))
