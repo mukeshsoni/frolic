@@ -3,7 +3,7 @@ import Promise from 'bluebird'
 import Elm from 'react-elm-components'
 import _ from 'lodash'
 const Rx = require('rxjs/Rx');
-
+const ps = require('ps-node')
 const path = require('path')
 const exec = require('child_process').exec;
 const fs = require('fs')
@@ -35,6 +35,10 @@ function isTypeDeclaration(command) {
 
 function isImportStatement(command) {
   return command.startsWith('import ')
+}
+
+function isFrolicExpression(code) {
+  return code.startsWith('$')
 }
 
 const numLinesAddedToPlaygroundFile = 5
@@ -149,7 +153,9 @@ function isRenderExpression (code) {
 }
 
 function getType(code) {
-  if (isImportStatement(code)) {
+  if (isFrolicExpression(code)) {
+    return 'frolicExpression'
+  } else if (isImportStatement(code)) {
     return 'importStatement'
   } else if (isRenderExpression(code)) {
     return 'renderExpression'
@@ -217,6 +223,29 @@ function getSimpleExpressionChunk(expression) {
   return `(String.concat [${getToStrings(expression)}])`
 }
 
+function getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName, counter) {
+  const mainFileTemplateForComponents = `import Html.App as Html
+import Html.App exposing (beginnerProgram, program)
+import Html exposing (..)
+${importStatements}
+import ${userModuleName} exposing (..)`
+
+  let fileContent = ''
+  if (expression.value.startsWith('$view')) {
+    fileContent = `module Main${counter} exposing (..)
+${mainFileTemplateForComponents}
+${statements}
+
+frolicSpecialUpdate model _ = model
+frolicSpecialView _ = ${_.trim(_.drop(expression.value.split(' ')).join(' '))}
+main =
+    beginnerProgram { model = 1 , view = frolicSpecialView , update = frolicSpecialUpdate }
+`
+  }
+
+  return fileContent
+}
+
 function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, counter) {
   const mainFileTemplate = `import Html.App as Html
 import Html exposing (..)
@@ -231,7 +260,9 @@ ${importStatements}
 import ${userModuleName} exposing (..)`
 
   let fileContent
-  if (expression.type === 'renderExpression') {
+  if (expression.type === 'frolicExpression') {
+    fileContent = getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName, counter)
+  } else if (expression.type === 'renderExpression') {
     const appProgram = hasSubscribed(expression.value)
       ? 'program'
       : 'beginnerProgram'
@@ -258,7 +289,7 @@ function writeFilesForExpressions(playgroundCode, userModuleName, codePath) { //
   const tokenizedCode = tokenize(playgroundCode)
   const importStatements = tokenizedCode.filter((code) => code.type === 'importStatement').map((code) => code.value).join('\n')
   const statements = tokenizedCode.filter((code) => code.type === 'assignment').map((code) => code.value).join('\n')
-  const expressions = tokenizedCode.filter((code) => code.type === 'expression' || code.type === 'renderExpression')
+  const expressions = tokenizedCode.filter((code) => code.type === 'expression' || code.type === 'renderExpression' || code.type === 'frolicExpression')
 
   const fileWritePromises = expressions.map((expression, index) => writeFile(`${codePath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, index)))
   return Promise.all(fileWritePromises).then(() => expressions)
