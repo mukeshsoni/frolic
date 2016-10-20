@@ -258,16 +258,16 @@ let cachedSources = {} // eslint-disable-line vars-on-top, prefer-const
 
 function getSource(module, expression, index) {
   // console.log(3)
-  if(!cachedSources[expression.hash] || true) {
-    const fileName = `F${expression.hash}`
-    eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString()) // eslint-disable-line no-eval
-    cachedSources[expression.hash] = _.cloneDeep(module.exports[_.capitalize(fileName)])
-    // console.log('caching expression', expression.value, cachedSources[expression.hash])
+  const fileName = `F${expression.hash}`
+  if(!cachedSources[expression.hash]) {
+    cachedSources[expression.hash] = fs.readFileSync(`${codePath}/${fileName}.js`).toString()
   } else {
-    console.log('feed source from cache', expression.value, cachedSources[expression.hash])
+    // console.log('feed source from cache', expression.value, cachedSources[expression.hash])
   }
 
-  return cachedSources[expression.hash]
+  // caching the evaled stuff doesn't work. so instead just caching the source code string. that's enough since it solve not running elm-make all the time
+  eval(cachedSources[expression.hash]) // eslint-disable-line no-eval
+  return module.exports[_.capitalize(fileName)]
 }
 
 let elmMakePromises = Promise.resolve()
