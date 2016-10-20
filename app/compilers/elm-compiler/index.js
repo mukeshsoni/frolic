@@ -257,12 +257,12 @@ function getComponentKey(expressions, index, code) {
 let cachedSources = {} // eslint-disable-line vars-on-top, prefer-const
 
 function getSource(module, expression, index) {
-  console.log(3)
-  if(!cachedSources[expression.hash]) {
+  // console.log(3)
+  if(!cachedSources[expression.hash] || true) {
     const fileName = `F${expression.hash}`
     eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString()) // eslint-disable-line no-eval
     cachedSources[expression.hash] = _.cloneDeep(module.exports[_.capitalize(fileName)])
-    console.log('caching expression', expression.value, cachedSources[expression.hash])
+    // console.log('caching expression', expression.value, cachedSources[expression.hash])
   } else {
     console.log('feed source from cache', expression.value, cachedSources[expression.hash])
   }
@@ -315,7 +315,7 @@ export function compile(code, playgroundCode='', openFilePath) {
                 return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
               })
 
-              console.log(1)
+              // console.log(1)
               elmMakePromises = new Promise((resolve, reject, onCancel) => {
                 // on cancellation of promise
                 onCancel(() => {
@@ -339,7 +339,7 @@ export function compile(code, playgroundCode='', openFilePath) {
                 return Promise.all(allPromises)
                   .then(resolve)
                   .then(() => {
-                    console.log(2, expressions)
+                    // console.log(2, expressions)
                     let sources = []
 
                     sources = expressions.map((expression, index) => getSource(module, expression, index))
