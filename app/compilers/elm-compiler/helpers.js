@@ -13,6 +13,10 @@ export function getExpressionValue(expr) {
   }
 }
 
-export function createHash(fileName='', token) {
-    return crypto.createHash('md5').update(`${fileName}${getExpressionValue(token)}`).digest("hex")
+let hash = _.memoize(function hash(str) {
+  return crypto.createHash('md5').update(str).digest('hex')
+})
+
+export function createTokenHash(fileName = '', token, code) {
+  return hash(`${fileName}${getExpressionValue(token)}${hash(code)}`)
 }

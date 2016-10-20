@@ -11,9 +11,8 @@ const jsonfile = require('jsonfile')
 
 import { tokenize } from './parser.js'
 import {
-  createHash,
+  createTokenHash,
   cleanUpExpression,
-  getExpressionValue,
 } from './helpers'
 
 Promise.config({
@@ -156,7 +155,7 @@ function getSimpleExpressionChunk(expression) {
   return `(String.concat [${getToStrings(expression)}])`
 }
 
-function getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName, counter) {
+function getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName) {
   const mainFileTemplateForComponents = `import Html.App as Html
 import Html.App exposing (beginnerProgram, program)
 import Html exposing (..)
@@ -179,7 +178,7 @@ main =
   return fileContent
 }
 
-function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, counter) {
+function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName) {
   const mainFileTemplate = `import Html.App as Html
 import Html exposing (..)
 import ${userModuleName} exposing (..)
@@ -194,7 +193,7 @@ import ${userModuleName} exposing (..)`
 
   let fileContent
   if (expression.type === 'frolicExpression') {
-    fileContent = getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName, counter)
+    fileContent = getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName)
   } else if (expression.type === 'renderExpression') {
     const appProgram = hasSubscribed(expression.value)
       ? 'program'
@@ -218,16 +217,22 @@ main =
   return fileContent
 }
 
-let theCache = {}
+
 function notInCache(token) {
   return !cachedSources[token.hash]
 }
 
-function writeFilesForExpressions(tokens, playgroundCode, userModuleName, codePath) { // eslint-disable-line no-shadow
-  const tokenizedCode = tokenize(playgroundCode)
-
-  const importStatements = tokens.filter(notInCache).filter((token) => token.type === 'importStatement').map((token) => token.value).join('\n')
-  const statements = tokens.filter(notInCache).filter((token) => token.type === 'assignment').map((token) => token.value).join('\n')
+function writeFilesForExpressions(tokens, userModuleName, codePath) { // eslint-disable-line no-shadow
+  const importStatements = tokens
+                            .filter(notInCache)
+                            .filter((token) => token.type === 'importStatement')
+                            .map((token) => token.value)
+                            .join('\n')
+  const statements = tokens
+                      .filter(notInCache)
+                      .filter((token) => token.type === 'assignment')
+                      .map((token) => token.value)
+                      .join('\n')
   const allExpressions = tokens.filter((token) => token.type === 'expression' || token.type === 'renderExpression' || token.type === 'frolicExpression')
   const expressions = allExpressions.filter(notInCache)
 
@@ -235,31 +240,13 @@ function writeFilesForExpressions(tokens, playgroundCode, userModuleName, codePa
   return Promise.all(fileWritePromises).then(() => allExpressions)
 }
 
-let cachedCode = ''
-let cachedComponentKeys = {}
-
-/*
- * if the key for the component is not cached and generated afresh every time, two bad things happen
- * 1. All components lose all their state
- * 2. All components are redrawn by react, which leads to flashing of all components on each compile
- * But caching needs to take into consideration both the expression in the playground as well as the code in the code panel
- * TODO - Caching based on expression.value is both wrong and useless because we now combine expressions together into a single expression
- * Any expression in a chain changing would lead to cache busting of all other expressions (they are all in a single component anyways)
- */
-function getComponentKey(expressions, index, code) {
-  if (cachedCode.trim() !== code.trim() || !cachedComponentKeys[getExpressionValue(expressions[index]) + index]) {
-    cachedComponentKeys[getExpressionValue(expressions[index]) + index] = `${Math.floor(Math.random() * 10000)}+${index}`
-  }
-
-  return cachedComponentKeys[getExpressionValue(expressions[index]) + index]
-}
-
 let cachedSources = {} // eslint-disable-line vars-on-top, prefer-const
 
-function getSource(module, expression, index) {
+function getSource(module, expression) {
   // console.log(3)
   const fileName = `F${expression.hash}`
-  if(!cachedSources[expression.hash]) {
+
+  if (!cachedSources[expression.hash]) {
     cachedSources[expression.hash] = fs.readFileSync(`${codePath}/${fileName}.js`).toString()
   } else {
     // console.log('feed source from cache', expression.value, cachedSources[expression.hash])
@@ -288,7 +275,7 @@ let elmMakePromises = Promise.resolve()
    * now eval the compiled code for each playgroud expression
    * return elm-react components (key would be same as the generated md5 hashes! profit!)
    */
-export function compile(code, playgroundCode='', openFilePath) {
+export function compile(code = '', playgroundCode = '', openFilePath) {
   elmMakePromises.cancel()
   // get folder path from file path
   const openFileFolderPath = openFilePath
@@ -297,20 +284,16 @@ export function compile(code, playgroundCode='', openFilePath) {
 
   const tokens = tokenize(playgroundCode.trim())
   const tokensWithHashes = tokens.map((token) => ({
-      ...token,
-      hash: createHash(openFilePath || '', token)
+    ...token,
+    hash: createTokenHash(openFilePath || '', token, code.trim())
   }))
-
-  // return updateFileSources(openFileFolderPath)
-  //         .then(writeCodeToFile.bind(null, code))
-  //         .then((userModuleName) => writeFilesForExpressions(tokensWithHashes, playgroundCode.trim(), userModuleName, codePath))
 
   return updateFileSources(openFileFolderPath)
           .then(() => writeCodeToFile(code))
-          .then((userModuleName) => writeFilesForExpressions(tokensWithHashes, playgroundCode.trim(), userModuleName, codePath))
+          .then((userModuleName) => writeFilesForExpressions(tokensWithHashes, userModuleName, codePath))
           .then((expressions) => { // eslint-disable-line arrow-body-style
             return new Promise(() => {
-              const allPromises = expressions.filter(notInCache).map((expression, index) => {
+              const allPromises = expressions.filter(notInCache).map((expression) => {
                 const fileName = `F${expression.hash}`
                 return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
               })
@@ -345,18 +328,12 @@ export function compile(code, playgroundCode='', openFilePath) {
                     sources = expressions.map((expression, index) => getSource(module, expression, index))
 
                     const elmComponents = sources.map((source, index) => {
-                      // bust all keys if user code has changed
-                      if (cachedCode !== code) {
-                        cachedCode = code
-                        cachedComponentKeys = {}
-                      }
-
                       // only return elm component is source is not corrupted
                       // style={{display: 'flex', justifyContent: 'center'}}
                       if (source && source.embed) {
                         return (
-                          <div key={getComponentKey(expressions, index, code)}>
-                            <Elm key={getComponentKey(expressions, index, code)} src={source} />
+                          <div key={expressions[index].hash}>
+                            <Elm key={expressions[index].hash} src={source} />
                           </div>
                         )
                       } else {
