@@ -9,7 +9,12 @@ const exec = require('child_process').exec;
 const fs = require('fs')
 const jsonfile = require('jsonfile')
 
-import { tokenize, cleanUpExpression } from './parser.js'
+import { tokenize } from './parser.js'
+import {
+  createHash,
+  cleanUpExpression,
+  getExpressionValue,
+} from './helpers'
 
 Promise.config({
   cancellation: true
@@ -100,6 +105,7 @@ function writeSourcesToElmPackageJson(templateFileContents, basePathForEditorCod
 
 /*
  * Update elm-package.json src property to include path from where the file is loaded
+ * TODO - this function should be called just before the elm-make step and not in the beginning
  */
 function updateFileSources(openFilePath = tempFolderPath) {
   if ((openFilePath && lastOpenFilePath === openFilePath) || (!openFilePath && lastOpenFilePath === tempFolderPath)) {
@@ -159,7 +165,7 @@ import ${userModuleName} exposing (..)`
 
   let fileContent = ''
   if (expression.value.startsWith('$view')) {
-    fileContent = `module Main${counter} exposing (..)
+    fileContent = `module F${expression.hash} exposing (..)
 ${mainFileTemplateForComponents}
 ${statements}
 
@@ -194,13 +200,13 @@ import ${userModuleName} exposing (..)`
       ? 'program'
       : 'beginnerProgram'
 
-    fileContent = `module Main${counter} exposing (..)
+    fileContent = `module F${expression.hash} exposing (..)
 ${mainFileTemplateForComponents}
 ${statements}
 main =
     ${appProgram} ${_.drop(expression.value.split(' ')).join(' ')}`
   } else {
-    fileContent = `module Main${counter} exposing (..)
+    fileContent = `module F${expression.hash} exposing (..)
 import String
 ${mainFileTemplate}
 ${statements}
@@ -212,26 +218,26 @@ main =
   return fileContent
 }
 
-function writeFilesForExpressions(playgroundCode, userModuleName, codePath) { // eslint-disable-line no-shadow
-  const tokenizedCode = tokenize(playgroundCode)
-  const importStatements = tokenizedCode.filter((code) => code.type === 'importStatement').map((code) => code.value).join('\n')
-  const statements = tokenizedCode.filter((code) => code.type === 'assignment').map((code) => code.value).join('\n')
-  const expressions = tokenizedCode.filter((code) => code.type === 'expression' || code.type === 'renderExpression' || code.type === 'frolicExpression')
+let theCache = {}
+function notInCache(token) {
+  return !cachedSources[token.hash]
+}
 
-  const fileWritePromises = expressions.map((expression, index) => writeFile(`${codePath}/main${index}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, index)))
-  return Promise.all(fileWritePromises).then(() => expressions)
+function writeFilesForExpressions(tokens, playgroundCode, userModuleName, codePath) { // eslint-disable-line no-shadow
+  const tokenizedCode = tokenize(playgroundCode)
+
+  const importStatements = tokens.filter(notInCache).filter((token) => token.type === 'importStatement').map((token) => token.value).join('\n')
+  const statements = tokens.filter(notInCache).filter((token) => token.type === 'assignment').map((token) => token.value).join('\n')
+  const allExpressions = tokens.filter((token) => token.type === 'expression' || token.type === 'renderExpression' || token.type === 'frolicExpression')
+  const expressions = allExpressions.filter(notInCache)
+
+  const fileWritePromises = expressions.map((expression, index) => writeFile(`${codePath}/F${expression.hash}.elm`, getGeneratedMainFileContent(expression, importStatements, statements, userModuleName, index)))
+  return Promise.all(fileWritePromises).then(() => allExpressions)
 }
 
 let cachedCode = ''
 let cachedComponentKeys = {}
 
-function getExpressionValue(expr) {
-  if (expr.commands) {
-    return expr.commands.reduce((acc, command) => acc + cleanUpExpression(command.value), '')
-  } else {
-    return cleanUpExpression(expr.value)
-  }
-}
 /*
  * if the key for the component is not cached and generated afresh every time, two bad things happen
  * 1. All components lose all their state
@@ -251,34 +257,65 @@ function getComponentKey(expressions, index, code) {
 let cachedSources = {} // eslint-disable-line vars-on-top, prefer-const
 
 function getSource(module, expression, index) {
-  // if(!cachedSources[expression.value] || true) {
-  const fileName = `main${index}`
-  eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString()) // eslint-disable-line no-eval
-  cachedSources[getExpressionValue(expression)] = module.exports[_.capitalize(fileName)]
-  // } else {
-  //     console.log('feed source from cache', expression.value, cachedSources[expression.value])
-  // }
+  console.log(3)
+  if(!cachedSources[expression.hash]) {
+    const fileName = `F${expression.hash}`
+    eval(fs.readFileSync(`${codePath}/${fileName}.js`).toString()) // eslint-disable-line no-eval
+    cachedSources[expression.hash] = _.cloneDeep(module.exports[_.capitalize(fileName)])
+    console.log('caching expression', expression.value, cachedSources[expression.hash])
+  } else {
+    console.log('feed source from cache', expression.value, cachedSources[expression.hash])
+  }
 
-  return cachedSources[getExpressionValue(expression)]
+  return cachedSources[expression.hash]
 }
 
 let elmMakePromises = Promise.resolve()
 
-export function compile(code, playgroundCode, openFilePath) {
+/*
+   * tokenize
+   * create md5 keys for each token (based on expression value + file name)
+   * store md5's current request in an array (for ordering the expressions. order of expression -> order of output in preview window)
+   * name of the generated elm files would be - `F${md5OfTheToken}`
+   * write user code to a file - weird place to put this. does not fit in the flow
+   * before writing the elm file and using elm-make, check cache (cachedCompiledCode[md5OfTheToken])
+   * if (foundInCache) { doNothing }
+   * else {
+   *   write elm file,
+   *   use elm-make to generate .js file
+   *   store the compiled code (.js file content) in the cache
+   * }
+   * now eval the compiled code for each playgroud expression
+   * return elm-react components (key would be same as the generated md5 hashes! profit!)
+   */
+export function compile(code, playgroundCode='', openFilePath) {
   elmMakePromises.cancel()
   // get folder path from file path
   const openFileFolderPath = openFilePath
     ? _.initial(openFilePath.split('/')).join('/')
     : null
+
+  const tokens = tokenize(playgroundCode.trim())
+  const tokensWithHashes = tokens.map((token) => ({
+      ...token,
+      hash: createHash(openFilePath || '', token)
+  }))
+
+  // return updateFileSources(openFileFolderPath)
+  //         .then(writeCodeToFile.bind(null, code))
+  //         .then((userModuleName) => writeFilesForExpressions(tokensWithHashes, playgroundCode.trim(), userModuleName, codePath))
+
   return updateFileSources(openFileFolderPath)
           .then(() => writeCodeToFile(code))
-          .then((userModuleName) => writeFilesForExpressions(playgroundCode.trim(), userModuleName, codePath))
+          .then((userModuleName) => writeFilesForExpressions(tokensWithHashes, playgroundCode.trim(), userModuleName, codePath))
           .then((expressions) => { // eslint-disable-line arrow-body-style
             return new Promise(() => {
-              const allPromises = expressions.map((expression, index) => {
-                const fileName = `main${index}`
+              const allPromises = expressions.filter(notInCache).map((expression, index) => {
+                const fileName = `F${expression.hash}`
                 return promisifiedExec(`cd ${codePath} && elm-make --yes ${fileName}.elm --output=${fileName}.js`)
               })
+
+              console.log(1)
               elmMakePromises = new Promise((resolve, reject, onCancel) => {
                 // on cancellation of promise
                 onCancel(() => {
@@ -302,6 +339,7 @@ export function compile(code, playgroundCode, openFilePath) {
                 return Promise.all(allPromises)
                   .then(resolve)
                   .then(() => {
+                    console.log(2, expressions)
                     let sources = []
 
                     sources = expressions.map((expression, index) => getSource(module, expression, index))

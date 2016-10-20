@@ -1,8 +1,5 @@
 import _ from 'lodash'
-
-export function cleanUpExpression(expr) {
-  return _.trimEnd(expr.split('--')[0])
-}
+import { cleanUpExpression } from './helpers.js'
 
 function isAssignment(command) {
   return command.split(' ').indexOf('=') >= 0

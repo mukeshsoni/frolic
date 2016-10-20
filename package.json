@@ -5,7 +5,7 @@
   "description": "Desktop application to help you learn elm",
   "main": "main.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha --compilers js:babel-register --recursive --require ./test/setup.js test/**/*.spec.js",
+    "test": "jest",
     "test-watch": "npm test -- --watch",
     "test-e2e": "cross-env NODE_ENV=test mocha --compilers js:babel-register --require ./test/setup.js --require co-mocha ./test/e2e.js",
     "lint": "eslint app test *.js",
@@ -50,6 +50,7 @@
     "asar": "^0.12.0",
     "babel-core": "^6.11.4",
     "babel-eslint": "^6.1.2",
+    "babel-jest": "^16.0.0",
     "babel-loader": "^6.2.4",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-dev-expression": "^0.2.1",
@@ -84,6 +85,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "fbjs-scripts": "^0.7.1",
     "file-loader": "^0.9.0",
+    "jest-cli": "^16.0.1",
     "jsdom": "^9.4.1",
     "json-loader": "^0.5.4",
     "minimist": "^1.2.0",
@@ -127,5 +129,8 @@
   "devEngines": {
     "node": "4.x || 5.x || 6.x",
     "npm": "2.x || 3.x"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
