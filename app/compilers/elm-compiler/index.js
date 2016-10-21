@@ -218,9 +218,11 @@ main =
 }
 
 
-function notInCache(token) {
-  return !cachedSources[token.hash]
+function inCache(token) {
+  return Boolean(cachedSources[token.hash])
 }
+
+const notInCache = _.negate(inCache)
 
 function writeFilesForExpressions(tokens, userModuleName, codePath) { // eslint-disable-line no-shadow
   const importStatements = tokens

@@ -13,7 +13,7 @@ export function getExpressionValue(expr) {
   }
 }
 
-let hash = _.memoize(function hash(str) {
+const hash = _.memoize(function hash(str) {
   return crypto.createHash('md5').update(str).digest('hex')
 })
 
