@@ -27,7 +27,7 @@ import ErrorComponent from './Error/index.js'
 // const compilers = ['elm', 'react', 'purescript']
 const compilers = {
   elm: require('../compilers/elm-compiler'), // eslint-disable-line global-require
-  react: require('../compilers/react-compiler'), // eslint-disable-line global-require
+  // react: require('../compilers/react-compiler'), // eslint-disable-line global-require
   purescript: require('../compilers/purescript-compiler') // eslint-disable-line global-require
 }
 

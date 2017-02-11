@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Debug
-import Html.App as Html
 import Html
 import PlaygroundCode exposing (..)
 

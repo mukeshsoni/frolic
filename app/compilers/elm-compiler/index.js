@@ -142,9 +142,9 @@ function hasSubscribed(code) {
 function getToStrings(expression) {
   return expression.commands.map((command) => {
     if (command.value.trim().length === 0) {
-      return '"\n"'
+      return '"""\n"""'
     } else {
-      const newLines = _.times(command.newlines, _.constant('\n')).map(() => '"\n"').join(',')
+      const newLines = _.times(command.newlines, _.constant('\n')).map(() => '"""\n"""').join(',')
       return `Basics.toString (${cleanUpExpression(command.value)}),${newLines}`
     }
   }).join(',')
@@ -156,9 +156,7 @@ function getSimpleExpressionChunk(expression) {
 }
 
 function getGeneratedFrolicFileContent(expression, importStatements, statements, userModuleName) {
-  const mainFileTemplateForComponents = `import Html.App as Html
-import Html.App exposing (beginnerProgram, program)
-import Html exposing (..)
+  const mainFileTemplateForComponents = `import Html exposing (..)
 ${importStatements}
 import ${userModuleName} exposing (..)`
 
@@ -179,15 +177,12 @@ main =
 }
 
 function getGeneratedMainFileContent(expression, importStatements, statements, userModuleName) {
-  const mainFileTemplate = `import Html.App as Html
-import Html exposing (..)
+  const mainFileTemplate = `import Html exposing (..)
 import ${userModuleName} exposing (..)
 ${importStatements}
 `
 
-  const mainFileTemplateForComponents = `import Html.App as Html
-import Html.App exposing (beginnerProgram, program)
-import Html exposing (..)
+  const mainFileTemplateForComponents = `import Html exposing (..)
 ${importStatements}
 import ${userModuleName} exposing (..)`
 
