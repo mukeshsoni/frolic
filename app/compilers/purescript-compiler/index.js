@@ -156,7 +156,7 @@ export function compile(code, playgroundCode) {
         .then(() => {
             return new Promise((resolve, reject) => {
                 exec(
-                    `cd ${tempFolderPath} && pulp run`,
+                    `cd ${tempFolderPath} && pulp build --to output.js`,
                     (err, stdout, stderr) => {
                         if (err) {
                             console.log(

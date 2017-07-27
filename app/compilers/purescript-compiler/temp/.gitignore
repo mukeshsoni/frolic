@@ -8,3 +8,4 @@
 /.psa*
 UserCode.purs
 PlaygroundCode.purs
+output.js
