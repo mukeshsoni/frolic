@@ -7,7 +7,8 @@ import ErrorBoundary from './components/ErrorBoundary'
 import React from 'react'
 
 render(
-    <ErrorBoundary>
-  <App /></ErrorBoundary>,
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>,
   document.getElementById('root')
 )

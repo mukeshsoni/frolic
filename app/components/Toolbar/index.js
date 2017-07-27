@@ -1,19 +1,18 @@
 import React, { Component } from 'react'
-import PropTypes from 'proptypes'
+import PropTypes from 'prop-types'
 import styles from './Toolbar.css'
 
 // from uikit
 import ButtonGroup from '../uikit/buttongroup/index.js'
 import Button from '../uikit/button/index.js'
 
-
 const languages = [
   {
     id: 'elm',
     name: 'elm'
   },
-    {id: 'purescript', name: 'purescript'},
-    /* {id: 'react', name: 'react'},*/
+  { id: 'purescript', name: 'purescript' }
+  /* {id: 'react', name: 'react'},*/
 ]
 
 class Toolbar extends Component {
@@ -33,7 +32,9 @@ class Toolbar extends Component {
 
   togglePlaygroundPanel() {
     if (this.props.onPlaygroundPanelVisibilityChange) {
-      this.props.onPlaygroundPanelVisibilityChange(!this.props.showPlaygroundPanel)
+      this.props.onPlaygroundPanelVisibilityChange(
+        !this.props.showPlaygroundPanel
+      )
     }
   }
 
@@ -54,9 +55,11 @@ class Toolbar extends Component {
               fontSize: 20
             }}
           >
-            {languages.map((language) => <option key={language.id} value={language.id}>
-              {language.name}
-            </option>)}
+            {languages.map(language =>
+              <option key={language.id} value={language.id}>
+                {language.name}
+              </option>
+            )}
           </select>
         </div>
         <div className={styles['toolbar-right']}>
@@ -65,13 +68,22 @@ class Toolbar extends Component {
               marginRight: 10
             }}
           >
-            <Button active={this.props.showCodePanel} onClick={this.toggleCodePanel}>
+            <Button
+              active={this.props.showCodePanel}
+              onClick={this.toggleCodePanel}
+            >
               1
             </Button>
-            <Button active={this.props.showPlaygroundPanel} onClick={this.togglePlaygroundPanel}>
+            <Button
+              active={this.props.showPlaygroundPanel}
+              onClick={this.togglePlaygroundPanel}
+            >
               2
             </Button>
-            <Button active={this.props.showOutputPanel} onClick={this.toggleOutputPanel}>
+            <Button
+              active={this.props.showOutputPanel}
+              onClick={this.toggleOutputPanel}
+            >
               3
             </Button>
           </ButtonGroup>
@@ -88,9 +100,7 @@ class Toolbar extends Component {
             />
             Auto Compile
           </label>
-          <Button onClick={this.props.onCompileClick}>
-            Compile
-          </Button>
+          <Button onClick={this.props.onCompileClick}>Compile</Button>
         </div>
       </div>
     )

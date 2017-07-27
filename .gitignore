@@ -38,3 +38,4 @@ app/compilers/elm/temp/UserCode.elm
 elm-stuff
 **/temp/main*.js
 **/temp/main*.elm
+.#*

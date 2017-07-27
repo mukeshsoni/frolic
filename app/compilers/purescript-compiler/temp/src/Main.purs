@@ -9,4 +9,3 @@ import Data.Foldable
 main :: forall e. Eff (console :: CONSOLE | e) Unit
 main = do
   log (foldMap show toRun)
-  log "Hello sailor!!!"

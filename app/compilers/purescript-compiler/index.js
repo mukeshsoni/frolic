@@ -134,7 +134,7 @@ function writePlaygroundCodeToFile(playgroundCode, userModuleName) {
     const moduleDefinition = 'module PlaygroundCode where\n'
     const importPrelude = 'import Prelude\n'
     const importList = 'import Data.Foldable\n'
-    const importUserCodeString = `import ${userModuleName} as ${userModuleName}\n\n`
+    const importUserCodeString = `import ${userModuleName}\n\n`
     const playgroundCodeCalls = addPlaygroundCallsToList(playgroundCode)
 
     const filePath = path.resolve(`${tempFolderPath}/src/PlaygroundCode.purs`)
@@ -177,6 +177,7 @@ export function compile(code, playgroundCode) {
 
 function cleanUp() {
     console.log('cleaning up purescript temp space')
+    stopPscIDEServer()
     if (subscriber) {
         subscriber.complete()
     }
@@ -206,8 +207,41 @@ function onPlaygroundCodeChange(code, playgroundCode, openFilePath) {
     return this.compile(code, playgroundCode, openFilePath)
 }
 
+function stopPscIDEServer() {
+    console.log('stopping psc ide server')
+    exec(
+        `cd ${tempFolderPath} && echo '{"command": "quit"}' | purs ide client`,
+        (err, stdout, stderr) => {
+            if (err) {
+                // it actually stops the psc-ide-server but still returns an error
+                console.log('error stopping psc ide server', err)
+            } else {
+                console.log('psc ide server stopped')
+            }
+        }
+    )
+}
+
+function startPscIDEServer() {
+    console.log('starting psc ide server')
+    exec(`cd ${tempFolderPath} && purs ide server`, (err, stdout, stderr) => {
+        if (err) {
+            console.log('error starting psc ide server', err)
+        } else {
+            console.log('output from psc-ide-server', stdout)
+        }
+    })
+}
+
+function setupPscIDEServer() {
+    stopPscIDEServer()
+    startPscIDEServer()
+}
+
 // do some initialization work here
 export function compiler() {
+    setupPscIDEServer()
+
     return {
         compile,
         cleanUp,

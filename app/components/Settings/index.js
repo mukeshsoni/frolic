@@ -1,34 +1,40 @@
 import React, { Component } from 'react'
 import Modal from 'react-modal'
-import PropTypes from 'proptypes'
+import PropTypes from 'prop-types'
 
 // import css
 import styles from './Settings.css'
-
 
 const editorThemes = [
   {
     id: 'ambiance',
     name: 'ambiance'
-  }, {
+  },
+  {
     id: 'chrome',
     name: 'chrome'
-  }, {
+  },
+  {
     id: 'dawn',
     name: 'dawn'
-  }, {
+  },
+  {
     id: 'github',
     name: 'github'
-  }, {
+  },
+  {
     id: 'merbivore',
     name: 'merbivore'
-  }, {
+  },
+  {
     id: 'cobalt',
     name: 'cobalt'
-  }, {
+  },
+  {
     id: 'terminal',
     name: 'terminal'
-  }, {
+  },
+  {
     id: 'twilight',
     name: 'twilight'
   }
@@ -38,28 +44,36 @@ const fontSizes = [
   {
     id: '10',
     name: '10px'
-  }, {
+  },
+  {
     id: '11',
     name: '11px'
-  }, {
+  },
+  {
     id: '12',
     name: '12px'
-  }, {
+  },
+  {
     id: '13',
     name: '13px'
-  }, {
+  },
+  {
     id: '14',
     name: '14px'
-  }, {
+  },
+  {
     id: '16',
     name: '16px'
-  }, {
+  },
+  {
     id: '18',
     name: '18px'
-  }, {
+  },
+  {
     id: '20',
     name: '20px'
-  }, {
+  },
+  {
     id: '24',
     name: '24px'
   }
@@ -69,10 +83,12 @@ const keyboardHandlers = [
   {
     id: 'ace',
     name: 'ace'
-  }, {
+  },
+  {
     id: 'vim',
     name: 'vim'
-  }, {
+  },
+  {
     id: 'emacs',
     name: 'emacs'
   }
@@ -105,8 +121,7 @@ class Settings extends Component {
           <form>
             <ul className={styles['flex-outer']}>
               <li>
-                <label>Theme:
-                </label>
+                <label>Theme:</label>
                 <select
                   value={this.props.editorTheme}
                   onChange={this.props.onEditorThemeChange}
@@ -114,12 +129,15 @@ class Settings extends Component {
                     marginLeft: '1em'
                   }}
                 >
-                  {editorThemes.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                  {editorThemes.map(theme =>
+                    <option key={theme.id} value={theme.id}>
+                      {theme.name}
+                    </option>
+                  )}
                 </select>
               </li>
               <li>
-                <label>Font Size:
-                </label>
+                <label>Font Size:</label>
                 <select
                   value={this.props.fontSize}
                   onChange={this.props.onFontSizeChange}
@@ -127,12 +145,15 @@ class Settings extends Component {
                     marginLeft: '1em'
                   }}
                 >
-                  {fontSizes.map((font) => <option key={font.id} value={font.id}>{font.name}</option>)}
+                  {fontSizes.map(font =>
+                    <option key={font.id} value={font.id}>
+                      {font.name}
+                    </option>
+                  )}
                 </select>
               </li>
               <li>
-                <label>Tab Size:
-                </label>
+                <label>Tab Size:</label>
                 <input
                   value={this.props.tabSize}
                   onChange={this.props.onTabSizeChange}
@@ -143,8 +164,7 @@ class Settings extends Component {
                 />
               </li>
               <li>
-                <label>Key bindings:
-                </label>
+                <label>Key bindings:</label>
                 <select
                   value={this.props.keyboardHandler}
                   onChange={this.props.onKeyboardHandlerChange}
@@ -152,18 +172,28 @@ class Settings extends Component {
                     marginLeft: '1em'
                   }}
                 >
-                  {keyboardHandlers.map((theme) => <option key={theme.id} value={theme.id}>{theme.name}</option>)}
+                  {keyboardHandlers.map(theme =>
+                    <option key={theme.id} value={theme.id}>
+                      {theme.name}
+                    </option>
+                  )}
                 </select>
               </li>
               <li>
-                <label>Format on save (uses elm-format):
-                </label>
-                <input type="checkbox" checked={this.props.formatOnSave} onChange={this.props.onFormatOnSaveChange} />
+                <label>Format on save (uses elm-format):</label>
+                <input
+                  type="checkbox"
+                  checked={this.props.formatOnSave}
+                  onChange={this.props.onFormatOnSaveChange}
+                />
               </li>
               <li>
-                <label>Compile on file save:
-                </label>
-                <input type="checkbox" checked={this.props.compileOnSave} onChange={this.props.onCompileOnSaveChange} />
+                <label>Compile on file save:</label>
+                <input
+                  type="checkbox"
+                  checked={this.props.compileOnSave}
+                  onChange={this.props.onCompileOnSaveChange}
+                />
               </li>
             </ul>
           </form>
