@@ -2,5 +2,10 @@
 /node_modules/
 /.pulp-cache/
 /output/
-/.psci*
-/src/.webpack.js
+/generated-docs/
+/.psc*
+/.purs*
+/.psa*
+UserCode.purs
+PlaygroundCode.purs
+output.js

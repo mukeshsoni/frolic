@@ -1,8 +1,10 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import Modal from 'react-modal'
+import PropTypes from 'proptypes'
 
 // import css
 import styles from './Settings.css'
+
 
 const editorThemes = [
   {

@@ -1,17 +1,19 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'proptypes'
 import styles from './Toolbar.css'
 
 // from uikit
 import ButtonGroup from '../uikit/buttongroup/index.js'
 import Button from '../uikit/button/index.js'
 
+
 const languages = [
   {
     id: 'elm',
     name: 'elm'
   },
-  // {id: 'purescript', name: 'purescript'},
-  // {id: 'react', name: 'react'},
+    {id: 'purescript', name: 'purescript'},
+    /* {id: 'react', name: 'react'},*/
 ]
 
 class Toolbar extends Component {
