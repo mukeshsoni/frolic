@@ -120,7 +120,6 @@
     "react": "^16.0.0-beta.1",
     "react-ace": "^5.1.1",
     "react-dom": "^16.0.0-beta.1",
-    "react-elm-components": "^1.0.1",
     "react-modal": "^2.2.2",
     "react-split-pane": "^0.1.65",
     "rxjs": "^5.4.2",
