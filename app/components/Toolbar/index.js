@@ -12,8 +12,8 @@ const languages = [
     id: 'elm',
     name: 'elm'
   },
-  // {id: 'purescript', name: 'purescript'},
-  // {id: 'react', name: 'react'},
+    {id: 'purescript', name: 'purescript'},
+    /* {id: 'react', name: 'react'},*/
 ]
 
 class Toolbar extends Component {
