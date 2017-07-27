@@ -2,7 +2,6 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import ReactTestUtils from 'react-addons-test-utils'
 
 // import Mousetrap from 'mousetrap'
 const fs = require('fs')
@@ -201,18 +200,7 @@ export default class App extends Component {
   }
 
   handleOutput(output) {
-    try {
-      ReactTestUtils.renderIntoDocument(
-        <div>{output}</div>
-      )
       this.setState({ output, compiling: false })
-    } catch (e) {
-      console.log('testutils: error rending into document', e.toString()) // eslint-disable-line no-console
-      this.setState({
-        output: <ErrorComponent error=" Error in React rendering. Probably some render method returning wrong stuff" />,
-        compiling: false
-      })
-    }
   }
 
   loadFileFromHistory() {
