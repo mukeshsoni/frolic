@@ -2,7 +2,7 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-const ReactTestUtils = require('react-addons-test-utils');
+import ReactTestUtils from 'react-addons-test-utils'
 
 // import Mousetrap from 'mousetrap'
 const fs = require('fs')
