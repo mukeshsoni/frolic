@@ -1,11 +1,12 @@
-import createClass from 'create-react-class'
+var React = require("react")
+var createReactClass = require("create-react-class")
 
-module.exports = createClass({
+module.exports = createReactClass({
   initialize: function(node) {
     if (node === null) return
     var app = this.props.src.embed(node, this.props.flags)
 
-    if (typeof this.props.ports !== 'undefined') {
+    if (typeof this.props.ports !== "undefined") {
       this.props.ports(app.ports)
     }
   },
@@ -15,6 +16,6 @@ module.exports = createClass({
   },
 
   render: function() {
-    return React.createElement('div', { ref: this.initialize })
+    return React.createElement("div", { ref: this.initialize })
   }
 })

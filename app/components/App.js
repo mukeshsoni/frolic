@@ -31,7 +31,8 @@ const compilers = {
 }
 
 import { ipcRenderer } from 'electron'
-const defaultLanguage = 'purescript'
+// const defaultLanguage = 'purescript'
+const defaultLanguage = 'elm'
 let cachedPlaygroundCode = {}
 
 function getFileNameWithoutExtension(fileName) {
