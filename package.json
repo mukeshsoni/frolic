@@ -7,28 +7,20 @@
   "scripts": {
     "test": "jest",
     "test-watch": "npm test -- --watch",
-    "test-e2e":
-      "cross-env NODE_ENV=test mocha --compilers js:babel-register --require ./test/setup.js --require co-mocha ./test/e2e.js",
+    "test-e2e": "cross-env NODE_ENV=test mocha --compilers js:babel-register --require ./test/setup.js --require co-mocha ./test/e2e.js",
     "lint": "eslint app test *.js",
     "hot-server": "node -r babel-register server.js",
-    "build-main":
-      "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.electron.js --progress --profile --colors",
-    "build-renderer":
-      "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.production.js --progress --profile --colors",
-    "build":
-      "npm run elm-stuff && npm run react-stuff && npm run react-stuff && npm run build-main && npm run build-renderer",
+    "build-main": "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.electron.js --progress --profile --colors",
+    "build-renderer": "cross-env NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.production.js --progress --profile --colors",
+    "build": "npm run elm-stuff && npm run react-stuff && npm run react-stuff && npm run build-main && npm run build-renderer",
     "react-stuff": "node react-stuff-script",
     "elm-stuff": "node elm-stuff-script",
     "start": "cross-env NODE_ENV=production electron ./",
-    "start-hot":
-      "cross-env HOT=1 NODE_ENV=development electron -r babel-register -r babel-polyfill ./main.development",
-    "package":
-      "cross-env NODE_ENV=production node -r babel-register package.js",
+    "start-hot": "cross-env HOT=1 NODE_ENV=development electron -r babel-register -r babel-polyfill ./main.development",
+    "package": "cross-env NODE_ENV=production node -r babel-register package.js",
     "package-all": "npm run package -- --all",
-    "postinstall":
-      "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
-    "dev":
-      "concurrently --kill-others \"npm run hot-server\" \"npm run start-hot\""
+    "postinstall": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
+    "dev": "concurrently --kill-others \"npm run hot-server\" \"npm run start-hot\""
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"
@@ -46,7 +38,13 @@
   "bugs": {
     "url": "https://github.com/mukeshsoni/frolic/issues"
   },
-  "keywords": ["playground", "elm", "desktop", "react", "electron"],
+  "keywords": [
+    "playground",
+    "elm",
+    "desktop",
+    "react",
+    "electron"
+  ],
   "homepage": "https://github.com/mukeshsoni/frolic#readme",
   "devDependencies": {
     "asar": "^0.12.0",
@@ -73,10 +71,10 @@
     "css-loader": "^0.23.1",
     "del": "^2.2.1",
     "devtron": "^1.2.1",
-    "electron": "^1.6.11",
-    "electron-devtools-installer": "^2.0.0",
+    "electron": "2.0.1",
+    "electron-devtools-installer": "^2.2.4",
     "electron-packager": "^7.3.0",
-    "electron-rebuild": "^1.1.5",
+    "electron-rebuild": "^1.7.3",
     "eslint": "^2.13.1",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-import-resolver-webpack": "^0.4.0",
@@ -119,7 +117,9 @@
     "postcss": "^5.1.0",
     "prop-types": "^15.5.10",
     "ps-node": "^0.1.3",
+    "react": "^16.3.2",
     "react-ace": "^5.1.1",
+    "react-dom": "^16.3.2",
     "react-modal": "^2.2.2",
     "react-split-pane": "^0.1.65",
     "rxjs": "^5.4.2",
