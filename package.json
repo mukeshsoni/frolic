@@ -23,5 +23,8 @@
   "homepage": "https://github.com/mukeshsoni/frolic#readme",
   "devDependencies": {
     "electron": "^4.0.4"
+  },
+  "dependencies": {
+    "font-awesome": "^4.7.0"
   }
 }
