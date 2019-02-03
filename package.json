@@ -1,0 +1,27 @@
+{
+  "name": "frolic",
+  "version": "0.2.0",
+  "description": "Helps you learn your favorite programming language",
+  "main": "main.js",
+  "scripts": {
+    "test": "jest",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mukeshsoni/frolic.git"
+  },
+  "keywords": [
+    "playground",
+    "electron"
+  ],
+  "author": "Mukesh Soni",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mukeshsoni/frolic/issues"
+  },
+  "homepage": "https://github.com/mukeshsoni/frolic#readme",
+  "devDependencies": {
+    "electron": "^4.0.4"
+  }
+}
