@@ -54,7 +54,7 @@
     "babel-loader": "^6.2.4",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-dev-expression": "^0.2.1",
-    "babel-plugin-transform-remove-console": "^6.8.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-plugin-transform-remove-debugger": "^6.8.0",
     "babel-plugin-webpack-loaders": "^0.7.0",
     "babel-polyfill": "^6.9.1",
